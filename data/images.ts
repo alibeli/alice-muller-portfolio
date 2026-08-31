@@ -1,0 +1,70 @@
+// Remote image URLs sourced from alice-muller.com (Cargo CDN)
+
+export const images = {
+  nimue: [
+    'https://freight.cargo.site/w/988/i/f551ce7d24dbdad6d71a0289e0cbac5a7f90d95dcdec929586707d17c3ca7505/Screenshot-2026-04-14-at-10.52.56.png',
+  ],
+  yuki: [],
+  swap: [
+    'https://freight.cargo.site/w/1200/i/4b928d3113fa3e305582367834a308a65b58856e9887ea8e2db21631ef551de3/Preview-27.jpg',
+  ],
+  superpower: [
+    'https://freight.cargo.site/t/original/i/3af52c120128a56e678b23e24766b8ed5dc8c3c83bb15898ff5772a0aa63fdd3/Frame-5733.png',
+    'https://freight.cargo.site/t/original/i/4a603b19a4eab80646890b05490779f184f00f07bdea5ff1bfc0900d2d6d3b8b/Frame-4185.png',
+    'https://freight.cargo.site/t/original/i/5d4d286a160dfb1cfd2be12322d9b213956b8894c00546f493e49038c8afae65/Frame-5151.png',
+    'https://freight.cargo.site/t/original/i/63fb1e422d3ddb41f265676f54906129fa3b5ddfbc5c902ec68153ec0fbd156a/Frame-5150.png',
+    'https://freight.cargo.site/t/original/i/cfa6c1744b10c9470b6a7f0dbe5d5d5498175b38d33a889ab61f140d61873894/Frame-4586.png',
+  ],
+  tactMonster: [
+    'https://freight.cargo.site/t/original/i/3c332b77e226be35aef1294ada8a16c0c65418376b25b59d3403cf1aef7c52ab/unnamed-5.png',
+  ],
+  dia: [
+    'https://freight.cargo.site/t/original/i/26092f8ddbebd99ea00d89cbd4807bb9afc29dcfa0607a2a09d5ecb98dd8c88d/Screenshot-2023-12-08-at-10.59.58.png',
+    'https://freight.cargo.site/t/original/i/88f4ccd38affc99372f2e8ccab138509534ad75c764710f5f648528d435bad57/Screenshot-2023-12-08-at-11.01.16.png',
+    'https://freight.cargo.site/t/original/i/ea50ae3266fc7b0d6d56dd2bb83315ea2b47ab49c452c0537242c200b802f1b7/Screenshot-2023-12-08-at-11.08.32.png',
+  ],
+  planet: [
+    'https://freight.cargo.site/t/original/i/6f7b69bab62b7248151efed52234cdbc0ef0f52a64db50021848860d9bd72426/Screenshot-2023-12-08-at-11.17.50.png',
+  ],
+  metavogue: [
+    'https://freight.cargo.site/t/original/i/392fdb41fc0c52a29b82ebf6ef3b235a4c3c69e1d82eea41e33fb11be9400311/Metavogue-Image-1.png',
+    'https://freight.cargo.site/t/original/i/80d3afb5b7ec2497dacc5f5dbf74558269c69e1c0aab7ae48ded157720b90a51/Metavogue-Image-2.png',
+    'https://freight.cargo.site/t/original/i/317069ce3568ef7bd8a467e89c5fe607a7603bc1ab0457a2ef62f61b6f862494/Metavogue-Image-3.png',
+    'https://freight.cargo.site/t/original/i/08e2c48bfc48a9fd320b33957d1924ea5bd1e8aa19b7253df5a5242efea1336d/Screenshot-2023-12-12-at-15.12.20.png',
+    'https://freight.cargo.site/t/original/i/c40a6b693c07b69b7e45125d9fe0271583c133d020f2a207a1f6c6313e240c7a/Screenshot-2023-12-12-at-15.10.59.png',
+  ],
+  starling: [
+    'https://freight.cargo.site/t/original/i/c80cfbc805ffd3356447dc3ba644cba9ca5cb266e6d5c87621997d4808713926/starling-family-shark-copy-website.jpeg',
+    'https://freight.cargo.site/t/original/i/01cf84d5f3b1ce6ec78696fe8734821ca853142bbde763a2bc82492873b2b879/Starling-deskpet-wood-copy.jpg',
+    'https://freight.cargo.site/t/original/i/69189305f240e3aa4c6f0331d52973e9f167798b4806c75cad4cc6c91147951a/Starling-UI-Alice-Sueko-Muller-copy.jpg',
+    'https://freight.cargo.site/t/original/i/22512a450e8d744b31e79f00a32fa33cffdc43c67dacaba50a895a8917315990/Starling-Group-Play-Alice-Sueko-Muller.jpg',
+    'https://freight.cargo.site/t/original/i/3b14b9fa235ea7eeaf0b0b0e961f924e19dbe0c5617a155f02b78eabdebba4c2/Starling-Group-Creation-Alice-Sueko-Muller.jpg',
+    'https://freight.cargo.site/t/original/i/4d7e0cebeec78b50d4c524aba1f8b935335bb7b85bcff611c19443c18a35ce7f/Starling-Assistance-Alice-Sueko-Muller-copy.jpg',
+    'https://freight.cargo.site/t/original/i/1131df66b3f02d05755520cb52298b2d1cb8b1c059adc21a4410dec86d73f4e9/engagement.png',
+    'https://freight.cargo.site/t/original/i/542a05fc0fc1d1f6c8277d88958ceeeaec6f22b0de9b60745e60f7bf2ae866d2/unification.png',
+    'https://freight.cargo.site/t/original/i/bb3566021e1dfa0c10263cadfc98c6dccb87dc7955dfe0a0b8918646c1d6faab/empowerment.png',
+    'https://freight.cargo.site/t/original/i/e80434343f277a67e8a959f0b99f32bec58520e52c93ea348a87befd980aedcd/flexibility.png',
+    'https://freight.cargo.site/t/original/i/68492eb11197dc6973ef5b050b0b853474cb81dbb2f40b7e43b380218031f2c3/cuteness.png',
+    'https://freight.cargo.site/t/original/i/0f75ee563763a31caeef4d5f419463486430908e46d0189c9453a2e1b741ce75/starling-technicalities.41.jpg',
+    'https://freight.cargo.site/t/original/i/f62c0a70360e22e8b397157fcc5b37bc3d5007a1309bff43394fbb25e53fc508/IMG_2746.jpg',
+    'https://freight.cargo.site/t/original/i/2f1ec8aef772d85a8c25951d59e529d46bba2681a679eef1e38bb8463cf68ae8/IMG_2759.jpg',
+    'https://freight.cargo.site/t/original/i/403d24ed4b19f9a9d019d493baaacb1c11d5622ef19f5ad378babe8461a269fe/Asset-1.png',
+    'https://freight.cargo.site/t/original/i/45c3f551f5058b3293d4cb552bf185a9365519c40bbc3e9a39ac6e6423fc22c4/iphone-ad.jpg',
+    'https://freight.cargo.site/t/original/i/3e047dc2e6a7e6bdf45275348de2c4b40d0a5b2e34a46780c413462d86604078/Screenshot-2020-05-13-at-15.32.29.png',
+    'https://freight.cargo.site/t/original/i/da5dd2b019f2df10ed88b222b151b4d6ccadf7089107b95fffe96d997ae041a0/Screenshot-2020-05-26-at-10.45.14.png',
+    'https://freight.cargo.site/t/original/i/ea04edea01c1ce1fbd8a42d115ff4c49231a7db5fc7a19c6b9c1bc538ae78345/starling-colors.36.jpg',
+  ],
+  oceanCloud: [
+    'https://freight.cargo.site/t/original/i/81522d0e580f6d02941a0a57c0b8239fbbc0df835a2bb0a45d88a7812afaf4f5/OceanCloud-Systems-Sketch_Alice-Sueko-Muller.jpg',
+    'https://freight.cargo.site/t/original/i/b29d67317c867f35a84b50434b906807d0d27c7358bcea1b1472073a58a3df1c/OceanCloud-Ship-Placement_Alice-Sueko-Muller.jpg',
+    'https://freight.cargo.site/t/original/i/5a4261aa7a3b3c71d811871b07032b8d9fa2afe29e5b30149d5472c38f23c81e/whale3-copie.jpg',
+  ],
+  poqy: [
+    'https://freight.cargo.site/t/original/i/5e876bc20e03d6571c183930162cfbb114c3e9f68b4a262f55b3a608138030ba/A1-poster_1-Grand-Challenge.jpg',
+    'https://freight.cargo.site/t/original/i/b689877ffa90fcda8be70dc91d6380b29862c8c81d9f6782fa9025b5c96cf5e1/A1-poster_2-Grand-Challenge.jpg',
+    'https://freight.cargo.site/t/original/i/77c505f0e9dfed43c287c13e05c8f6bc4df0c39709128ae557d74946c6008d92/A1-poster_3-Grand-Challenge-.jpg',
+    'https://freight.cargo.site/t/original/i/294fb515ec4115a9f706f2a63cd1221bc2296bec8ddbe4db56bfa599e1420fc8/A1-poster_4-Grand-Challenge.jpg',
+  ],
+  headshot:
+    'https://freight.cargo.site/w/1200/i/29886e0992456c25c6b519cda01ba8497fe7fd59b50e564fe1ca3bcf245f9f72/knot8.jpg',
+} as const;
