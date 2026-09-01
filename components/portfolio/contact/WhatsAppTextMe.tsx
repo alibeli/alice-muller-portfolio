@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
 
 import { WhatsAppIcon } from '@/components/ui/icons/WhatsAppIcon';
 import { Text } from '@/components/ui/Text';
@@ -15,6 +15,8 @@ type Props = {
 export function WhatsAppTextMe({ phoneDigits }: Props) {
   const [message, setMessage] = useState('');
   const [buttonHovered, setButtonHovered] = useState(false);
+  const { width } = useWindowDimensions();
+  const compact = width < 380;
   const configured = phoneDigits.replace(/\D/g, '').length > 0;
 
   const handlePress = () => {
@@ -35,12 +37,16 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
       <TextInput
         value={message}
         onChangeText={setMessage}
-        placeholder="Write a message to Alice"
+        placeholder={compact ? 'Message Alice' : 'Write a message to Alice'}
         placeholderTextColor={colors.muted}
         returnKeyType="send"
         onSubmitEditing={handlePress}
         editable={configured}
-        style={[styles.input, Platform.OS === 'web' && styles.inputWeb]}
+        style={[
+          styles.input,
+          compact && styles.inputCompact,
+          Platform.OS === 'web' && styles.inputWeb,
+        ]}
         accessibilityLabel="Message to send on WhatsApp"
       />
       <Pressable
@@ -48,6 +54,7 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
         disabled={!configured}
         style={({ pressed }) => [
           styles.button,
+          compact && styles.buttonCompact,
           configured && buttonHovered && styles.buttonHovered,
           pressed && configured && styles.pressed,
         ]}
@@ -95,6 +102,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 0,
   },
+  inputCompact: {
+    fontSize: 15,
+    paddingRight: spacing.xs,
+  },
   inputWeb: {
     outlineStyle: 'none',
   } as object,
@@ -108,6 +119,11 @@ const styles = StyleSheet.create({
     borderLeftWidth: StyleSheet.hairlineWidth,
     borderLeftColor: colors.border,
     backgroundColor: 'transparent',
+    flexShrink: 0,
+  },
+  buttonCompact: {
+    paddingHorizontal: spacing.md,
+    gap: 4,
   },
   buttonHovered: {
     backgroundColor: 'rgba(255, 255, 255, 0.52)',

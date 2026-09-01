@@ -7,6 +7,10 @@ export function getProjectPath(slug: string): string {
   return `/project/${slug}`;
 }
 
+export function getPaperPath(slug: string): string {
+  return `/paper/${slug}`;
+}
+
 export function getProjectUrl(slug: string): string {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     return `${window.location.origin}${getProjectPath(slug)}`;

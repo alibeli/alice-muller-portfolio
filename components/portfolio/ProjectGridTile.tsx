@@ -188,7 +188,7 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
         <CarouselDots count={images.length} index={index} />
       ) : null}
 
-      <View style={styles.textBlock} pointerEvents="none">
+      <View style={[styles.textBlock, { pointerEvents: 'none' }]}>
         <View style={styles.textInner}>
           <TileTextGlass roundedTop={radii.tile} />
           {item.badge === 'currently-building' ? (
@@ -246,9 +246,16 @@ const styles = StyleSheet.create({
     backgroundColor: palette.surface,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: palette.tileBorder,
+    ...(Platform.OS === 'web'
+      ? ({
+          contain: 'layout paint',
+          isolation: 'isolate',
+        } as object)
+      : {}),
   },
   tileWrap: {
     borderRadius: radii.tile,
+    overflow: 'hidden',
   },
   tileWrapHovered: {
     zIndex: 20,
@@ -271,10 +278,19 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   coverImage: {
-    width: '100%',
-    height: '100%',
+    ...StyleSheet.absoluteFillObject,
+    ...(Platform.OS === 'web'
+      ? ({
+          maxWidth: '100%',
+          objectFit: 'cover',
+        } as object)
+      : {
+          width: '100%',
+          height: '100%',
+        }),
   },
   textBlock: {
     position: 'absolute',

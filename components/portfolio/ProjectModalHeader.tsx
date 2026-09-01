@@ -48,8 +48,7 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
     shareProject(project).catch(() => {});
   };
 
-  const tractionLine =
-    project.highlights.length > 0 ? project.highlights.join(' · ') : null;
+  const tractionLine = project.traction || null;
 
   const showPeriodComma =
     project.badge !== 'currently-building' && project.period.trim().length > 0;

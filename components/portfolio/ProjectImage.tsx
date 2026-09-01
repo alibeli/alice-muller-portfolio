@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { Image, ImageSourcePropType, StyleSheet, View } from 'react-native';
+import {
+  Image,
+  ImageSourcePropType,
+  NativeSyntheticEvent,
+  ImageLoadEventData,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import { palette } from '@/constants/tokens';
 
@@ -12,8 +19,27 @@ type Props = {
   carousel?: boolean;
 };
 
+function getLoadedAspectRatio(event: NativeSyntheticEvent<ImageLoadEventData>): number | null {
+  const { source } = event.nativeEvent;
+  if (source?.width && source?.height) {
+    return source.width / source.height;
+  }
+
+  const target = (event.nativeEvent as { target?: HTMLImageElement }).target;
+  if (target?.naturalWidth && target?.naturalHeight) {
+    return target.naturalWidth / target.naturalHeight;
+  }
+
+  return null;
+}
+
 export function ProjectImage({ source, maxWidth = DEFAULT_MAX_WIDTH, carousel = false }: Props) {
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
+
+  const handleLoad = (event: NativeSyntheticEvent<ImageLoadEventData>) => {
+    const ratio = getLoadedAspectRatio(event);
+    if (ratio && ratio > 0) setAspectRatio(ratio);
+  };
 
   if (carousel) {
     const width = aspectRatio ? CAROUSEL_HEIGHT * aspectRatio : 200;
@@ -24,10 +50,7 @@ export function ProjectImage({ source, maxWidth = DEFAULT_MAX_WIDTH, carousel = 
           source={source}
           style={[styles.carouselImage, { width, height: CAROUSEL_HEIGHT }]}
           resizeMode="contain"
-          onLoad={(event) => {
-            const { width: w, height: h } = event.nativeEvent.source;
-            if (w > 0 && h > 0) setAspectRatio(w / h);
-          }}
+          onLoad={handleLoad}
         />
       </View>
     );
@@ -43,10 +66,7 @@ export function ProjectImage({ source, maxWidth = DEFAULT_MAX_WIDTH, carousel = 
           aspectRatio ? { aspectRatio } : styles.imageFallback,
         ]}
         resizeMode="contain"
-        onLoad={(event) => {
-          const { width, height } = event.nativeEvent.source;
-          if (width > 0 && height > 0) setAspectRatio(width / height);
-        }}
+        onLoad={handleLoad}
       />
     </View>
   );

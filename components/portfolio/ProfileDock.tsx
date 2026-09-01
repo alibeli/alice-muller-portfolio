@@ -6,6 +6,7 @@ import {
   Platform,
   Pressable,
   StyleSheet,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import Animated, {
@@ -86,6 +87,8 @@ function CollapsibleSection({
 export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [identityHeight, setIdentityHeight] = useState(100);
+  const { width } = useWindowDimensions();
+  const narrow = compact && width < 380;
 
   const detailsHeight = useSharedValue(0);
   const detailsProgress = useSharedValue(0);
@@ -113,13 +116,18 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
       style={[
         styles.card,
         compact ? styles.cardMobile : styles.cardDesktop,
+        narrow && styles.cardNarrow,
         { paddingBottom: spacing.lg + bottomInset },
       ]}
     >
       <View style={styles.topRow}>
         <Image
           source={profile.headshotLocal}
-          style={[styles.headshot, { width: identityHeight, height: identityHeight }]}
+          style={[
+            styles.headshot,
+            narrow && styles.headshotNarrow,
+            { width: identityHeight, height: identityHeight },
+          ]}
           resizeMode="cover"
         />
         <View
@@ -135,9 +143,11 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
           <Text variant="caption" muted style={styles.tagline}>
             {profile.tagline}
           </Text>
-          <Text variant="caption" muted style={styles.taglineAreas}>
-            {profile.taglineAreas}
-          </Text>
+          {!narrow ? (
+            <Text variant="caption" muted style={styles.taglineAreas}>
+              {profile.taglineAreas}
+            </Text>
+          ) : null}
 
           <View style={styles.actionsRow}>
             <View style={styles.socialRow}>
@@ -231,6 +241,10 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
   },
+  cardNarrow: {
+    paddingTop: spacing.md,
+    paddingHorizontal: spacing.md,
+  },
   topRow: {
     flexDirection: 'row',
     alignItems: 'stretch',
@@ -274,6 +288,9 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     backgroundColor: colors.surface,
     flexShrink: 0,
+  },
+  headshotNarrow: {
+    borderRadius: 18,
   },
   expandLabel: {
     color: colors.foreground,

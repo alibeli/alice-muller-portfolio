@@ -3,6 +3,7 @@ import { ImageSourcePropType, Platform, ScrollView, StyleSheet, View } from 'rea
 import { ProjectImage } from '@/components/portfolio/ProjectImage';
 import { ProjectLinkChip } from '@/components/portfolio/ProjectLinkChip';
 import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
+import { ProjectSummaryCard } from '@/components/portfolio/ProjectSummaryCard';
 import { Link } from '@/components/ui/Link';
 import { Text } from '@/components/ui/Text';
 import { isWhatsAppPitchLink } from '@/lib/projectLinks';
@@ -111,9 +112,9 @@ export function ProjectDetailContent({
               {project.roles.join(', ')}
             </Text>
           ) : null}
-          {project.highlights.length > 0 ? (
+          {project.traction ? (
             <Text variant="caption" style={styles.highlights}>
-              {project.highlights.join(' · ')}
+              {project.traction}
             </Text>
           ) : null}
           {project.links.length > 0 ? (
@@ -156,7 +157,9 @@ export function ProjectDetailContent({
         </View>
       ) : null}
 
-      {project.outcome ? (
+      {inModal ? <ProjectSummaryCard project={project} /> : null}
+
+      {project.outcome && !inModal ? (
         <View style={styles.outcomeWrap}>
           <Text variant="body" style={styles.outcome}>
             {project.outcome}

@@ -7,7 +7,10 @@ export default function Root({ children }: PropsWithChildren) {
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+        />
         <title>Alice Müller, Portfolio</title>
         <meta name="description" content="Former founder, CEO, VP of Product. Building AI, SaaS, marketplaces, Web3, and privacy tech." />
         <ScrollViewStyleReset />
@@ -23,11 +26,13 @@ export default function Root({ children }: PropsWithChildren) {
               html, body, #root {
                 height: 100%;
                 width: 100%;
+                overflow-x: hidden;
               }
               body {
                 margin: 0;
                 background: #FFFFFF;
-                overflow: auto !important;
+                overflow: hidden !important;
+                overscroll-behavior: none;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
                 font-family: "Google Sans Flex", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -37,6 +42,8 @@ export default function Root({ children }: PropsWithChildren) {
                 flex-direction: column;
                 flex: 1;
                 min-height: 100%;
+                min-height: 100dvh;
+                min-height: -webkit-fill-available;
               }
               div, span, p, a, button, input, textarea, [class*="css-text-"] {
                 font-family: "Google Sans Flex", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;

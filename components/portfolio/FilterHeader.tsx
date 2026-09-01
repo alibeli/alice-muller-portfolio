@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -21,6 +21,7 @@ const HEADER_TABS: { key: TabKey; label: string }[] = [
 
 const TAB_WIDTH = 52;
 const TAB_WIDTH_ACTIVE = 108;
+const TAB_WIDTH_COMPACT = 44;
 const TAB_PADDING = 4;
 const TAB_HEIGHT = 44;
 
@@ -48,8 +49,8 @@ function isTabSelected(
   return projectsActive;
 }
 
-function getPillOffset(activeIndex: number): number {
-  return activeIndex * TAB_WIDTH;
+function getPillOffset(activeIndex: number, tabWidth: number): number {
+  return activeIndex * tabWidth;
 }
 
 function getActiveIndex(papersOpen: boolean, awardsOpen: boolean, stackOpen: boolean): number {
@@ -70,22 +71,26 @@ export function FilterHeader({
   awardsOpen = false,
   stackOpen = false,
 }: Props) {
+  const { width: screenWidth } = useWindowDimensions();
+  const compact = screenWidth < 360;
+  const tabWidth = compact ? TAB_WIDTH_COMPACT : TAB_WIDTH;
+  const tabWidthActive = compact ? TAB_WIDTH_COMPACT : TAB_WIDTH_ACTIVE;
   const [hoveredTab, setHoveredTab] = useState<TabKey | null>(null);
   const activeIndex = getActiveIndex(papersOpen, awardsOpen, stackOpen);
 
-  const pillX = useSharedValue(getPillOffset(activeIndex));
-  const pillWidth = useSharedValue(TAB_WIDTH_ACTIVE);
+  const pillX = useSharedValue(getPillOffset(activeIndex, tabWidth));
+  const pillWidth = useSharedValue(tabWidthActive);
 
   useEffect(() => {
-    pillX.value = withTiming(getPillOffset(activeIndex), {
+    pillX.value = withTiming(getPillOffset(activeIndex, tabWidth), {
       duration: 260,
       easing: Easing.bezier(0.4, 0, 0.2, 1),
     });
-    pillWidth.value = withTiming(TAB_WIDTH_ACTIVE, {
+    pillWidth.value = withTiming(tabWidthActive, {
       duration: 260,
       easing: Easing.bezier(0.4, 0, 0.2, 1),
     });
-  }, [activeIndex, pillX, pillWidth]);
+  }, [activeIndex, pillWidth, pillX, tabWidth, tabWidthActive]);
 
   const pillStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: pillX.value }],
@@ -132,7 +137,11 @@ export function FilterHeader({
             <Pressable
               key={option.key}
               onPress={() => handleTabPress(option.key)}
-              style={[styles.option, selected ? styles.optionActive : styles.optionIdle]}
+              style={[
+                styles.option,
+                selected ? styles.optionActive : styles.optionIdle,
+                selected ? { width: tabWidthActive } : { width: tabWidth },
+              ]}
               accessibilityRole="tab"
               accessibilityState={{ selected }}
               accessibilityLabel={option.label}
@@ -143,11 +152,11 @@ export function FilterHeader({
                 selected={selected}
                 hovered={hoveredTab === option.key}
               />
-              {selected && (
+              {selected && !compact ? (
                 <Text variant="body" style={styles.optionLabelActive} numberOfLines={1}>
                   {option.label}
                 </Text>
-              )}
+              ) : null}
             </Pressable>
           );
         })}
@@ -186,11 +195,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
     paddingHorizontal: 4,
   },
-  optionIdle: {
-    width: TAB_WIDTH,
-  },
+  optionIdle: {},
   optionActive: {
-    width: TAB_WIDTH_ACTIVE,
     gap: spacing.xs,
     paddingHorizontal: 8,
   },
