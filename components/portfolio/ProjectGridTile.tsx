@@ -21,6 +21,7 @@ import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
 import { Text } from '@/components/ui/Text';
 import { getPaperGradient, paperGradientCss, PLACEHOLDER_GRADIENT } from '@/data/paperGradients';
 import type { GridItem } from '@/data/portfolio';
+import { getThumbnailFocalPoint } from '@/data/localImages';
 import { formatProjectPeriod } from '@/lib/projectLinks';
 import { motion, palette, radii, spacing, tileText } from '@/constants/tokens';
 
@@ -146,6 +147,8 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
   const imageSource: ImageSourcePropType | null =
     images[index] ? { uri: images[index] } : (item.thumbnailLocal ?? null);
 
+  const focalPoint = getThumbnailFocalPoint(item.slug);
+
   const imageAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 1 + hoverProgress.value * (motion.tileHover.imageScale - 1) }],
   }));
@@ -165,7 +168,16 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
           <PaperGradientBackground slug={item.slug} />
         ) : imageSource ? (
           <Animated.View style={[styles.imageStage, imageAnimStyle]}>
-            <Image source={imageSource} style={styles.coverImage} resizeMode="cover" />
+            <Image
+              source={imageSource}
+              style={[
+                styles.coverImage,
+                focalPoint && Platform.OS === 'web'
+                  ? ({ objectFit: 'cover', objectPosition: focalPoint } as object)
+                  : null,
+              ]}
+              resizeMode="cover"
+            />
           </Animated.View>
         ) : (
           <PlaceholderBackground />

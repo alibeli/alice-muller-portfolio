@@ -23,3 +23,13 @@ export const localThumbnails: Record<string, ImageSourcePropType> = {
 export function getLocalThumbnail(slug: string): ImageSourcePropType | undefined {
   return localThumbnails[slug];
 }
+
+/** Crop anchor for square grid tiles (CSS object-position on web). */
+export const thumbnailFocalPoints: Partial<Record<string, string>> = {
+  'tact-monster': '58% 50%',
+  'domi-inter-astra': '46% 40%',
+};
+
+export function getThumbnailFocalPoint(slug: string): string | undefined {
+  return thumbnailFocalPoints[slug];
+}
