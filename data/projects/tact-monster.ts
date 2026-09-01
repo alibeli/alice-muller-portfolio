@@ -33,7 +33,7 @@ export const tact_monster: ProjectBase = {
       {
         type: 'image',
         asset: tactMonsterCoverImage,
-        caption: 'Tact Monster — autonomous training robot, player experience, and companion app.',
+        caption: 'Tact Monster — autonomous training robot on court.',
       },
     ],
   };

@@ -14,14 +14,14 @@ import { ImageLightbox } from '@/components/ui/ImageLightbox';
 import { palette } from '@/constants/tokens';
 
 const DEFAULT_MAX_WIDTH = 700;
-const CAROUSEL_HEIGHT = 360;
 
 type Props = {
   source: ImageSourcePropType;
   maxWidth?: number;
-  carousel?: boolean;
   zoomable?: boolean;
   caption?: string;
+  gallerySources?: ImageSourcePropType[];
+  galleryIndex?: number;
 };
 
 function getLoadedAspectRatio(event: NativeSyntheticEvent<ImageLoadEventData>): number | null {
@@ -41,12 +41,14 @@ function getLoadedAspectRatio(event: NativeSyntheticEvent<ImageLoadEventData>): 
 export function ProjectImage({
   source,
   maxWidth = DEFAULT_MAX_WIDTH,
-  carousel = false,
   zoomable = true,
   caption,
+  gallerySources,
+  galleryIndex = 0,
 }: Props) {
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [activeGalleryIndex, setActiveGalleryIndex] = useState(galleryIndex);
 
   const handleLoad = (event: NativeSyntheticEvent<ImageLoadEventData>) => {
     const ratio = getLoadedAspectRatio(event);
@@ -54,22 +56,12 @@ export function ProjectImage({
   };
 
   const openLightbox = () => {
-    if (zoomable) setLightboxOpen(true);
+    if (!zoomable) return;
+    setActiveGalleryIndex(galleryIndex);
+    setLightboxOpen(true);
   };
 
-  const imageContent = carousel ? (
-    <View style={[styles.carouselWrap, { width: aspectRatio ? CAROUSEL_HEIGHT * aspectRatio : 200, height: CAROUSEL_HEIGHT }]}>
-      <Image
-        source={source}
-        style={[
-          styles.carouselImage,
-          { width: aspectRatio ? CAROUSEL_HEIGHT * aspectRatio : 200, height: CAROUSEL_HEIGHT },
-        ]}
-        resizeMode="contain"
-        onLoad={handleLoad}
-      />
-    </View>
-  ) : (
+  const imageContent = (
     <View style={[styles.wrap, { maxWidth }]}>
       <Image
         source={source}
@@ -88,6 +80,8 @@ export function ProjectImage({
     return imageContent;
   }
 
+  const sources = gallerySources && gallerySources.length > 0 ? gallerySources : [source];
+
   return (
     <>
       <Pressable
@@ -103,6 +97,9 @@ export function ProjectImage({
         visible={lightboxOpen}
         source={source}
         caption={caption}
+        gallerySources={sources}
+        galleryIndex={activeGalleryIndex}
+        onGalleryIndexChange={setActiveGalleryIndex}
         onClose={() => setLightboxOpen(false)}
       />
     </>
@@ -132,15 +129,5 @@ const styles = StyleSheet.create({
   },
   imageFallback: {
     minHeight: 200,
-  },
-  carouselWrap: {
-    flexShrink: 0,
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: palette.surface,
-  },
-  carouselImage: {
-    borderRadius: 12,
-    backgroundColor: 'transparent',
   },
 });

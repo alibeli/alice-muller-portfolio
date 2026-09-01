@@ -45,8 +45,14 @@ function BlockRenderer({ block, inModal }: { block: ProjectBlock; inModal: boole
           items={block.assets}
           slideMaxWidth={MODAL_IMAGE_MAX_WIDTH}
           caption={block.caption}
-          renderItem={(asset) => (
-            <ProjectImage source={asset} maxWidth={MODAL_IMAGE_MAX_WIDTH} caption={block.caption} />
+          renderItem={(asset, index) => (
+            <ProjectImage
+              source={asset}
+              maxWidth={MODAL_IMAGE_MAX_WIDTH}
+              caption={block.caption}
+              gallerySources={block.assets}
+              galleryIndex={index}
+            />
           )}
         />
       </View>
@@ -180,8 +186,13 @@ export function ProjectDetailContent({
           <SnapCarousel
             items={galleryImages}
             slideMaxWidth={MODAL_IMAGE_MAX_WIDTH}
-            renderItem={(source) => (
-              <ProjectImage source={source} maxWidth={MODAL_IMAGE_MAX_WIDTH} />
+            renderItem={(source, index) => (
+              <ProjectImage
+                source={source}
+                maxWidth={MODAL_IMAGE_MAX_WIDTH}
+                gallerySources={galleryImages}
+                galleryIndex={index}
+              />
             )}
           />
         </View>

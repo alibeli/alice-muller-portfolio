@@ -3,6 +3,7 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   View,
@@ -23,29 +24,39 @@ const hideScrollbarWeb = Platform.OS === 'web'
   ? ({
       scrollbarWidth: 'none',
       msOverflowStyle: 'none',
+      touchAction: 'pan-x',
     } as object)
   : {};
 
 export function SnapCarousel<T>({ items, renderItem, caption, slideMaxWidth }: Props<T>) {
   const { width: screenWidth } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
-  const [slideWidth, setSlideWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
   const [index, setIndex] = useState(0);
 
-  const contentWidth = slideMaxWidth
-    ? Math.min(slideWidth || screenWidth, slideMaxWidth)
-    : slideWidth;
+  const slideWidth =
+    containerWidth > 0
+      ? slideMaxWidth
+        ? Math.min(containerWidth, slideMaxWidth)
+        : containerWidth
+      : 0;
 
   const onLayout = useCallback((width: number) => {
-    if (width > 0) setSlideWidth(width);
+    if (width > 0) setContainerWidth(width);
   }, []);
 
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (contentWidth <= 0) return;
-    const next = Math.round(event.nativeEvent.contentOffset.x / contentWidth);
+    if (slideWidth <= 0) return;
+    const next = Math.round(event.nativeEvent.contentOffset.x / slideWidth);
     if (next !== index && next >= 0 && next < items.length) {
       setIndex(next);
     }
+  };
+
+  const goTo = (next: number) => {
+    if (slideWidth <= 0 || next < 0 || next >= items.length) return;
+    scrollRef.current?.scrollTo({ x: next * slideWidth, animated: true });
+    setIndex(next);
   };
 
   if (items.length === 0) return null;
@@ -68,33 +79,61 @@ export function SnapCarousel<T>({ items, renderItem, caption, slideMaxWidth }: P
       style={styles.wrap}
       onLayout={(event) => onLayout(event.nativeEvent.layout.width)}
     >
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        pagingEnabled
-        decelerationRate="fast"
-        snapToInterval={contentWidth > 0 ? contentWidth : undefined}
-        snapToAlignment="center"
-        disableIntervalMomentum
-        showsHorizontalScrollIndicator={false}
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        style={[styles.scroll, hideScrollbarWeb]}
-        {...(Platform.OS === 'web' ? ({ dataSet: { hideScrollbar: 'true' } } as object) : {})}
-        contentContainerStyle={contentWidth > 0 ? undefined : styles.hiddenUntilLayout}
-      >
-        {items.map((item, i) => (
-          <View
-            key={i}
-            style={[
-              styles.slide,
-              contentWidth > 0 ? { width: contentWidth } : styles.hiddenUntilLayout,
-            ]}
+      <View style={[styles.viewport, slideWidth > 0 ? { width: slideWidth } : styles.hiddenUntilLayout]}>
+        {index > 0 ? (
+          <Pressable
+            style={[styles.navBtn, styles.navPrev]}
+            onPress={() => goTo(index - 1)}
+            accessibilityLabel="Previous image"
           >
-            {renderItem(item, i)}
-          </View>
-        ))}
-      </ScrollView>
+            <Text variant="body" style={styles.navLabel}>
+              ‹
+            </Text>
+          </Pressable>
+        ) : null}
+
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          decelerationRate="fast"
+          snapToInterval={slideWidth > 0 ? slideWidth : undefined}
+          snapToAlignment="start"
+          disableIntervalMomentum
+          nestedScrollEnabled
+          directionalLockEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          style={[styles.scroll, hideScrollbarWeb]}
+          contentContainerStyle={slideWidth > 0 ? { width: slideWidth * items.length } : styles.hiddenUntilLayout}
+          {...(Platform.OS === 'web' ? ({ dataSet: { hideScrollbar: 'true' } } as object) : {})}
+        >
+          {items.map((item, i) => (
+            <View
+              key={i}
+              style={[
+                styles.slide,
+                slideWidth > 0 ? { width: slideWidth } : styles.hiddenUntilLayout,
+              ]}
+            >
+              {renderItem(item, i)}
+            </View>
+          ))}
+        </ScrollView>
+
+        {index < items.length - 1 ? (
+          <Pressable
+            style={[styles.navBtn, styles.navNext]}
+            onPress={() => goTo(index + 1)}
+            accessibilityLabel="Next image"
+          >
+            <Text variant="body" style={styles.navLabel}>
+              ›
+            </Text>
+          </Pressable>
+        ) : null}
+      </View>
 
       <View style={styles.dots} pointerEvents="none">
         {items.map((_, i) => (
@@ -114,6 +153,13 @@ export function SnapCarousel<T>({ items, renderItem, caption, slideMaxWidth }: P
 const styles = StyleSheet.create({
   wrap: {
     gap: spacing.sm,
+    width: '100%',
+    alignItems: 'center',
+  },
+  viewport: {
+    position: 'relative',
+    alignSelf: 'center',
+    maxWidth: '100%',
   },
   scroll: {
     width: '100%',
@@ -128,6 +174,30 @@ const styles = StyleSheet.create({
   },
   hiddenUntilLayout: {
     opacity: 0,
+  },
+  navBtn: {
+    position: 'absolute',
+    top: '50%',
+    marginTop: -18,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    zIndex: 2,
+  },
+  navPrev: {
+    left: spacing.sm,
+  },
+  navNext: {
+    right: spacing.sm,
+  },
+  navLabel: {
+    color: palette.white,
+    fontSize: 24,
+    lineHeight: 26,
+    marginTop: -2,
   },
   dots: {
     flexDirection: 'row',

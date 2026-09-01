@@ -14,7 +14,7 @@ export const images = {
     'https://freight.cargo.site/t/original/i/cfa6c1744b10c9470b6a7f0dbe5d5d5498175b38d33a889ab61f140d61873894/Frame-4586.png',
   ],
   tactMonster: [
-    'https://freight.cargo.site/t/original/i/3c332b77e226be35aef1294ada8a16c0c65418376b25b59d3403cf1aef7c52ab/unnamed-5.png',
+    'https://freight.cargo.site/t/original/i/faad153ee4e86a814e0f9ebd16633c11330073ac408e90c2705215a51f1a9c38/Screenshot-2023-01-23-at-01.18.03.png',
   ],
   dia: [
     'https://freight.cargo.site/t/original/i/26092f8ddbebd99ea00d89cbd4807bb9afc29dcfa0607a2a09d5ecb98dd8c88d/Screenshot-2023-12-08-at-10.59.58.png',

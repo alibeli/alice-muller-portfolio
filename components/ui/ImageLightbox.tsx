@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Image,
   ImageSourcePropType,
@@ -21,6 +21,9 @@ type Props = {
   source: ImageSourcePropType;
   caption?: string;
   onClose: () => void;
+  gallerySources?: ImageSourcePropType[];
+  galleryIndex?: number;
+  onGalleryIndexChange?: (index: number) => void;
 };
 
 type Transform = {
@@ -67,12 +70,25 @@ function zoomTowardPoint(
   };
 }
 
-export function ImageLightbox({ visible, source, caption, onClose }: Props) {
+export function ImageLightbox({
+  visible,
+  source,
+  caption,
+  onClose,
+  gallerySources,
+  galleryIndex = 0,
+  onGalleryIndexChange,
+}: Props) {
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const viewportRef = useRef<View>(null);
   const [transform, setTransform] = useState<Transform>({ scale: 1, x: 0, y: 0 });
   const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(null);
+  const [activeIndex, setActiveIndex] = useState(galleryIndex);
+
+  const sources = gallerySources && gallerySources.length > 0 ? gallerySources : [source];
+  const activeSource = sources[activeIndex] ?? source;
+  const hasGallery = sources.length > 1;
 
   const dragRef = useRef({
     active: false,
@@ -92,21 +108,37 @@ export function ImageLightbox({ visible, source, caption, onClose }: Props) {
 
   const resetTransform = useCallback(() => {
     setTransform({ scale: 1, x: 0, y: 0 });
+    setImageSize(null);
   }, []);
 
   useEffect(() => {
-    if (visible) resetTransform();
-  }, [visible, resetTransform]);
+    if (visible) {
+      setActiveIndex(galleryIndex);
+      resetTransform();
+    }
+  }, [visible, galleryIndex, resetTransform]);
+
+  const goTo = useCallback(
+    (next: number) => {
+      if (next < 0 || next >= sources.length || next === activeIndex) return;
+      resetTransform();
+      setActiveIndex(next);
+      onGalleryIndexChange?.(next);
+    },
+    [activeIndex, onGalleryIndexChange, resetTransform, sources.length],
+  );
 
   useEffect(() => {
     if (!visible || Platform.OS !== 'web' || typeof window === 'undefined') return;
 
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
+      if (event.key === 'ArrowLeft') goTo(activeIndex - 1);
+      if (event.key === 'ArrowRight') goTo(activeIndex + 1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [visible, onClose]);
+  }, [visible, onClose, goTo, activeIndex]);
 
   useEffect(() => {
     if (!visible || Platform.OS !== 'web') return;
@@ -230,6 +262,11 @@ export function ImageLightbox({ visible, source, caption, onClose }: Props) {
 
   const handleMouseUp = Platform.OS === 'web' ? endPan : undefined;
 
+  const counterLabel = useMemo(
+    () => (hasGallery ? `${activeIndex + 1} / ${sources.length}` : null),
+    [activeIndex, hasGallery, sources.length],
+  );
+
   if (!visible) return null;
 
   return (
@@ -238,13 +275,18 @@ export function ImageLightbox({ visible, source, caption, onClose }: Props) {
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel="Close image viewer" />
 
         <View style={styles.toolbar} pointerEvents="box-none">
-          {caption ? (
-            <Text variant="caption" style={styles.caption} numberOfLines={2}>
-              {caption}
-            </Text>
-          ) : (
-            <View style={styles.captionSpacer} />
-          )}
+          <View style={styles.toolbarLeft} pointerEvents="none">
+            {caption ? (
+              <Text variant="caption" style={styles.caption} numberOfLines={2}>
+                {caption}
+              </Text>
+            ) : null}
+            {counterLabel ? (
+              <Text variant="mono" style={styles.counter}>
+                {counterLabel}
+              </Text>
+            ) : null}
+          </View>
           <View style={styles.controls} pointerEvents="auto">
             <Pressable onPress={resetTransform} style={styles.controlBtn} accessibilityLabel="Reset zoom">
               <Text variant="mono" style={styles.resetLabel}>
@@ -259,44 +301,71 @@ export function ImageLightbox({ visible, source, caption, onClose }: Props) {
           </View>
         </View>
 
-        <View
-          ref={viewportRef}
-          style={styles.viewport}
-          onStartShouldSetResponder={() => true}
-          onMoveShouldSetResponder={() => true}
-          onResponderGrant={handleTouchStart}
-          onResponderMove={handleTouchMove}
-          onResponderRelease={handleTouchEnd}
-          onResponderTerminate={handleTouchEnd}
-          {...(Platform.OS === 'web'
-            ? ({
-                onMouseDown: handleMouseDown,
-                onMouseMove: handleMouseMove,
-                onMouseUp: handleMouseUp,
-                onMouseLeave: handleMouseUp,
-                onDoubleClick: resetTransform,
-              } as object)
-            : {})}
-        >
+        <View style={styles.stage} pointerEvents="box-none">
+          {hasGallery && activeIndex > 0 ? (
+            <Pressable
+              style={[styles.galleryNav, styles.galleryPrev]}
+              onPress={() => goTo(activeIndex - 1)}
+              accessibilityLabel="Previous image"
+            >
+              <Text variant="body" style={styles.galleryNavLabel}>
+                ‹
+              </Text>
+            </Pressable>
+          ) : null}
+
           <View
-            style={[
-              styles.imageStage,
-              {
-                transform: [
-                  { translateX: transform.x },
-                  { translateY: transform.y },
-                  { scale: transform.scale },
-                ],
-              },
-            ]}
+            ref={viewportRef}
+            style={styles.viewport}
+            onStartShouldSetResponder={() => true}
+            onMoveShouldSetResponder={() => true}
+            onResponderGrant={handleTouchStart}
+            onResponderMove={handleTouchMove}
+            onResponderRelease={handleTouchEnd}
+            onResponderTerminate={handleTouchEnd}
+            {...(Platform.OS === 'web'
+              ? ({
+                  onMouseDown: handleMouseDown,
+                  onMouseMove: handleMouseMove,
+                  onMouseUp: handleMouseUp,
+                  onMouseLeave: handleMouseUp,
+                  onDoubleClick: resetTransform,
+                } as object)
+              : {})}
           >
-            <Image
-              source={source}
-              style={{ width: base.width, height: base.height }}
-              resizeMode="contain"
-              onLoad={handleImageLoad}
-            />
+            <View
+              style={[
+                styles.imageStage,
+                {
+                  transform: [
+                    { translateX: transform.x },
+                    { translateY: transform.y },
+                    { scale: transform.scale },
+                  ],
+                },
+              ]}
+            >
+              <Image
+                key={activeIndex}
+                source={activeSource}
+                style={{ width: base.width, height: base.height }}
+                resizeMode="contain"
+                onLoad={handleImageLoad}
+              />
+            </View>
           </View>
+
+          {hasGallery && activeIndex < sources.length - 1 ? (
+            <Pressable
+              style={[styles.galleryNav, styles.galleryNext]}
+              onPress={() => goTo(activeIndex + 1)}
+              accessibilityLabel="Next image"
+            >
+              <Text variant="body" style={styles.galleryNavLabel}>
+                ›
+              </Text>
+            </Pressable>
+          ) : null}
         </View>
       </View>
     </Modal>
@@ -324,12 +393,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(20, 20, 20, 0.55)',
     ...(Platform.OS === 'web' ? frostedToolbarWeb : {}),
   },
-  caption: {
+  toolbarLeft: {
     flex: 1,
+    gap: 2,
+  },
+  caption: {
     color: palette.white,
   },
-  captionSpacer: {
-    flex: 1,
+  counter: {
+    color: palette.white,
+    opacity: 0.7,
+    fontSize: 11,
   },
   controls: {
     flexDirection: 'row',
@@ -354,6 +428,11 @@ const styles = StyleSheet.create({
     color: palette.white,
     fontSize: 11,
   },
+  stage: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   viewport: {
     flex: 1,
     alignItems: 'center',
@@ -369,5 +448,23 @@ const styles = StyleSheet.create({
   imageStage: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  galleryNav: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    marginHorizontal: spacing.sm,
+    zIndex: 2,
+  },
+  galleryPrev: {},
+  galleryNext: {},
+  galleryNavLabel: {
+    color: palette.white,
+    fontSize: 28,
+    lineHeight: 30,
+    marginTop: -2,
   },
 });

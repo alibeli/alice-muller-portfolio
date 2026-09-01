@@ -24,6 +24,8 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="twitter:title" content={siteMeta.title} />
         <meta name="twitter:description" content={siteMeta.description} />
         <meta name="twitter:image" content={siteMeta.imageUrl} />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
         <ScrollViewStyleReset />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
