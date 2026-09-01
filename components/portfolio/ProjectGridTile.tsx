@@ -174,7 +174,7 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
 
       <View style={[styles.textBlock, { pointerEvents: 'none' }]}>
         <View style={styles.textInner}>
-          <TileTextGlass roundedTop={radii.tile} />
+          <TileTextGlass roundedTop={radii.tile} roundedBottom={radii.tile} />
           {item.badge === 'currently-building' ? (
             <ProjectPeriodMeta project={item} />
           ) : (
@@ -243,9 +243,6 @@ const styles = StyleSheet.create({
   },
   tileWrapHovered: {
     zIndex: 20,
-    ...(Platform.OS === 'web'
-      ? ({ boxShadow: palette.shadow.tileHover } as object)
-      : {}),
   },
   pressed: {
     opacity: 0.94,
@@ -283,6 +280,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 2,
     backgroundColor: 'transparent',
+    borderBottomLeftRadius: radii.tile,
+    borderBottomRightRadius: radii.tile,
+    overflow: 'hidden',
   },
   textInner: {
     padding: spacing.md,
@@ -291,6 +291,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderTopLeftRadius: radii.tile,
     borderTopRightRadius: radii.tile,
+    borderBottomLeftRadius: radii.tile,
+    borderBottomRightRadius: radii.tile,
     overflow: 'hidden',
   },
 });

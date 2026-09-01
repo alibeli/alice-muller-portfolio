@@ -57,16 +57,28 @@ function BackgroundLayer({
 export function TileTextGlass({
   intensity = 72,
   roundedTop = 0,
+  roundedBottom = 0,
 }: {
   intensity?: number;
   roundedTop?: number;
+  roundedBottom?: number;
 }) {
   const blurPx = Math.round(intensity * 0.55);
   const radiusStyle =
-    roundedTop > 0
+    roundedTop > 0 || roundedBottom > 0
       ? {
-          borderTopLeftRadius: roundedTop,
-          borderTopRightRadius: roundedTop,
+          ...(roundedTop > 0
+            ? {
+                borderTopLeftRadius: roundedTop,
+                borderTopRightRadius: roundedTop,
+              }
+            : {}),
+          ...(roundedBottom > 0
+            ? {
+                borderBottomLeftRadius: roundedBottom,
+                borderBottomRightRadius: roundedBottom,
+              }
+            : {}),
           overflow: 'hidden' as const,
         }
       : {};
