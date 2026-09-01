@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,16 +8,26 @@ import { PapersModal } from '@/components/portfolio/PapersModal';
 import { ProjectModal } from '@/components/portfolio/ProjectModal';
 import { StackModal } from '@/components/portfolio/StackModal';
 import { FilterHeader } from '@/components/portfolio/FilterHeader';
+import { MoreProjectTile } from '@/components/portfolio/MoreProjectTile';
 import { ProfileDock } from '@/components/portfolio/ProfileDock';
 import { ProjectGridTile } from '@/components/portfolio/ProjectGridTile';
-import { colors, layout, spacing } from '@/constants/theme';
-import { getGridItems, getPaper, getProject } from '@/data/portfolio';
-import { isMobileLayout } from '@/lib/pageLayout';
-import { mobileWebPageStyle, mobileWebScrollStyle } from '@/lib/mobileWeb';
+import { Text } from '@/components/ui/Text';
+import { colors, spacing } from '@/constants/theme';
+import { getGridItems, getPaper, getProject, otherProjects } from '@/data/portfolio';
+import { getProjectPath } from '@/lib/shareProject';
+
+function getPaperPath(slug: string): string {
+  return `/paper/${slug}`;
+}
+
+function pushWebPath(path: string) {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+  window.history.pushState({}, '', path);
+}
 
 const TAB_BAR_HEIGHT = 52;
-const MOBILE_GRID_INSET = layout.pagePaddingMobile;
-const DESKTOP_GRID_INSET = layout.pagePaddingDesktop;
+const MOBILE_GRID_INSET = spacing.sm;
+const DESKTOP_GRID_INSET = spacing.lg;
 const MOBILE_GRID_GAP = spacing.sm;
 const DESKTOP_GRID_GAP = spacing.md;
 
@@ -37,28 +46,27 @@ function getColumns(screenWidth: number): number {
   return 2;
 }
 
-type HomeScreenProps = {
-  initialProjectSlug?: string;
-};
+function getMoreColumns(screenWidth: number): number {
+  if (screenWidth >= 900) return 4;
+  if (screenWidth >= 640) return 3;
+  return 2;
+}
 
-export default function HomeScreen({ initialProjectSlug }: HomeScreenProps = {}) {
-  const router = useRouter();
+export default function HomeScreen() {
   const [awardsOpen, setAwardsOpen] = useState(false);
   const [papersOpen, setPapersOpen] = useState(false);
   const [stackOpen, setStackOpen] = useState(false);
-  const [projectSlug, setProjectSlug] = useState<string | null>(() => {
-    if (initialProjectSlug && getProject(initialProjectSlug)) return initialProjectSlug;
-    return null;
-  });
+  const [projectSlug, setProjectSlug] = useState<string | null>(null);
   const [paperSlug, setPaperSlug] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const safeWidth = Math.max(width, 1);
-  const isMobile = isMobileLayout(safeWidth);
+  const isMobile = width < 640;
   const horizontalPadding = isMobile ? MOBILE_GRID_INSET : DESKTOP_GRID_INSET;
   const gridGap = isMobile ? MOBILE_GRID_GAP : DESKTOP_GRID_GAP;
-  const columns = getColumns(safeWidth);
-  const tileSize = getTileSize(safeWidth, columns, horizontalPadding, gridGap);
+  const columns = getColumns(width);
+  const moreColumns = getMoreColumns(width);
+  const tileSize = getTileSize(width, columns, horizontalPadding, gridGap);
+  const moreTileSize = getTileSize(width, moreColumns, horizontalPadding, gridGap);
   const items = getGridItems();
 
   const headerTop = insets.top + spacing.sm;
@@ -72,30 +80,59 @@ export default function HomeScreen({ initialProjectSlug }: HomeScreenProps = {})
     return result;
   }, [items, columns]);
 
+  const moreRows = useMemo(() => {
+    const result: (typeof otherProjects)[] = [];
+    for (let i = 0; i < otherProjects.length; i += moreColumns) {
+      result.push(otherProjects.slice(i, i + moreColumns));
+    }
+    return result;
+  }, [moreColumns]);
+
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') return;
-    const projectMatch = window.location.pathname.match(/^\/project\/([^/]+)\/?$/);
-    if (projectMatch) {
-      const slug = decodeURIComponent(projectMatch[1]);
-      if (getProject(slug)) setProjectSlug(slug);
-      return;
-    }
-    const paperMatch = window.location.pathname.match(/^\/paper\/([^/]+)\/?$/);
-    if (paperMatch) {
-      const slug = decodeURIComponent(paperMatch[1]);
-      if (getPaper(slug)) setPaperSlug(slug);
-    }
+
+    const syncFromPath = () => {
+      const projectMatch = window.location.pathname.match(/^\/project\/([^/]+)\/?$/);
+      if (projectMatch) {
+        const slug = decodeURIComponent(projectMatch[1]);
+        if (getProject(slug)) {
+          setProjectSlug(slug);
+          setPaperSlug(null);
+        }
+        return;
+      }
+
+      const paperMatch = window.location.pathname.match(/^\/paper\/([^/]+)\/?$/);
+      if (paperMatch) {
+        const slug = decodeURIComponent(paperMatch[1]);
+        if (getPaper(slug)) {
+          setPaperSlug(slug);
+          setProjectSlug(null);
+        }
+        return;
+      }
+
+      setProjectSlug(null);
+      setPaperSlug(null);
+    };
+
+    syncFromPath();
+    window.addEventListener('popstate', syncFromPath);
+    return () => window.removeEventListener('popstate', syncFromPath);
   }, []);
+
+  const handleProjectPress = (slug: string) => {
+    setProjectSlug(slug);
+    setPaperSlug(null);
+    pushWebPath(getProjectPath(slug));
+  };
 
   const handleProjectClose = () => {
     setProjectSlug(null);
-    const onProjectRoute =
-      !!initialProjectSlug ||
-      (Platform.OS === 'web' &&
-        typeof window !== 'undefined' &&
-        window.location.pathname.startsWith('/project/'));
-    if (onProjectRoute) {
-      router.replace('/');
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      if (window.location.pathname.startsWith('/project/')) {
+        window.history.replaceState({}, '', '/');
+      }
     }
   };
 
@@ -126,6 +163,8 @@ export default function HomeScreen({ initialProjectSlug }: HomeScreenProps = {})
   const handlePaperSelect = (slug: string) => {
     setPapersOpen(false);
     setPaperSlug(slug);
+    setProjectSlug(null);
+    pushWebPath(getPaperPath(slug));
   };
 
   const handlePaperClose = () => {
@@ -138,9 +177,9 @@ export default function HomeScreen({ initialProjectSlug }: HomeScreenProps = {})
   };
 
   return (
-    <View style={[styles.page, mobileWebPageStyle]}>
+    <View style={styles.page}>
       <ScrollView
-        style={[styles.scroll, mobileWebScrollStyle]}
+        style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
           {
@@ -159,7 +198,7 @@ export default function HomeScreen({ initialProjectSlug }: HomeScreenProps = {})
                   key={`${item.kind}-${item.slug}`}
                   item={item}
                   size={tileSize}
-                  onProjectPress={setProjectSlug}
+                  onProjectPress={handleProjectPress}
                 />
               ))}
               {row.length < columns &&
@@ -168,6 +207,25 @@ export default function HomeScreen({ initialProjectSlug }: HomeScreenProps = {})
                 ))}
             </View>
           ))}
+        </View>
+
+        <View style={styles.moreSection}>
+          <Text variant="mono" style={styles.moreHeading}>
+            More projects
+          </Text>
+          <View style={[styles.grid, { gap: gridGap }]}>
+            {moreRows.map((row, rowIndex) => (
+              <View key={`more-${rowIndex}`} style={[styles.row, { gap: gridGap }]}>
+                {row.map((project) => (
+                  <MoreProjectTile key={project.slug} project={project} width={moreTileSize} />
+                ))}
+                {row.length < moreColumns &&
+                  Array.from({ length: moreColumns - row.length }).map((_, i) => (
+                    <View key={`more-spacer-${i}`} style={{ width: moreTileSize }} />
+                  ))}
+              </View>
+            ))}
+          </View>
         </View>
       </ScrollView>
 
@@ -216,8 +274,11 @@ const styles = StyleSheet.create({
   page: {
     flex: 1,
     backgroundColor: colors.background,
+    ...(Platform.OS === 'web' ? { minHeight: '100vh' as unknown as number } : {}),
   },
-  scroll: {},
+  scroll: {
+    flex: 1,
+  },
   scrollContent: {},
   tabOverlay: {
     position: 'absolute',
@@ -232,13 +293,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
   },
+  moreSection: {
+    marginTop: spacing.xxl,
+    gap: spacing.md,
+  },
+  moreHeading: {
+    fontSize: 11,
+    color: colors.subtle,
+    textAlign: 'center',
+    alignSelf: 'center',
+    width: '100%',
+  },
   dockHost: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    width: '100%',
-    alignItems: 'stretch',
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
   },
   dockHostMobile: {

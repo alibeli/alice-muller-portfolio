@@ -19,13 +19,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PaperDetailContent } from '@/components/portfolio/PaperDetailContent';
 import { GlassSurface } from '@/components/ui/GlassSurface';
-import { ModalDismissButton } from '@/components/ui/ModalDismissButton';
 import { Text } from '@/components/ui/Text';
 import { palette, spacing } from '@/constants/tokens';
-import { typography } from '@/constants/typography';
 import { getPaper } from '@/data/portfolio';
-import { getLeftSlidePanelWidth, getPageHorizontalPadding } from '@/lib/pageLayout';
-import { getFrostedBackdropStyle, mobileWebScrollStyle } from '@/lib/mobileWeb';
 
 type Props = {
   slug: string | null;
@@ -38,8 +34,10 @@ export function PaperModal({ slug, onClose }: Props) {
   const visible = slug !== null;
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
-  const panelWidth = getLeftSlidePanelWidth(screenWidth);
-  const contentPadding = getPageHorizontalPadding(screenWidth);
+  const isMobile = screenWidth < 640;
+  const panelWidth = isMobile
+    ? Math.round(screenWidth * 0.8)
+    : Math.min(560, Math.round(screenWidth * 0.42));
   const paper = slug ? getPaper(slug) : undefined;
   const [rendered, setRendered] = useState(false);
 
@@ -102,19 +100,26 @@ export function PaperModal({ slug, onClose }: Props) {
               {
                 paddingTop: insets.top + spacing.lg,
                 paddingBottom: Math.max(insets.bottom, spacing.lg),
-                paddingHorizontal: contentPadding,
               },
             ]}
           >
             <View style={styles.panelHeader}>
-              <ModalDismissButton direction="left" onPress={onClose} />
-              <Text variant="h2" style={styles.heading} numberOfLines={2}>
+              <Text variant="title" style={styles.heading} numberOfLines={2}>
                 {paper?.title ?? 'Paper'}
               </Text>
+              <Pressable
+                onPress={onClose}
+                style={({ pressed }) => [styles.closeIconBtn, pressed && styles.pressed]}
+                accessibilityLabel="Close"
+              >
+                <Text variant="body" style={styles.closeIcon}>
+                  ✕
+                </Text>
+              </Pressable>
             </View>
 
             <ScrollView
-              style={[styles.scroll, mobileWebScrollStyle]}
+              style={styles.scroll}
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
             >
@@ -133,6 +138,12 @@ export function PaperModal({ slug, onClose }: Props) {
   );
 }
 
+const frostedBackdropWeb = {
+  backdropFilter: 'blur(12px) saturate(140%)',
+  WebkitBackdropFilter: 'blur(12px) saturate(140%)',
+  backgroundColor: 'rgba(255, 255, 255, 0.25)',
+} as object;
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
@@ -140,7 +151,8 @@ const styles = StyleSheet.create({
   },
   frostedBackdrop: {
     ...StyleSheet.absoluteFill,
-    ...getFrostedBackdropStyle(),
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    ...(Platform.OS === 'web' ? frostedBackdropWeb : {}),
   },
   panelWrap: {
     height: '100%',
@@ -155,15 +167,23 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRightWidth: StyleSheet.hairlineWidth,
     borderRightColor: palette.border,
+    paddingHorizontal: spacing.lg,
   },
   panelHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    justifyContent: 'space-between',
     marginBottom: spacing.md,
-    gap: spacing.xs,
+    gap: spacing.sm,
+  },
+  closeIconBtn: {
+    padding: spacing.sm,
+  },
+  closeIcon: {
+    fontSize: 18,
+    color: palette.muted,
   },
   heading: {
-    ...typography.h2,
     marginBottom: 0,
     flex: 1,
   },

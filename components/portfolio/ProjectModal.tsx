@@ -25,8 +25,6 @@ import { ProjectModalStickyHeader } from '@/components/portfolio/ProjectModalHea
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
 import { getProjectPath } from '@/lib/shareProject';
-import { getPageHorizontalPadding, getRightSlidePanelWidth } from '@/lib/pageLayout';
-import { getFrostedBackdropStyle, mobileWebScrollStyle } from '@/lib/mobileWeb';
 import { palette, spacing } from '@/constants/tokens';
 import { getProject, profile } from '@/data/portfolio';
 
@@ -36,6 +34,7 @@ type Props = {
 };
 
 const SLIDE_MS = 280;
+const PANEL_RATIO = 0.95;
 const SCROLL_BOTTOM_EXTRA = 100;
 const SCROLL_CHIP_THRESHOLD = 80;
 
@@ -43,8 +42,7 @@ export function ProjectModal({ slug, onClose }: Props) {
   const visible = slug !== null;
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
-  const panelWidth = getRightSlidePanelWidth(screenWidth);
-  const contentPadding = getPageHorizontalPadding(screenWidth);
+  const panelWidth = Math.round(screenWidth * PANEL_RATIO);
   const project = slug ? getProject(slug) : undefined;
   const [rendered, setRendered] = useState(false);
   const [chipVisible, setChipVisible] = useState(false);
@@ -158,25 +156,20 @@ export function ProjectModal({ slug, onClose }: Props) {
         <Animated.View style={[styles.panelWrap, { width: panelWidth }, panelStyle]}>
           <GlassSurface
             rounded={0}
-            intensity="clear"
+            intensity="panel"
             style={[
               styles.panel,
               {
                 paddingBottom: Math.max(insets.bottom, spacing.lg),
-                paddingHorizontal: contentPadding,
               },
             ]}
           >
             {project ? (
-              <ProjectModalStickyHeader
-                project={project}
-                onClose={handleClose}
-                contentPadding={contentPadding}
-              />
+              <ProjectModalStickyHeader project={project} onClose={handleClose} />
             ) : null}
 
             <ScrollView
-              style={[styles.scroll, mobileWebScrollStyle]}
+              style={styles.scroll}
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
               onScroll={handleScroll}
@@ -188,7 +181,7 @@ export function ProjectModal({ slug, onClose }: Props) {
                   showFooter={false}
                   showHero={false}
                   showLinks={false}
-                  showSummaryCard
+                  inModal
                 />
               ) : (
                 <View style={styles.notFoundHeader}>
@@ -198,29 +191,34 @@ export function ProjectModal({ slug, onClose }: Props) {
                 </View>
               )}
             </ScrollView>
-          </GlassSurface>
 
-          {project ? (
-            <Animated.View
-              pointerEvents={chipVisible ? 'auto' : 'none'}
-              style={[
-                styles.chipHost,
-                chipStyle,
-                {
-                  bottom: Math.max(insets.bottom, spacing.md),
-                  left: contentPadding,
-                  right: contentPadding,
-                },
-              ]}
-            >
-              <WhatsAppTextMeChip phoneDigits={profile.whatsappPhone} projectTitle={project.title} />
-            </Animated.View>
-          ) : null}
+            {project ? (
+              <Animated.View
+                pointerEvents={chipVisible ? 'auto' : 'none'}
+                style={[
+                  styles.chipHost,
+                  chipStyle,
+                  { bottom: Math.max(insets.bottom, spacing.md) },
+                ]}
+              >
+                <WhatsAppTextMeChip
+                  phoneDigits={profile.whatsappPhone}
+                  projectTitle={project.title}
+                />
+              </Animated.View>
+            ) : null}
+          </GlassSurface>
         </Animated.View>
       </View>
     </Modal>
   );
 }
+
+const frostedBackdropWeb = {
+  backdropFilter: 'blur(12px) saturate(140%)',
+  WebkitBackdropFilter: 'blur(12px) saturate(140%)',
+  backgroundColor: 'rgba(255, 255, 255, 0.25)',
+} as object;
 
 const styles = StyleSheet.create({
   overlay: {
@@ -230,11 +228,11 @@ const styles = StyleSheet.create({
   },
   frostedBackdrop: {
     ...StyleSheet.absoluteFill,
-    ...getFrostedBackdropStyle(),
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    ...(Platform.OS === 'web' ? frostedBackdropWeb : {}),
   },
   panelWrap: {
     height: '100%',
-    position: 'relative',
     zIndex: 1,
     ...(Platform.OS === 'web'
       ? ({
@@ -246,18 +244,26 @@ const styles = StyleSheet.create({
     flex: 1,
     borderLeftWidth: StyleSheet.hairlineWidth,
     borderLeftColor: palette.border,
+    paddingHorizontal: spacing.lg,
     position: 'relative',
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: spacing.sm,
+    paddingTop: spacing.md,
     paddingBottom: SCROLL_BOTTOM_EXTRA + 80,
   },
   chipHost: {
     position: 'absolute',
+    left: spacing.lg,
+    right: spacing.lg,
     zIndex: 2,
+    ...(Platform.OS === 'web'
+      ? ({
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+        } as object)
+      : {}),
   },
   notFoundHeader: {
     paddingVertical: spacing.lg,

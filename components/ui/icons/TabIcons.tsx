@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ImageSourcePropType, StyleSheet } from 'react-native';
+import { Image, StyleSheet, Text as RNText } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -11,14 +11,14 @@ export type TabKey = 'projects' | 'papers' | 'awards' | 'stack';
 
 export const ICON_SIZE_LARGE = 38;
 export const ICON_SIZE_SMALL = 26;
+export const MODAL_ICON_SIZE = 22;
 const HOVER_SCALE = 1.14;
 
-const tabIconSources: Record<TabKey, ImageSourcePropType> = {
+const tabIconSources = {
   projects: require('@/assets/icons/icon-projects.png'),
   papers: require('@/assets/icons/icon-papers.png'),
   awards: require('@/assets/icons/icon-awards.png'),
-  stack: require('@/assets/icons/icon-stack.png'),
-};
+} as const;
 
 type Props = {
   tab: TabKey;
@@ -50,6 +50,16 @@ export function TabIcon({ tab, selected = false, hovered = false }: Props) {
     transform: [{ scale: hoverScale.value }],
   }));
 
+  if (tab === 'stack') {
+    return (
+      <Animated.View style={[styles.emojiWrap, animatedStyle]}>
+        <RNText style={[styles.emoji, selected && styles.emojiSelected]} allowFontScaling={false}>
+          🛠️
+        </RNText>
+      </Animated.View>
+    );
+  }
+
   return (
     <Animated.Image
       source={tabIconSources[tab]}
@@ -59,11 +69,20 @@ export function TabIcon({ tab, selected = false, hovered = false }: Props) {
   );
 }
 
+/** Static tab icon for slide-over modal headers. */
 export function ModalTabIcon({ tab }: { tab: TabKey }) {
+  if (tab === 'stack') {
+    return (
+      <RNText style={styles.modalEmoji} allowFontScaling={false}>
+        🛠️
+      </RNText>
+    );
+  }
+
   return (
-    <Animated.Image
+    <Image
       source={tabIconSources[tab]}
-      style={[styles.icon, { width: ICON_SIZE_SMALL, height: ICON_SIZE_SMALL }]}
+      style={styles.modalIcon}
       resizeMode="contain"
     />
   );
@@ -71,6 +90,30 @@ export function ModalTabIcon({ tab }: { tab: TabKey }) {
 
 const styles = StyleSheet.create({
   icon: {
+    backgroundColor: 'transparent',
+  },
+  emojiWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  emoji: {
+    fontSize: 30,
+    lineHeight: 34,
+    backgroundColor: 'transparent',
+  },
+  emojiSelected: {
+    fontSize: 22,
+    lineHeight: 26,
+  },
+  modalIcon: {
+    width: MODAL_ICON_SIZE,
+    height: MODAL_ICON_SIZE,
+    backgroundColor: 'transparent',
+  },
+  modalEmoji: {
+    fontSize: MODAL_ICON_SIZE,
+    lineHeight: MODAL_ICON_SIZE + 2,
     backgroundColor: 'transparent',
   },
 });

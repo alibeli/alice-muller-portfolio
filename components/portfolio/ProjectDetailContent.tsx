@@ -2,7 +2,7 @@ import { ImageSourcePropType, Platform, ScrollView, StyleSheet, View } from 'rea
 
 import { ProjectImage } from '@/components/portfolio/ProjectImage';
 import { ProjectLinkChip } from '@/components/portfolio/ProjectLinkChip';
-import { ProjectSummaryCard } from '@/components/portfolio/ProjectSummaryCard';
+import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
 import { Link } from '@/components/ui/Link';
 import { Text } from '@/components/ui/Text';
 import { isWhatsAppPitchLink } from '@/lib/projectLinks';
@@ -16,11 +16,35 @@ function blockImageSource(block: Extract<ProjectBlock, { type: 'image' }>): Imag
   return { uri: block.uri ?? '' };
 }
 
-function BlockRenderer({ block }: { block: ProjectBlock }) {
+function BlockRenderer({ block, inModal }: { block: ProjectBlock; inModal: boolean }) {
+  if (block.type === 'image-row') {
+    return (
+      <View style={styles.imageRowWrap}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={Platform.OS === 'web'}
+          contentContainerStyle={styles.imageRowContent}
+        >
+          {block.assets.map((asset, i) => (
+            <ProjectImage key={i} source={asset} carousel />
+          ))}
+        </ScrollView>
+        {block.caption ? (
+          <Text variant="caption" style={styles.caption}>
+            {block.caption}
+          </Text>
+        ) : null}
+      </View>
+    );
+  }
+
   if (block.type === 'image') {
     return (
       <View style={styles.imageBlock}>
-        <ProjectImage source={blockImageSource(block)} maxWidth={MODAL_IMAGE_MAX_WIDTH} />
+        <ProjectImage
+          source={blockImageSource(block)}
+          maxWidth={inModal ? MODAL_IMAGE_MAX_WIDTH : MODAL_IMAGE_MAX_WIDTH}
+        />
         {block.caption ? (
           <Text variant="caption" style={styles.caption}>
             {block.caption}
@@ -56,7 +80,7 @@ type Props = {
   showFooter?: boolean;
   showHero?: boolean;
   showLinks?: boolean;
-  showSummaryCard?: boolean;
+  inModal?: boolean;
 };
 
 export function ProjectDetailContent({
@@ -64,18 +88,22 @@ export function ProjectDetailContent({
   showFooter = true,
   showHero = true,
   showLinks = true,
-  showSummaryCard = false,
+  inModal = false,
 }: Props) {
-  const showCover = showHero && project.images[0];
+  const coverUri = !inModal && project.images[0] ? project.images[0] : null;
 
   return (
     <>
       {showHero ? (
         <View style={styles.hero}>
+          <View style={styles.meta}>
+            <ProjectPeriodMeta project={project} />
+            <Text variant="mono">{project.location}</Text>
+          </View>
           <Text variant="hero" style={styles.title}>
             {project.title}
           </Text>
-          <Text variant="subtitle" muted>
+          <Text variant="subtitle" muted style={styles.tagline}>
             {project.tagline}
           </Text>
           {project.roles.length > 0 ? (
@@ -85,7 +113,7 @@ export function ProjectDetailContent({
           ) : null}
           {project.highlights.length > 0 ? (
             <Text variant="caption" style={styles.highlights}>
-              {project.highlights.join(', ')}
+              {project.highlights.join(' · ')}
             </Text>
           ) : null}
           {project.links.length > 0 ? (
@@ -109,8 +137,6 @@ export function ProjectDetailContent({
         </View>
       ) : null}
 
-      {showSummaryCard ? <ProjectSummaryCard project={project} /> : null}
-
       {project.links.length > 0 && !showHero && showLinks ? (
         <View style={styles.linksCompact}>
           {project.links.map((link) =>
@@ -130,14 +156,35 @@ export function ProjectDetailContent({
         </View>
       ) : null}
 
-      {showCover ? (
+      {project.outcome ? (
+        <View style={styles.outcomeWrap}>
+          <Text variant="body" style={styles.outcome}>
+            {project.outcome}
+          </Text>
+        </View>
+      ) : null}
+
+      {project.decisions && project.decisions.length > 0 ? (
+        <View style={styles.decisionsWrap}>
+          <Text variant="mono" style={styles.decisionsHeading}>
+            Key decisions
+          </Text>
+          {project.decisions.map((decision) => (
+            <Text key={decision} variant="caption" muted style={styles.decisionLine}>
+              · {decision}
+            </Text>
+          ))}
+        </View>
+      ) : null}
+
+      {coverUri ? (
         <View style={styles.coverWrap}>
-          <ProjectImage source={{ uri: project.images[0] }} maxWidth={MODAL_IMAGE_MAX_WIDTH} />
+          <ProjectImage source={{ uri: coverUri }} maxWidth={MODAL_IMAGE_MAX_WIDTH} />
         </View>
       ) : null}
 
       {project.blocks?.map((block, i) => (
-        <BlockRenderer key={i} block={block} />
+        <BlockRenderer key={i} block={block} inModal={inModal} />
       ))}
 
       {showFooter ? (
@@ -156,8 +203,18 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     gap: spacing.sm,
   },
+  meta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    alignItems: 'center',
+  },
   title: {
     marginTop: spacing.sm,
+  },
+  tagline: {
+    lineHeight: 22,
   },
   roles: {
     marginTop: spacing.sm,
@@ -178,18 +235,51 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     marginBottom: spacing.lg,
   },
+  outcomeWrap: {
+    marginBottom: spacing.md,
+  },
+  outcome: {
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: '500',
+    color: palette.foreground,
+  },
+  decisionsWrap: {
+    marginBottom: spacing.lg,
+    gap: spacing.xs,
+  },
+  decisionsHeading: {
+    fontSize: 11,
+    color: palette.subtle,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: 2,
+  },
+  decisionLine: {
+    lineHeight: 18,
+    fontSize: 12,
+  },
   coverWrap: {
     width: '100%',
     alignSelf: 'center',
     marginBottom: spacing.md,
   },
   textBlock: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   imageBlock: {
     marginBottom: spacing.lg,
     alignSelf: 'center',
     width: '100%',
+  },
+  imageRowWrap: {
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
+  },
+  imageRowContent: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   caption: {
     paddingTop: spacing.xs,

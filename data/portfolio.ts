@@ -10,13 +10,12 @@ export type ProjectBlock =
       uri?: string;
       asset?: ImageSourcePropType;
       caption?: string;
+    }
+  | {
+      type: 'image-row';
+      assets: ImageSourcePropType[];
+      caption?: string;
     };
-
-export type TimelineEntry = {
-  date: string;
-  label: string;
-  kind?: 'role' | 'milestone' | 'why';
-};
 
 export type Project = {
   slug: string;
@@ -30,7 +29,6 @@ export type Project = {
   images: string[];
   outcome?: string;
   decisions?: string[];
-  timeline?: TimelineEntry[];
   badge?: 'currently-building';
   blocks?: ProjectBlock[];
 };
@@ -107,25 +105,24 @@ export const profileDetails = [
 export const projects: Project[] = [
   {
     slug: 'ilo',
-    title: 'ILO',
-    period: '2026',
+    title: 'Ailo',
+    period: 'Present',
     location: 'Zürich, Switzerland',
     tagline: 'Bringing people closer together and fostering more community.',
     roles: ['Founder', 'Building'],
-    highlights: ['Currently building'],
+    highlights: [],
     links: [],
     images: [],
     badge: 'currently-building',
     outcome: 'Building a product to bring people closer and foster real community.',
-    timeline: [{ date: '2026', label: 'Exploring & building', kind: 'milestone' }],
   },
   {
     slug: 'nimue',
     title: 'Nimue',
-    period: 'April 2026',
+    period: 'April 2026 – Present',
     location: 'Zürich, Switzerland',
     tagline:
-      'Private, auditable and interactive multi agent orchestration for individuals & teams, with platform & SDK.',
+      'Private, auditable and interactive multi-agent orchestration for individuals & teams, with platform & SDK.',
     roles: ['Defined & built end to end'],
     highlights: [
       'TEEs, MPC, Decentralized Compute',
@@ -142,21 +139,18 @@ export const projects: Project[] = [
       'Modular SDK (10+ components) so teams embed agents without rebuilding orchestration.',
       'RAG, agent identity & 500+ tools for traceable, interactive workflows.',
     ],
-    timeline: [
-      { date: 'Apr 2026', label: 'Platform & SDK — defined & built end to end', kind: 'milestone' },
-    ],
   },
   {
     slug: 'yuki',
     title: 'Yuki',
-    period: 'December 2025 to December 2026',
+    period: 'December 2025 – Present',
     location: 'Zürich, Switzerland',
     tagline:
-      'Privacy first holistic health aggregator ,  connect wearables, labs, cycles & habits into one AI powered longevity dashboard.',
+      'Privacy-first holistic health aggregator, connecting wearables, labs, cycles & habits into one AI-powered longevity dashboard.',
     roles: ['Entrepreneur in Residence @ Nillion', 'Defined & built end to end'],
     highlights: [
       '15+ health widgets',
-      'Encrypted by design ,  health data never sold or shared',
+      'Encrypted by design, health data never sold or shared',
       'Holistic health AI coach',
     ],
     links: [],
@@ -168,32 +162,28 @@ export const projects: Project[] = [
       '15+ widgets unify wearables, labs, cycles & habits into one holistic dashboard.',
       'Focused on real commercial use cases for Nillion privacy-preserving infrastructure.',
     ],
-    timeline: [
-      { date: 'Dec 2025', label: 'EIR @ Nillion — find commercial paths for nilDB stack', kind: 'role' },
-      { date: '2026', label: 'Yuki — defined & built end to end', kind: 'milestone' },
-    ],
   },
   {
     slug: 'swap',
     title: 'Swap',
-    period: 'April 2024  to  August 2025',
+    period: 'May 2024 – August 2025',
     location: 'Zürich, Switzerland',
     tagline:
-      '"Airbnb for Fashion" ,  Multi agent infra orchestrating rental & resale B2C & Peer to Peer fashion marketplace.',
+      '"Airbnb for Fashion", multi-agent infra orchestrating rental & resale B2C & P2P fashion marketplace.',
     roles: ['Founder', 'Head of Product & Engineering'],
-    highlights: ['2k items, 200 businesses served, iOS app, scaled to 8 people team'],
+    highlights: ['2k items, 200 businesses served, iOS app, scaled to 8-person team'],
     links: [
       { label: 'swap-store.xyz', url: 'https://swap-store.xyz' },
       { label: 'Contact for pitch deck', url: 'whatsapp-pitch' },
     ],
     images: [...images.swap],
     outcome: 'Founded & built Swap end to end — live at swap-store.xyz.',
-    timeline: [
-      { date: 'Apr 2024', label: 'Founded — full platform, iOS app, multi-agent infra', kind: 'role' },
-      { date: '2024–25', label: 'Bootstrapped to 8 people (sales & social media)', kind: 'milestone' },
-      { date: 'Aug 2025', label: 'Stopped — mission no longer fulfilling; pivoted to privacy & AI impact', kind: 'why' },
-    ],
     blocks: [
+      {
+        type: 'image-row',
+        assets: swapAppImages,
+        caption: 'App Store marketing screens — AI styling, store onboarding, community & sustainability.',
+      },
       {
         type: 'text',
         title: 'Platform',
@@ -209,48 +199,37 @@ export const projects: Project[] = [
         type: 'text',
         subtitle: 'Why I stopped',
         title: 'Mission fit',
-        body: 'The mission stopped fulfilling me. I wanted problems that help people more deeply — privacy technology and AI impact on society. That led directly to Nillion & what I build now.',
+        body: 'The mission stopped fulfilling me. I wanted problems that help people more deeply — privacy technology and AI’s impact on society. That led directly to Nillion and what I build now.',
       },
-      { type: 'image', asset: swapAppImages[0], caption: 'Outfits for your week, weather & vibe' },
-      { type: 'image', asset: swapAppImages[1], caption: 'Fill your Swap store in seconds — AI item detection' },
-      { type: 'image', asset: swapAppImages[2], caption: 'Wear more, waste less — sustainability dashboard' },
-      { type: 'image', asset: swapAppImages[3], caption: 'Personalize your store, link to grow together' },
-      { type: 'image', asset: swapAppImages[4], caption: 'Join a community, connect with others' },
-      { type: 'image', asset: swapAppImages[5], caption: 'Rent fashion every day, delivered to you' },
     ],
   },
   {
     slug: 'swap-studio',
     title: 'Swap Studio',
-    period: '2024  to  2025',
+    period: 'May 2024 – August 2025',
     location: 'Zürich, Switzerland',
     tagline: 'AI image studio for fashion businesses — before generative AI was mainstream.',
     roles: ['Founder', 'Part of Swap'],
     highlights: ['Built into Swap', 'Business image generation'],
     links: [{ label: 'swap-store.xyz', url: 'https://swap-store.xyz' }],
     images: [],
-    outcome: 'Built a studio inside Swap so businesses generated campaign imagery at scale — pre mainstream gen-AI.',
-    timeline: [
-      { date: '2024', label: 'Launched as part of Swap', kind: 'milestone' },
-      { date: '2025', label: 'Studio for 200+ business sellers', kind: 'milestone' },
-    ],
+    outcome: 'Built a studio inside Swap so businesses generated campaign imagery at scale — pre-mainstream gen-AI.',
     blocks: [
       {
         type: 'text',
         body: 'Swap Studio let fashion sellers produce on-brand model shots and lookbooks without a photo shoot — integrated into the Swap merchant workflow.',
       },
-      { type: 'image', asset: swapStudioImages[0], caption: 'Editorial look — beach campaign' },
-      { type: 'image', asset: swapStudioImages[1], caption: 'Industrial studio setting' },
-      { type: 'image', asset: swapStudioImages[2], caption: 'High-fashion green coat series' },
-      { type: 'image', asset: swapStudioImages[3], caption: 'Variant — crimped hair editorial' },
-      { type: 'image', asset: swapStudioImages[4], caption: 'Sports jersey — branded teamwear' },
-      { type: 'image', asset: swapStudioImages[5], caption: 'Motion capture — dynamic pose' },
+      {
+        type: 'image-row',
+        assets: swapStudioImages,
+        caption: 'AI-generated campaign imagery for fashion businesses.',
+      },
     ],
   },
   {
     slug: 'superpower',
     title: 'Superpower',
-    period: 'June 2021  to  April 2024',
+    period: 'June 2021 – April 2024',
     location: 'Remote & London, UK',
     tagline:
       'B2B2C SaaS upskilling & recruitment platform making instant recruitment and precise upskilling possible.',
@@ -259,12 +238,6 @@ export const projects: Project[] = [
     links: [{ label: 'Demo 2024', url: 'https://www.superpower.tech' }],
     images: [...images.superpower],
     outcome: 'Grew from product designer to VP Product to CEO — 40K members, 3× dev output, Pluralsight partnership.',
-    timeline: [
-      { date: 'Jun 2021', label: 'Product Designer — platform UX & design system', kind: 'role' },
-      { date: 'Feb 2022', label: 'VP of Product — data science, eng, CS, partnerships', kind: 'role' },
-      { date: 'Aug 2023', label: 'CEO — vision, fundraising, 3× developer output', kind: 'role' },
-      { date: 'Apr 2024', label: 'Pluralsight signed · 40K members · 14-person team', kind: 'milestone' },
-    ],
     blocks: [
       {
         type: 'text',
@@ -295,7 +268,7 @@ export const projects: Project[] = [
         type: 'text',
         subtitle: 'Rename & Rebrand',
         title: 'From Workfinder to Superpower',
-        body: "Superpower was originally called Workfinder, which didn't suit our product expansion and mission any longer. I came up with the name Superpower as it better embodied our mission to become a person's lifelong skills companion by helping 1. candidates secure matching jobs quickly, 2. build their skills precisely and 3. help companies fill their open roles instantly ,  granting all of them superpowers.",
+        body: "Superpower was originally called Workfinder, which didn't suit our product expansion and mission any longer. I came up with the name Superpower as it better embodied our mission to become a person's lifelong skills companion by helping 1. candidates secure matching jobs quickly, 2. build their skills precisely and 3. help companies fill their open roles instantly, granting all of them superpowers.",
       },
       {
         type: 'text',
@@ -326,17 +299,13 @@ export const projects: Project[] = [
   {
     slug: 'tact-monster',
     title: 'Tact Monster',
-    period: 'June 2021  to  July 2022',
+    period: 'June 2021 – July 2022',
     location: 'London, UK',
     tagline: 'B2B2C autonomous basketball robot democratizing sports education.',
     roles: ['Co Founder'],
     highlights: ['InnovationRCA Incubator'],
     links: [],
     images: [...images.tactMonster],
-    timeline: [
-      { date: 'Jun 2021', label: 'Co-founded with roboticist co-founder', kind: 'role' },
-      { date: '2021–22', label: 'LOIs from Imperial, Cambridge, Oxford, Edinburgh', kind: 'milestone' },
-    ],
     blocks: [
       {
         type: 'text',
@@ -362,9 +331,9 @@ export const projects: Project[] = [
   {
     slug: 'domi-inter-astra',
     title: 'Domi Inter Astra',
-    period: 'Dec 2020  to  March 2022',
+    period: 'Dec 2020 – March 2022',
     location: 'Remote, Global Team',
-    tagline: '"Home Among the Stars" ,  A modular short to long term lunar settlement system from 2030 onwards.',
+    tagline: '"Home Among the Stars", A modular short to long term lunar settlement system from 2030 onwards.',
     roles: ['Space Architecture Lead'],
     highlights: ['Winner Moon Base Competition'],
     links: [],
@@ -373,7 +342,7 @@ export const projects: Project[] = [
       {
         type: 'text',
         title: 'Summary',
-        body: "Leading the architecture team ,  a group of students and young professionals ,  to design a near-term lunar settlement capable of sustaining long term crews of up to 30 people. The design achieved 1st place out of 18 teams internationally in the Moon Society's 2020 Moon Base Design Challenge, as well as producing papers for the 2021 International Astronautical Conference.",
+        body: "Leading the architecture team, a group of students and young professionals, to design a near-term lunar settlement capable of sustaining long term crews of up to 30 people. The design achieved 1st place out of 18 teams internationally in the Moon Society's 2020 Moon Base Design Challenge, as well as producing papers for the 2021 International Astronautical Conference.",
       },
       { type: 'image', uri: images.dia[0] },
       {
@@ -395,7 +364,7 @@ export const projects: Project[] = [
   {
     slug: 'planet',
     title: 'Planet',
-    period: 'Aug 2020  to  Jun 2021',
+    period: 'Aug 2020 – Jun 2021',
     location: 'Remote',
     tagline: 'B2B2C mobile game where real world sustainable actions drive in-game progress.',
     roles: ['Co Founder'],
@@ -414,14 +383,14 @@ export const projects: Project[] = [
   {
     slug: 'metavogue',
     title: 'Metavogue',
-    period: 'Jan 2021  to  May 2021',
+    period: 'Jan 2021 – May 2021',
     location: 'London, UK',
     tagline: "A digital fashion two-sided marketplace to cut fashion's footprint.",
     roles: ['Solo project', 'MA Thesis, Royal College of Art'],
     highlights: [
-      'Nominated ,  No Waste Challenge by IKEA Foundation',
-      'Recipient ,  WESLDE Trust Award',
-      'Shortlist ,  InnovationRCA',
+      'Nominated, No Waste Challenge by IKEA Foundation',
+      'Recipient, WESLDE Trust Award',
+      'Shortlist, InnovationRCA',
     ],
     links: [],
     images: [...images.metavogue],
@@ -459,11 +428,11 @@ export const projects: Project[] = [
   {
     slug: 'starling',
     title: 'Starling',
-    period: 'Jan 2021  to  May 2021',
+    period: 'Jan 2021 – May 2021',
     location: 'London, UK',
     tagline: 'Consumer swarm robotic system to foster social connection.',
     roles: ['MA Solo Project'],
-    highlights: ['UX Design Awards 2020 ,  Nominated'],
+    highlights: ['UX Design Awards 2020, Nominated'],
     links: [],
     images: [...images.starling],
     blocks: [
@@ -489,7 +458,7 @@ export const projects: Project[] = [
         type: 'text',
         subtitle: 'Research',
         title: 'Areas of research',
-        body: 'Key Insights ,  Swarm Robotics: Highly flexible systems that can multiply potential of single agent through connectivity. Not applied within consumer space yet. Play & Creation: Offers range of cognitive & physical health benefits. Utility: Daily utility and assistance with tasks by robot is crucial factor for users.',
+        body: 'Key Insights, Swarm Robotics: Highly flexible systems that can multiply potential of single agent through connectivity. Not applied within consumer space yet. Play & Creation: Offers range of cognitive & physical health benefits. Utility: Daily utility and assistance with tasks by robot is crucial factor for users.',
       },
       {
         type: 'text',
@@ -506,7 +475,7 @@ export const projects: Project[] = [
         type: 'text',
         subtitle: 'Composition & Design',
         title: 'Meet Starling',
-        body: 'Starling Hardware Design ,  Anthropomorphism limited to a subtle curve of the front LCD screen.',
+        body: 'Starling Hardware Design, Anthropomorphism limited to a subtle curve of the front LCD screen.',
       },
       { type: 'image', uri: images.starling[1], caption: 'Hardware — anthropomorphism limited to LCD curve' },
       { type: 'image', uri: images.starling[12], caption: 'Material & colour explorations' },
@@ -608,10 +577,10 @@ export const projects: Project[] = [
   {
     slug: 'poqy',
     title: 'POQY',
-    period: 'Nov 2019  to  Jan 2020',
+    period: 'Nov 2019 – Jan 2020',
     location: 'London, UK',
     tagline:
-      'Human enhancement in 150 years ,  patomical dust for CERN × Logitech × RCA challenge.',
+      'Human enhancement in 150 years, patomical dust for CERN × Logitech × RCA challenge.',
     roles: ['Team Lead'],
     highlights: ['Finalist CERN × Logitech × Royal College of Art', '3rd Prize'],
     links: [],
@@ -620,7 +589,7 @@ export const projects: Project[] = [
       {
         type: 'text',
         title: 'Summary',
-        body: 'POQY ,  Patomical Oxidoriz Qilex Yuzevix ,  generally known as patomical dust, is a design fictional synthetic atom that has the ability to morph and simulate nearly any genetic function for a short period of time. POQY is a futuristic innovation that makes controlled autonomous atomic formation possible to empower humanity with abilities previously deemed impossible.',
+        body: 'POQY, Patomical Oxidoriz Qilex Yuzevix, generally known as patomical dust, is a design fictional synthetic atom that has the ability to morph and simulate nearly any genetic function for a short period of time. POQY is a futuristic innovation that makes controlled autonomous atomic formation possible to empower humanity with abilities previously deemed impossible.',
       },
       {
         type: 'text',
@@ -668,17 +637,56 @@ export const papers: Paper[] = [
 ];
 
 export const otherProjects: OtherProject[] = [
-  { slug: 'coolbee', title: 'Coolbee', description: 'Sustainable solar air conditioner', period: '2020, MSc & MA' },
-  { slug: 'elefant', title: 'Elefant', description: "Packaging for Samsung's The Frame", period: '2020, MSc & MA' },
-  { slug: 'soma-triplets', title: 'Soma Triplets', description: 'Anthropomorphic hardware', period: '2019, MSc & MA' },
-  { slug: 'whale', title: 'Whale', description: 'Portable steamer & companion app', period: '2019, MSc & MA' },
-  { slug: 'skill-free', title: 'Skill Free', description: 'Skills-based learning concept', period: '2019, MSc' },
-  { slug: 'amateur', title: 'Amateur', description: 'Consumer robotics concept', period: '2019, MSc & MA' },
-  { slug: 'blitz', title: 'Blitz', description: 'Rapid prototyping hardware sprint', period: '2019, MSc & MA' },
-  { slug: 'helvetica', title: 'Helvetica', description: 'On the melting of the Swiss glaciers — BFA thesis', period: '2017, BFA Thesis' },
-  { slug: 'lalique', title: 'Lalique', description: 'Consultation project Parsons × Columbia Business School', period: '2017, BA' },
-  { slug: 'triforce', title: 'Triforce', description: 'Catheter-accessible jeans — Design for Disability', period: '2017, BA' },
-  { slug: 'bulgari', title: 'Bulgari × Luxottica', description: 'Eyewear produced by Luxottica for BVLGARI', period: '2017, BFA' },
+  {
+    slug: 'elephant',
+    title: 'Elephant',
+    description: 'A family standing table made of TV cardboard packaging for Samsung competition.',
+    period: '2020',
+  },
+  {
+    slug: 'coolbee',
+    title: 'Coolbee',
+    description: 'A sustainable, low cost air conditioner using solar energy.',
+    period: '2020',
+  },
+  {
+    slug: 'skillfleet',
+    title: 'Skillfleet',
+    description: 'A learning and upskilling platform for Ebbsfleet Development Cooperation.',
+    period: '2020',
+  },
+  {
+    slug: 'soma-triplets',
+    title: 'Soma Triplets',
+    description: 'Anthropomorphic robots communicating the weather.',
+    period: '2019',
+  },
+  {
+    slug: 'whale',
+    title: 'Whale',
+    description: 'A portable steamer with customised meals controllable via an app.',
+    period: '2019',
+  },
+  {
+    slug: 'lalique',
+    title: 'Lalique',
+    description: 'Consulted Lalique. Recipient of LEF scholarship.',
+    period: '2017',
+  },
+  {
+    slug: 'triforce',
+    title: 'Triforce',
+    description:
+      'Worked with a paraplegic client for 6 months to create catheter accessible jeans.',
+    period: '2017',
+  },
+  {
+    slug: 'bulgari-luxottica',
+    title: 'BVLGARI × Luxottica',
+    description:
+      '6 students selected. Designed eyewear produced by Luxottica for BVLGARI.',
+    period: '2016',
+  },
 ];
 
 export const awards = [
@@ -690,7 +698,7 @@ export const awards = [
   {
     year: '2021',
     title: 'Innovation RCA Startup Program',
-    detail: 'Participant ,  Tact Monster',
+    detail: 'Participant, Tact Monster',
   },
   {
     year: '2021',
@@ -753,7 +761,7 @@ export const awards = [
   },
   {
     year: '2017',
-    title: 'Design for Disability ,  Cerebral Palsy Foundation',
+    title: 'Design for Disability, Cerebral Palsy Foundation',
     detail: 'Special Honors',
   },
   {
@@ -773,12 +781,16 @@ export function getProject(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug);
 }
 
-export function getAllProjectSlugs(): string[] {
-  return projects.map((p) => p.slug);
-}
-
 export function getPaper(slug: string): Paper | undefined {
   return papers.find((p) => p.slug === slug);
+}
+
+export function getAllProjectSlugs(): string[] {
+  return projects.map((project) => project.slug);
+}
+
+export function getAllPaperSlugs(): string[] {
+  return papers.map((paper) => paper.slug);
 }
 
 export function getGridItems(): GridItem[] {

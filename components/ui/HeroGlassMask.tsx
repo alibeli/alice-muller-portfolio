@@ -11,7 +11,6 @@ import { BlurView } from 'expo-blur';
 
 import { palette } from '@/constants/tokens';
 import type { PaperGradient } from '@/data/paperGradients';
-import { getGlassBackground, isCoarsePointerDevice } from '@/lib/mobileWeb';
 
 /** Shorter bottom frosted band for grid tiles. */
 export const TILE_MASK_LOCATIONS: [number, number, number, number] = [0, 0.52, 0.82, 1];
@@ -71,7 +70,6 @@ export function TileTextGlass({
           overflow: 'hidden' as const,
         }
       : {};
-  const touchGlass = isCoarsePointerDevice();
 
   if (Platform.OS === 'web') {
     return (
@@ -80,13 +78,9 @@ export function TileTextGlass({
           StyleSheet.absoluteFill,
           radiusStyle,
           {
-            backgroundColor: touchGlass ? getGlassBackground('medium') : palette.glass.frost,
-            ...(touchGlass
-              ? {}
-              : {
-                  backdropFilter: `blur(${blurPx}px) saturate(160%)`,
-                  WebkitBackdropFilter: `blur(${blurPx}px) saturate(160%)`,
-                }),
+            backdropFilter: `blur(${blurPx}px) saturate(160%)`,
+            WebkitBackdropFilter: `blur(${blurPx}px) saturate(160%)`,
+            backgroundColor: palette.glass.frost,
           } as object,
         ]}
       />

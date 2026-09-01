@@ -6,7 +6,7 @@ export const palette = {
   background: '#FFFFFF',
   foreground: '#0A0A0A',
   muted: '#737373',
-  mutedStrong: '#525252',
+  mutedStrong: '#3D3D3D',
   subtle: '#A3A3A3',
   border: '#E5E5E5',
   surface: '#FAFAFA',
@@ -54,7 +54,6 @@ export const typeScale = {
   lg: 18,
   xl: 20,
   xxl: 24,
-  tab: 16,
   hero: 40,
 } as const;
 
@@ -86,7 +85,7 @@ export const tileText: Record<'period' | 'title' | 'tagline' | 'traction', TextS
     fontSize: typeScale.md,
     fontWeight: '400',
     lineHeight: 18,
-    color: palette.muted,
+    color: palette.mutedStrong,
   },
   traction: {
     fontFamily: fontSans,
@@ -110,8 +109,6 @@ export const spacing = {
 
 export const radii = {
   tile: 22,
-  tileInner: 16,
-  image: 12,
   dock: 28,
   dockMobile: 24,
   pill: 999,
@@ -120,11 +117,7 @@ export const radii = {
 
 export const layout = {
   maxWidth: 720,
-  /** @deprecated Use pagePaddingDesktop / getPageHorizontalPadding */
-  contentPadding: 32,
-  pagePaddingMobile: 8,
-  pagePaddingDesktop: 32,
-  mobileBreakpoint: 640,
+  contentPadding: 24,
 } as const;
 
 /** Motion presets for hover / carousel interactions. */
