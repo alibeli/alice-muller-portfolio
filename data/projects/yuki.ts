@@ -23,4 +23,11 @@ export const yuki: ProjectBase = {
       '15+ widgets unify wearables, labs, cycles & habits into one holistic dashboard.',
       'Focused on real commercial use cases for Nillion privacy-preserving infrastructure.',
     ],
+    blocks: [
+      {
+        type: 'text',
+        title: 'Summary',
+        body: 'As Entrepreneur in Residence at Nillion, building a privacy-first holistic health aggregator and AI longevity coach — connecting wearables, labs, cycles, and habits into one encrypted dashboard.',
+      },
+    ],
   };

@@ -12,4 +12,11 @@ export const ilo: ProjectBase = {
     images: [],
     badge: 'currently-building',
     outcome: 'Building a product to bring people closer and foster real community.',
+    blocks: [
+      {
+        type: 'text',
+        title: 'Summary',
+        body: 'Building a product to bring people closer together and foster more community.',
+      },
+    ],
   };

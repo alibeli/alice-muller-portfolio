@@ -26,6 +26,11 @@ export const nimue: ProjectBase = {
   ],
   blocks: [
     {
+      type: 'text',
+      title: 'Summary',
+      body: 'Built a privacy-first multi-agent orchestration platform and SDK on Nillion blind-compute research — private, auditable, interactive agent workflows for individuals and teams.',
+    },
+    {
       type: 'image',
       asset: nimueHeroImage,
       caption: 'Nimue — multi-agent orchestration platform.',
