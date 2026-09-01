@@ -1,5 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  LayoutChangeEvent,
+  Platform,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -20,10 +27,11 @@ const HEADER_TABS: { key: TabKey; label: string; countKey?: 'projects' | 'papers
 ];
 
 const TAB_WIDTH = 52;
-const TAB_WIDTH_ACTIVE = 120;
 const TAB_WIDTH_COMPACT = 44;
 const TAB_PADDING = 4;
 const TAB_HEIGHT = 44;
+
+type TabLayout = { x: number; width: number };
 
 type Props = {
   projectsActive?: boolean;
@@ -52,15 +60,21 @@ function isTabSelected(
   return projectsActive;
 }
 
-function getPillOffset(activeIndex: number, tabWidth: number): number {
-  return activeIndex * tabWidth;
-}
-
 function getActiveIndex(papersOpen: boolean, awardsOpen: boolean, stackOpen: boolean): number {
   if (stackOpen) return 3;
   if (awardsOpen) return 2;
   if (papersOpen) return 1;
   return 0;
+}
+
+function CountChip({ count }: { count: number }) {
+  return (
+    <View style={styles.countChip}>
+      <Text variant="mono" style={styles.countChipText}>
+        {count}
+      </Text>
+    </View>
+  );
 }
 
 /** Tab pill with skeuomorphic icons — large when idle, shrink on select to reveal label. */
@@ -80,23 +94,54 @@ export function FilterHeader({
   const { width: screenWidth } = useWindowDimensions();
   const compact = screenWidth < 360;
   const tabWidth = compact ? TAB_WIDTH_COMPACT : TAB_WIDTH;
-  const tabWidthActive = compact ? TAB_WIDTH_COMPACT : TAB_WIDTH_ACTIVE;
   const [hoveredTab, setHoveredTab] = useState<TabKey | null>(null);
+  const [tabLayouts, setTabLayouts] = useState<TabLayout[]>([]);
   const activeIndex = getActiveIndex(papersOpen, awardsOpen, stackOpen);
 
-  const pillX = useSharedValue(getPillOffset(activeIndex, tabWidth));
-  const pillWidth = useSharedValue(tabWidthActive);
+  const pillX = useSharedValue(0);
+  const pillWidth = useSharedValue(tabWidth);
+
+  const getTabCount = useCallback(
+    (countKey?: 'projects' | 'papers' | 'awards') => {
+      if (countKey === 'projects') return projectCount;
+      if (countKey === 'papers') return paperCount;
+      if (countKey === 'awards') return awardCount;
+      return undefined;
+    },
+    [awardCount, paperCount, projectCount],
+  );
+
+  const syncPill = useCallback(
+    (layouts: TabLayout[], index: number) => {
+      const layout = layouts[index];
+      if (!layout) return;
+      pillX.value = withTiming(layout.x, {
+        duration: 260,
+        easing: Easing.bezier(0.4, 0, 0.2, 1),
+      });
+      pillWidth.value = withTiming(layout.width, {
+        duration: 260,
+        easing: Easing.bezier(0.4, 0, 0.2, 1),
+      });
+    },
+    [pillWidth, pillX],
+  );
 
   useEffect(() => {
-    pillX.value = withTiming(getPillOffset(activeIndex, tabWidth), {
-      duration: 260,
-      easing: Easing.bezier(0.4, 0, 0.2, 1),
+    syncPill(tabLayouts, activeIndex);
+  }, [activeIndex, syncPill, tabLayouts]);
+
+  const handleTabLayout = (index: number) => (event: LayoutChangeEvent) => {
+    const { x, width } = event.nativeEvent.layout;
+    setTabLayouts((prev) => {
+      const next = [...prev];
+      next[index] = { x, width };
+      if (index === activeIndex) {
+        syncPill(next, activeIndex);
+      }
+      return next;
     });
-    pillWidth.value = withTiming(tabWidthActive, {
-      duration: 260,
-      easing: Easing.bezier(0.4, 0, 0.2, 1),
-    });
-  }, [activeIndex, pillWidth, pillX, tabWidth, tabWidthActive]);
+  };
 
   const pillStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: pillX.value }],
@@ -127,24 +172,11 @@ export function FilterHeader({
         } as object)
       : {};
 
-  const getTabCount = (countKey?: 'projects' | 'papers' | 'awards') => {
-    if (countKey === 'projects') return projectCount;
-    if (countKey === 'papers') return paperCount;
-    if (countKey === 'awards') return awardCount;
-    return undefined;
-  };
-
-  const getTabLabel = (option: (typeof HEADER_TABS)[number], selected: boolean) => {
-    const count = getTabCount(option.countKey);
-    if (selected && count != null) return `${option.label} (${count})`;
-    return option.label;
-  };
-
   return (
     <GlassSurface rounded={999} intensity="medium" style={styles.glassCard}>
       <View style={styles.toggle}>
         <Animated.View style={[styles.pill, pillStyle]} />
-        {HEADER_TABS.map((option) => {
+        {HEADER_TABS.map((option, index) => {
           const selected = isTabSelected(
             option.key,
             projectsActive,
@@ -152,14 +184,17 @@ export function FilterHeader({
             awardsOpen,
             stackOpen,
           );
+          const count = getTabCount(option.countKey);
+
           return (
             <Pressable
               key={option.key}
               onPress={() => handleTabPress(option.key)}
+              onLayout={handleTabLayout(index)}
               style={[
                 styles.option,
                 selected ? styles.optionActive : styles.optionIdle,
-                selected ? { width: tabWidthActive } : { width: tabWidth },
+                selected ? null : { width: tabWidth },
               ]}
               accessibilityRole="tab"
               accessibilityState={{ selected }}
@@ -172,9 +207,12 @@ export function FilterHeader({
                 hovered={hoveredTab === option.key}
               />
               {selected && !compact ? (
-                <Text variant="body" style={styles.optionLabelActive} numberOfLines={1}>
-                  {getTabLabel(option, selected)}
-                </Text>
+                <>
+                  <Text variant="body" style={styles.optionLabelActive}>
+                    {option.label}
+                  </Text>
+                  {count != null ? <CountChip count={count} /> : null}
+                </>
               ) : null}
             </Pressable>
           );
@@ -212,17 +250,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
+  },
+  optionIdle: {
     paddingHorizontal: 4,
   },
-  optionIdle: {},
   optionActive: {
-    gap: spacing.xs,
-    paddingHorizontal: 8,
+    gap: 6,
+    paddingHorizontal: 10,
   },
   optionLabelActive: {
     fontSize: 12,
     fontWeight: '600',
     color: '#0A0A0A',
-    flexShrink: 1,
+    flexShrink: 0,
+  },
+  countChip: {
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 6,
+    borderRadius: 999,
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  countChipText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#0A0A0A',
+    lineHeight: 12,
   },
 });

@@ -19,7 +19,7 @@ import { getPaperPath, getProjectPath } from '@/lib/shareProject';
 import { useModalDeepLink } from '@/lib/useModalDeepLink';
 
 const TAB_BAR_HEIGHT = 52;
-const GRID_MAX_WIDTH = 1200;
+const GRID_MAX_WIDTH = 1500;
 const MOBILE_GRID_INSET = spacing.sm;
 const DESKTOP_GRID_INSET = spacing.lg;
 const MOBILE_GRID_GAP = spacing.sm;
@@ -210,7 +210,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
         <Text variant="mono" style={styles.sectionHeading}>
           Selected projects ({selectedProjectCount})
         </Text>
-        <View style={[styles.grid, styles.projectGrid, { gap: gridGap }]}>
+        <View style={[styles.grid, styles.constrainedGrid, { gap: gridGap }]}>
           {rows.map((row, rowIndex) => (
             <View key={rowIndex} style={[styles.row, { gap: gridGap }]}>
               {row.map((item) => (
@@ -221,28 +221,20 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
                   onProjectPress={handleProjectPress}
                 />
               ))}
-              {row.length < columns &&
-                Array.from({ length: columns - row.length }).map((_, i) => (
-                  <View key={`spacer-${i}`} style={{ width: tileSize }} />
-                ))}
             </View>
           ))}
         </View>
 
-        <View style={styles.moreSection}>
+        <View style={[styles.moreSection, styles.constrainedGrid]}>
           <Text variant="mono" style={styles.moreHeading}>
             More projects
           </Text>
-          <View style={[styles.grid, { gap: gridGap }]}>
+          <View style={[styles.grid, styles.constrainedGrid, { gap: gridGap }]}>
             {moreRows.map((row, rowIndex) => (
               <View key={`more-${rowIndex}`} style={[styles.row, { gap: gridGap }]}>
                 {row.map((project) => (
                   <MoreProjectTile key={project.slug} project={project} width={moreTileSize} />
                 ))}
-                {row.length < moreColumns &&
-                  Array.from({ length: moreColumns - row.length }).map((_, i) => (
-                    <View key={`more-spacer-${i}`} style={{ width: moreTileSize }} />
-                  ))}
               </View>
             ))}
           </View>
@@ -333,17 +325,19 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
-  projectGrid: {
+  constrainedGrid: {
     maxWidth: GRID_MAX_WIDTH,
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
   },
   moreSection: {
     marginTop: spacing.xxl,
     marginBottom: spacing.xxxl,
     gap: spacing.md,
+    width: '100%',
+    alignSelf: 'center',
   },
   moreHeading: {
     fontSize: 11,

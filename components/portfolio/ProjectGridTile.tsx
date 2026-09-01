@@ -296,8 +296,6 @@ const styles = StyleSheet.create({
     backgroundColor: palette.glass.frost,
     borderTopLeftRadius: radii.tile,
     borderTopRightRadius: radii.tile,
-    borderBottomLeftRadius: radii.tileOuter,
-    borderBottomRightRadius: radii.tileOuter,
     ...(Platform.OS === 'web'
       ? ({
           backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -311,8 +309,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
     borderTopLeftRadius: radii.tile,
     borderTopRightRadius: radii.tile,
-    borderBottomLeftRadius: radii.tileOuter,
-    borderBottomRightRadius: radii.tileOuter,
     pointerEvents: 'box-none',
   },
   linkPill: {
