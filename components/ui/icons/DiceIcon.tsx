@@ -1,5 +1,5 @@
-import { createElement, useEffect } from 'react';
-import { Platform, StyleSheet, Text } from 'react-native';
+import { useEffect } from 'react';
+import { Image, Platform, StyleSheet, Text } from 'react-native';
 import Animated, {
   cancelAnimation,
   Easing,
@@ -9,6 +9,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+const diceImage = require('@/assets/images/dice-skeuomorphic.png');
+
 type Props = {
   size?: number;
   color?: string;
@@ -17,58 +19,49 @@ type Props = {
   spinToken?: number;
 };
 
-function DiceGlyph({ size, color }: { size: number; color: string }) {
-  if (Platform.OS === 'web') {
-    return createElement(
-      'svg',
-      {
-        width: size,
-        height: size,
-        viewBox: '0 0 24 24',
-        fill: 'none',
-        xmlns: 'http://www.w3.org/2000/svg',
-      },
-      createElement('rect', {
-        x: 3,
-        y: 3,
-        width: 18,
-        height: 18,
-        rx: 4,
-        stroke: color,
-        strokeWidth: 1.6,
-        fill: 'transparent',
-      }),
-      createElement('circle', { cx: 8, cy: 8, r: 1.35, fill: color }),
-      createElement('circle', { cx: 16, cy: 8, r: 1.35, fill: color }),
-      createElement('circle', { cx: 12, cy: 12, r: 1.35, fill: color }),
-      createElement('circle', { cx: 8, cy: 16, r: 1.35, fill: color }),
-      createElement('circle', { cx: 16, cy: 16, r: 1.35, fill: color }),
-    );
-  }
-
-  return <Text style={{ fontSize: size * 0.9, color, lineHeight: size }}>🎲</Text>;
-}
-
 const SPIN_FAST_MS = 160;
 const SPIN_SLOW_MS = 520;
 
+function DiceGlyph({ size }: { size: number }) {
+  return (
+    <Image
+      source={diceImage}
+      style={{ width: size, height: size }}
+      resizeMode="contain"
+      accessibilityIgnoresInvertColors
+    />
+  );
+}
+
+function DiceFallback({ size, color }: { size: number; color: string }) {
+  return <Text style={{ fontSize: size * 0.9, color, lineHeight: size }}>🎲</Text>;
+}
+
 export function DiceIcon({ size = 18, color = '#737373', disabled = false, spinToken = 0 }: Props) {
   const rotation = useSharedValue(0);
+  const rotateX = useSharedValue(0);
+  const rotateY = useSharedValue(0);
   const scale = useSharedValue(1);
-  const iconColor = disabled ? '#A3A3A3' : color;
 
   useEffect(() => {
     if (spinToken === 0) return;
 
     cancelAnimation(rotation);
+    cancelAnimation(rotateX);
+    cancelAnimation(rotateY);
     cancelAnimation(scale);
 
     const extraTurns = 3 + Math.floor(Math.random() * 2);
     const landing = (Math.floor(Math.random() * 4) * 90) % 360;
     const totalRotation = extraTurns * 360 + landing;
     const fastRotation = totalRotation * 0.72;
+    const tumbleX = 360 + Math.floor(Math.random() * 2) * 180;
+    const tumbleY = 270 + Math.floor(Math.random() * 2) * 180;
 
     rotation.value = 0;
+    rotateX.value = 0;
+    rotateY.value = 0;
+
     rotation.value = withSequence(
       withTiming(fastRotation, {
         duration: SPIN_FAST_MS,
@@ -81,21 +74,46 @@ export function DiceIcon({ size = 18, color = '#737373', disabled = false, spinT
       withTiming(landing, { duration: 0 }),
     );
 
+    rotateX.value = withSequence(
+      withTiming(tumbleX * 0.7, { duration: SPIN_FAST_MS, easing: Easing.in(Easing.quad) }),
+      withTiming(tumbleX, { duration: SPIN_SLOW_MS, easing: Easing.out(Easing.cubic) }),
+      withTiming(0, { duration: 0 }),
+    );
+
+    rotateY.value = withSequence(
+      withTiming(tumbleY * 0.65, { duration: SPIN_FAST_MS, easing: Easing.in(Easing.quad) }),
+      withTiming(tumbleY, { duration: SPIN_SLOW_MS, easing: Easing.out(Easing.cubic) }),
+      withTiming(0, { duration: 0 }),
+    );
+
     scale.value = withSequence(
       withTiming(0.88, { duration: SPIN_FAST_MS, easing: Easing.in(Easing.quad) }),
-      withTiming(1.06, { duration: SPIN_SLOW_MS * 0.55, easing: Easing.out(Easing.cubic) }),
+      withTiming(1.08, { duration: SPIN_SLOW_MS * 0.55, easing: Easing.out(Easing.cubic) }),
       withTiming(1, { duration: SPIN_SLOW_MS * 0.45, easing: Easing.out(Easing.back(1.35)) }),
     );
-  }, [rotation, scale, spinToken]);
+  }, [rotateX, rotateY, rotation, scale, spinToken]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }, { scale: scale.value }],
+    transform: [
+      { perspective: 500 },
+      { rotateX: `${rotateX.value}deg` },
+      { rotateY: `${rotateY.value}deg` },
+      { rotate: `${rotation.value}deg` },
+      { scale: scale.value },
+    ],
     opacity: disabled ? 0.45 : 1,
   }));
 
+  const glyph =
+    Platform.OS === 'web' || Platform.OS === 'ios' || Platform.OS === 'android' ? (
+      <DiceGlyph size={size} />
+    ) : (
+      <DiceFallback size={size} color={disabled ? '#A3A3A3' : color} />
+    );
+
   return (
     <Animated.View style={[styles.wrap, { width: size, height: size }, animatedStyle]}>
-      <DiceGlyph size={size} color={iconColor} />
+      {glyph}
     </Animated.View>
   );
 }

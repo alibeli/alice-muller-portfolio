@@ -24,9 +24,11 @@ const MOBILE_GRID_INSET = spacing.sm;
 const DESKTOP_GRID_INSET = spacing.lg;
 const MOBILE_GRID_GAP = spacing.sm;
 const DESKTOP_GRID_GAP = spacing.md;
-/** Mobile portrait tiles: width × aspect */
+/** Mobile portrait tiles: width × aspect (capped to viewport below header + dock). */
 const MOBILE_TILE_ASPECT = 1.32;
 const MOBILE_BREAKPOINT = 640;
+/** Profile dock + WhatsApp bar reserve (px, excluding safe area). */
+const MOBILE_DOCK_RESERVE = 300;
 
 function getTileSize(
   screenWidth: number,
@@ -69,20 +71,29 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
   );
   const [paperSlug, setPaperSlug] = useState<string | null>(() => readPaperSlugFromPathname());
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const { width, height: windowHeight } = useWindowDimensions();
   const isMobile = width < MOBILE_BREAKPOINT;
   const horizontalPadding = isMobile ? MOBILE_GRID_INSET : DESKTOP_GRID_INSET;
   const gridGap = isMobile ? MOBILE_GRID_GAP : DESKTOP_GRID_GAP;
   const columns = getColumns(width);
   const moreColumns = getMoreColumns(width);
   const tileSize = getTileSize(width, columns, horizontalPadding, gridGap);
-  const tileHeight = isMobile ? Math.floor(tileSize * MOBILE_TILE_ASPECT) : tileSize;
-  const projectSnapStride = tileHeight + gridGap;
-  const moreTileSize = getTileSize(width, moreColumns, horizontalPadding, gridGap);
-  const items = getGridItems();
 
   const headerTop = insets.top + spacing.sm;
   const scrollTopPad = headerTop + TAB_BAR_HEIGHT + spacing.md;
+
+  const tileHeight = useMemo(() => {
+    if (!isMobile) return tileSize;
+    const viewportMax = Math.floor(
+      windowHeight - scrollTopPad - MOBILE_DOCK_RESERVE - insets.bottom - gridGap,
+    );
+    const idealHeight = Math.floor(tileSize * MOBILE_TILE_ASPECT);
+    return Math.min(idealHeight, Math.max(tileSize, viewportMax));
+  }, [gridGap, insets.bottom, isMobile, scrollTopPad, tileSize, windowHeight]);
+
+  const projectSnapStride = tileHeight + gridGap;
+  const moreTileSize = getTileSize(width, moreColumns, horizontalPadding, gridGap);
+  const items = getGridItems();
 
   const projectDeepLink = useModalDeepLink({
     slug: projectSlug,
@@ -253,6 +264,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
                   item={item}
                   size={tileSize}
                   height={tileHeight}
+                  captionPlacement={isMobile ? 'top' : 'bottom'}
                   onProjectPress={handleProjectPress}
                 />
               ))}

@@ -1,1 +1,6 @@
-export const WHATSAPP_BAR_HEIGHT = 60;
+export const WHATSAPP_BAR_MIN_HEIGHT = 60;
+export const WHATSAPP_BAR_MAX_HEIGHT = 148;
+export const WHATSAPP_INPUT_MAX_HEIGHT = 112;
+
+/** @deprecated Use WHATSAPP_BAR_MIN_HEIGHT */
+export const WHATSAPP_BAR_HEIGHT = WHATSAPP_BAR_MIN_HEIGHT;

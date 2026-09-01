@@ -30,6 +30,8 @@ type Props = {
   size: number;
   /** Defaults to square (`size`). Use on mobile for taller portrait tiles. */
   height?: number;
+  /** Frosted caption band on thumbnail — top on mobile for scroll-snap readability. */
+  captionPlacement?: 'top' | 'bottom';
   /** Opens project in slide-over modal instead of navigating. */
   onProjectPress?: (slug: string) => void;
   /** Opens paper in left slide-over modal instead of navigating. */
@@ -95,8 +97,16 @@ function PlaceholderBackground() {
   );
 }
 
-export function ProjectGridTile({ item, size, height, onProjectPress, onPaperPress }: Props) {
+export function ProjectGridTile({
+  item,
+  size,
+  height,
+  captionPlacement = 'bottom',
+  onProjectPress,
+  onPaperPress,
+}: Props) {
   const tileHeight = height ?? size;
+  const captionOnTop = captionPlacement === 'top';
   const isPaper = item.kind === 'paper';
   const images = !isPaper && item.images.length > 0 ? item.images : [];
   const [index, setIndex] = useState(0);
@@ -187,9 +197,20 @@ export function ProjectGridTile({ item, size, height, onProjectPress, onPaperPre
         )}
       </View>
 
-      <View style={styles.textBlock}>
-        <View style={[styles.textGlass, styles.textGlassNonInteractive]} />
-        <View style={styles.textInner}>
+      <View style={[styles.textBlock, captionOnTop ? styles.textBlockTop : styles.textBlockBottom]}>
+        <View
+          style={[
+            styles.textGlass,
+            styles.textGlassNonInteractive,
+            captionOnTop ? styles.textGlassTop : styles.textGlassBottom,
+          ]}
+        />
+        <View
+          style={[
+            styles.textInner,
+            captionOnTop ? styles.textInnerTop : styles.textInnerBottom,
+          ]}
+        >
           {item.badge === 'currently-building' ? (
             <ProjectPeriodMeta project={item} />
           ) : (
@@ -292,8 +313,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 0,
     zIndex: 2,
+  },
+  textBlockTop: {
+    top: 0,
+  },
+  textBlockBottom: {
+    bottom: 0,
   },
   textGlassNonInteractive: {
     pointerEvents: 'none',
@@ -301,22 +327,34 @@ const styles = StyleSheet.create({
   textGlass: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: palette.glass.frost,
-    borderTopLeftRadius: radii.tile,
-    borderTopRightRadius: radii.tile,
     ...(Platform.OS === 'web'
       ? ({
           backgroundColor: 'rgba(255, 255, 255, 0.9)',
         } as object)
       : {}),
   },
+  textGlassTop: {
+    borderBottomLeftRadius: radii.tile,
+    borderBottomRightRadius: radii.tile,
+  },
+  textGlassBottom: {
+    borderTopLeftRadius: radii.tile,
+    borderTopRightRadius: radii.tile,
+  },
   textInner: {
     padding: spacing.md,
     gap: 3,
     position: 'relative',
     zIndex: 1,
+    pointerEvents: 'box-none',
+  },
+  textInnerTop: {
+    borderBottomLeftRadius: radii.tile,
+    borderBottomRightRadius: radii.tile,
+  },
+  textInnerBottom: {
     borderTopLeftRadius: radii.tile,
     borderTopRightRadius: radii.tile,
-    pointerEvents: 'box-none',
   },
   linkPill: {
     alignSelf: 'flex-start',
