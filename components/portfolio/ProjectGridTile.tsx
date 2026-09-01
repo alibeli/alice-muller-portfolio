@@ -257,21 +257,11 @@ const styles = StyleSheet.create({
   },
   imageStage: {
     ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
     overflow: 'hidden',
   },
   coverImage: {
-    ...StyleSheet.absoluteFill,
-    ...(Platform.OS === 'web'
-      ? ({
-          maxWidth: '100%',
-          objectFit: 'cover',
-        } as object)
-      : {
-          width: '100%',
-          height: '100%',
-        }),
+    width: '100%',
+    height: '100%',
   },
   textBlock: {
     position: 'absolute',
