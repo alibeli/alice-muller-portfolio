@@ -33,11 +33,7 @@ function getProjectGallery(project: Project): ImageSourcePropType[] {
   return project.images.map((uri) => ({ uri }));
 }
 
-function BlockRenderer({ block, inModal }: { block: ProjectBlock; inModal: boolean }) {
-  if (inModal && (block.type === 'image' || block.type === 'image-row')) {
-    return null;
-  }
-
+function BlockRenderer({ block }: { block: ProjectBlock }) {
   if (block.type === 'image-row') {
     return (
       <View style={styles.imageRowWrap}>
@@ -45,10 +41,12 @@ function BlockRenderer({ block, inModal }: { block: ProjectBlock; inModal: boole
           items={block.assets}
           slideMaxWidth={MODAL_IMAGE_MAX_WIDTH}
           caption={block.caption}
-          renderItem={(asset, index) => (
+          renderItem={(asset, index, slide) => (
             <ProjectImage
               source={asset}
-              maxWidth={MODAL_IMAGE_MAX_WIDTH}
+              maxWidth={slide.width}
+              slideHeight={slide.height}
+              variant="carousel"
               caption={block.caption}
               gallerySources={block.assets}
               galleryIndex={index}
@@ -186,10 +184,12 @@ export function ProjectDetailContent({
           <SnapCarousel
             items={galleryImages}
             slideMaxWidth={MODAL_IMAGE_MAX_WIDTH}
-            renderItem={(source, index) => (
+            renderItem={(source, index, slide) => (
               <ProjectImage
                 source={source}
-                maxWidth={MODAL_IMAGE_MAX_WIDTH}
+                maxWidth={slide.width}
+                slideHeight={slide.height}
+                variant="carousel"
                 gallerySources={galleryImages}
                 galleryIndex={index}
               />
@@ -226,7 +226,7 @@ export function ProjectDetailContent({
       ) : null}
 
       {project.blocks?.map((block, i) => (
-        <BlockRenderer key={i} block={block} inModal={inModal} />
+        <BlockRenderer key={i} block={block} />
       ))}
 
       {showFooter ? (

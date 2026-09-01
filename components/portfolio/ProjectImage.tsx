@@ -22,6 +22,9 @@ type Props = {
   caption?: string;
   gallerySources?: ImageSourcePropType[];
   galleryIndex?: number;
+  /** Fixed-height carousel slide: image fills slide and stays centered. */
+  variant?: 'inline' | 'carousel';
+  slideHeight?: number;
 };
 
 function getLoadedAspectRatio(event: NativeSyntheticEvent<ImageLoadEventData>): number | null {
@@ -45,12 +48,15 @@ export function ProjectImage({
   caption,
   gallerySources,
   galleryIndex = 0,
+  variant = 'inline',
+  slideHeight,
 }: Props) {
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(galleryIndex);
 
   const handleLoad = (event: NativeSyntheticEvent<ImageLoadEventData>) => {
+    if (variant === 'carousel') return;
     const ratio = getLoadedAspectRatio(event);
     if (ratio && ratio > 0) setAspectRatio(ratio);
   };
@@ -61,14 +67,25 @@ export function ProjectImage({
     setLightboxOpen(true);
   };
 
+  const isCarousel = variant === 'carousel';
+  const frameHeight = slideHeight ?? 420;
+
   const imageContent = (
-    <View style={[styles.wrap, { maxWidth }]}>
+    <View
+      style={[
+        styles.wrap,
+        { maxWidth },
+        isCarousel && styles.carouselWrap,
+        isCarousel ? { height: frameHeight, maxWidth } : null,
+      ]}
+    >
       <Image
         source={source}
         style={[
           styles.image,
-          { maxWidth, width: '100%' },
-          aspectRatio ? { aspectRatio } : styles.imageFallback,
+          isCarousel
+            ? styles.carouselImage
+            : [{ maxWidth, width: '100%' }, aspectRatio ? { aspectRatio } : styles.imageFallback],
         ]}
         resizeMode="contain"
         onLoad={handleLoad}
@@ -88,7 +105,11 @@ export function ProjectImage({
         onPress={openLightbox}
         accessibilityRole="button"
         accessibilityLabel={caption ? `View image: ${caption}` : 'View image full size'}
-        style={({ pressed }) => [styles.pressable, pressed && styles.pressablePressed]}
+        style={({ pressed }) => [
+          styles.pressable,
+          isCarousel && styles.carouselPressable,
+          pressed && styles.pressablePressed,
+        ]}
       >
         {imageContent}
       </Pressable>
@@ -115,6 +136,10 @@ const styles = StyleSheet.create({
         } as object)
       : {}),
   },
+  carouselPressable: {
+    width: '100%',
+    height: '100%',
+  },
   pressablePressed: {
     opacity: 0.92,
   },
@@ -123,9 +148,19 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 16,
   },
+  carouselWrap: {
+    marginBottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   image: {
     borderRadius: 12,
     backgroundColor: 'transparent',
+  },
+  carouselImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
   },
   imageFallback: {
     minHeight: 200,

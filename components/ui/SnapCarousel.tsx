@@ -7,18 +7,26 @@ import {
   ScrollView,
   StyleSheet,
   View,
-  useWindowDimensions,
 } from 'react-native';
 
 import { Text } from '@/components/ui/Text';
 import { palette, spacing } from '@/constants/tokens';
 
+export type CarouselSlideLayout = {
+  width: number;
+  height: number;
+};
+
 type Props<T> = {
   items: T[];
-  renderItem: (item: T, index: number) => ReactNode;
+  renderItem: (item: T, index: number, slide: CarouselSlideLayout) => ReactNode;
   caption?: string;
   slideMaxWidth?: number;
+  /** Height ratio relative to slide width (default 0.62). */
+  slideHeightRatio?: number;
 };
+
+const DEFAULT_SLIDE_HEIGHT_RATIO = 0.62;
 
 const hideScrollbarWeb = Platform.OS === 'web'
   ? ({
@@ -28,8 +36,17 @@ const hideScrollbarWeb = Platform.OS === 'web'
     } as object)
   : {};
 
-export function SnapCarousel<T>({ items, renderItem, caption, slideMaxWidth }: Props<T>) {
-  const { width: screenWidth } = useWindowDimensions();
+function slideHeightForWidth(width: number, ratio: number): number {
+  return Math.max(Math.round(width * ratio), 240);
+}
+
+export function SnapCarousel<T>({
+  items,
+  renderItem,
+  caption,
+  slideMaxWidth,
+  slideHeightRatio = DEFAULT_SLIDE_HEIGHT_RATIO,
+}: Props<T>) {
   const scrollRef = useRef<ScrollView>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [index, setIndex] = useState(0);
@@ -40,6 +57,9 @@ export function SnapCarousel<T>({ items, renderItem, caption, slideMaxWidth }: P
         ? Math.min(containerWidth, slideMaxWidth)
         : containerWidth
       : 0;
+
+  const slideHeight = slideWidth > 0 ? slideHeightForWidth(slideWidth, slideHeightRatio) : 0;
+  const slideLayout: CarouselSlideLayout = { width: slideWidth, height: slideHeight };
 
   const onLayout = useCallback((width: number) => {
     if (width > 0) setContainerWidth(width);
@@ -64,7 +84,9 @@ export function SnapCarousel<T>({ items, renderItem, caption, slideMaxWidth }: P
   if (items.length === 1) {
     return (
       <View style={styles.wrap}>
-        <View style={styles.singleSlide}>{renderItem(items[0], 0)}</View>
+        <View style={[styles.singleSlide, slideWidth > 0 ? { width: slideWidth, height: slideHeight } : null]}>
+          {renderItem(items[0], 0, slideLayout)}
+        </View>
         {caption ? (
           <Text variant="caption" style={styles.caption}>
             {caption}
@@ -105,8 +127,12 @@ export function SnapCarousel<T>({ items, renderItem, caption, slideMaxWidth }: P
           showsHorizontalScrollIndicator={false}
           onScroll={onScroll}
           scrollEventThrottle={16}
-          style={[styles.scroll, hideScrollbarWeb]}
-          contentContainerStyle={slideWidth > 0 ? { width: slideWidth * items.length } : styles.hiddenUntilLayout}
+          style={[styles.scroll, slideHeight > 0 ? { height: slideHeight } : null, hideScrollbarWeb]}
+          contentContainerStyle={
+            slideWidth > 0
+              ? { width: slideWidth * items.length, height: slideHeight }
+              : styles.hiddenUntilLayout
+          }
           {...(Platform.OS === 'web' ? ({ dataSet: { hideScrollbar: 'true' } } as object) : {})}
         >
           {items.map((item, i) => (
@@ -114,10 +140,10 @@ export function SnapCarousel<T>({ items, renderItem, caption, slideMaxWidth }: P
               key={i}
               style={[
                 styles.slide,
-                slideWidth > 0 ? { width: slideWidth } : styles.hiddenUntilLayout,
+                slideWidth > 0 ? { width: slideWidth, height: slideHeight } : styles.hiddenUntilLayout,
               ]}
             >
-              {renderItem(item, i)}
+              {renderItem(item, i, slideLayout)}
             </View>
           ))}
         </ScrollView>
@@ -170,6 +196,7 @@ const styles = StyleSheet.create({
   },
   singleSlide: {
     alignItems: 'center',
+    justifyContent: 'center',
     width: '100%',
   },
   hiddenUntilLayout: {
