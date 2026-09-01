@@ -15,6 +15,7 @@ export const swap_studio: ProjectBase = {
     blocks: [
       {
         type: 'text',
+        title: 'Swap Studio',
         body: 'Swap Studio let fashion sellers produce on-brand model shots and lookbooks without a photo shoot — integrated into the Swap merchant workflow.',
       },
       {

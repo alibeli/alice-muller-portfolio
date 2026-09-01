@@ -22,6 +22,8 @@ export const nimueHeroImage: ImageSourcePropType = require('@/assets/images/proj
 
 export const superpowerHeroImage: ImageSourcePropType = require('@/assets/images/projects/superpower-hero.png');
 
+export const planetHeroImage: ImageSourcePropType = require('@/assets/images/projects/planet-0.png');
+
 export const tactMonsterCoverImage: ImageSourcePropType = require('@/assets/images/projects/tact-monster-cover.png');
 
 export const domiInterAstraGallery: ImageSourcePropType[] = [

@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   },
   wrap: {
     width: '100%',
-    alignSelf: 'center',
+    alignSelf: 'stretch',
     marginBottom: 16,
   },
   carouselWrap: {

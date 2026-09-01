@@ -16,6 +16,13 @@ export const superpower: ProjectBase = {
     { label: 'Demo video', url: 'https://youtu.be/MDSaP1WovYw' },
   ],
   images: [],
+  topGallery: [
+    superpowerHeroImage,
+    { uri: images.superpower[1] },
+    { uri: images.superpower[2] },
+    { uri: images.superpower[3] },
+    { uri: images.superpower[4] },
+  ],
   outcome: 'Grew from product designer to VP Product to CEO — 40K members, 3× dev output, Pluralsight partnership.',
   blocks: [
     {

@@ -19,14 +19,14 @@ export const swap: ProjectBase = {
     outcome: 'Founded & built Swap end to end — live at swap-store.xyz.',
     blocks: [
       {
+        type: 'text',
+        title: 'Swap',
+        body: 'Built the full marketplace end to end: consumer app, store dashboards, multi-agent listing infra, community & sustainability tracking. Visit swap-store.xyz.',
+      },
+      {
         type: 'image-row',
         assets: swapAppImages,
         caption: 'App Store marketing screens — AI styling, store onboarding, community & sustainability.',
-      },
-      {
-        type: 'text',
-        title: 'Platform',
-        body: 'Built the full marketplace end to end: consumer app, store dashboards, multi-agent listing infra, community & sustainability tracking. Visit swap-store.xyz.',
       },
       {
         type: 'text',

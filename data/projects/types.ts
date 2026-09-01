@@ -28,6 +28,8 @@ export type ProjectBase = {
   outcome?: string;
   decisions?: string[];
   badge?: 'currently-building';
+  /** Optional browse carousel in the project modal, separate from inline block images. */
+  topGallery?: ImageSourcePropType[];
   blocks?: ProjectBlock[];
 };
 

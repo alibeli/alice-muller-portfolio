@@ -18,21 +18,6 @@ function blockImageSource(block: Extract<ProjectBlock, { type: 'image' }>): Imag
   return { uri: block.uri ?? '' };
 }
 
-function getProjectGallery(project: Project): ImageSourcePropType[] {
-  const fromBlocks: ImageSourcePropType[] = [];
-
-  for (const block of project.blocks ?? []) {
-    if (block.type === 'image-row') {
-      fromBlocks.push(...block.assets);
-    } else if (block.type === 'image') {
-      fromBlocks.push(blockImageSource(block));
-    }
-  }
-
-  if (fromBlocks.length > 0) return fromBlocks;
-  return project.images.map((uri) => ({ uri }));
-}
-
 function BlockRenderer({ block }: { block: ProjectBlock }) {
   if (block.type === 'image-row') {
     return (
@@ -111,7 +96,7 @@ export function ProjectDetailContent({
   inModal = false,
 }: Props) {
   const coverUri = !inModal && project.images[0] ? project.images[0] : null;
-  const galleryImages = inModal ? getProjectGallery(project) : [];
+  const topGallery = inModal ? (project.topGallery ?? []) : [];
 
   return (
     <>
@@ -179,10 +164,10 @@ export function ProjectDetailContent({
 
       {inModal ? <ProjectSummaryCard project={project} /> : null}
 
-      {galleryImages.length > 0 ? (
+      {topGallery.length > 0 ? (
         <View style={styles.galleryWrap}>
           <SnapCarousel
-            items={galleryImages}
+            items={topGallery}
             slideMaxWidth={MODAL_IMAGE_MAX_WIDTH}
             renderItem={(source, index, slide) => (
               <ProjectImage
@@ -190,7 +175,7 @@ export function ProjectDetailContent({
                 maxWidth={slide.width}
                 slideHeight={slide.height}
                 variant="carousel"
-                gallerySources={galleryImages}
+                gallerySources={topGallery}
                 galleryIndex={index}
               />
             )}
@@ -316,7 +301,7 @@ const styles = StyleSheet.create({
   },
   imageBlock: {
     marginBottom: spacing.lg,
-    alignSelf: 'center',
+    alignSelf: 'stretch',
     width: '100%',
   },
   imageRowWrap: {
