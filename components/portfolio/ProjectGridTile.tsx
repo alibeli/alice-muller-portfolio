@@ -263,7 +263,6 @@ const styles = StyleSheet.create({
   },
   coverImage: {
     ...StyleSheet.absoluteFill,
-    transform: [{ scale: 0.88 }],
     ...(Platform.OS === 'web'
       ? ({
           maxWidth: '100%',
