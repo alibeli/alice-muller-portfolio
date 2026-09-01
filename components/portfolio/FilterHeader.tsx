@@ -55,16 +55,24 @@ function isTabSelected(
   awardsOpen: boolean,
   stackOpen: boolean,
 ): boolean {
-  if (key === 'stack') return stackOpen;
-  if (key === 'papers') return papersOpen;
-  if (key === 'awards') return awardsOpen;
-  return projectsActive;
+  // Modal tabs (papers / awards / stack) open slide-overs that cover the bar — keep them idle.
+  // if (key === 'stack') return stackOpen;
+  // if (key === 'papers') return papersOpen;
+  // if (key === 'awards') return awardsOpen;
+  if (key !== 'projects') return false;
+  // Projects stays highlighted while browsing or when a header modal is open.
+  return projectsActive || papersOpen || awardsOpen || stackOpen;
 }
 
-function getActiveIndex(papersOpen: boolean, awardsOpen: boolean, stackOpen: boolean): number {
-  if (stackOpen) return 3;
-  if (awardsOpen) return 2;
-  if (papersOpen) return 1;
+function getActiveIndex(
+  _papersOpen: boolean,
+  _awardsOpen: boolean,
+  _stackOpen: boolean,
+): number {
+  // Pill stays on Projects; modal tabs don't move selection.
+  // if (stackOpen) return 3;
+  // if (awardsOpen) return 2;
+  // if (papersOpen) return 1;
   return 0;
 }
 

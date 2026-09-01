@@ -1,5 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Platform, Pressable, StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  useWindowDimensions,
+  View,
+  type TextInput as TextInputType,
+} from 'react-native';
 
 import { DiceIcon } from '@/components/ui/icons/DiceIcon';
 import { WhatsAppIcon } from '@/components/ui/icons/WhatsAppIcon';
@@ -21,10 +29,13 @@ type Props = {
 const INPUT_LINE_HEIGHT = 22;
 const INPUT_FONT_SIZE = 18;
 const INPUT_FONT_SIZE_COMPACT = 15;
-/** Vertical inset inside the bar — symmetric, no extra top padding. */
 const INPUT_VERTICAL_INSET = 10;
 const INPUT_MIN_HEIGHT = INPUT_LINE_HEIGHT;
 const SINGLE_LINE_BAR_HEIGHT = WHATSAPP_BAR_MIN_HEIGHT;
+
+type WebTextInput = TextInputType & {
+  getScrollableNode?: () => HTMLTextAreaElement | null;
+};
 
 function clampInputHeight(height: number): number {
   return Math.min(WHATSAPP_INPUT_MAX_HEIGHT, Math.max(INPUT_MIN_HEIGHT, Math.ceil(height)));
@@ -38,6 +49,7 @@ function barHeightForInput(inputHeight: number): number {
 }
 
 export function WhatsAppTextMe({ phoneDigits }: Props) {
+  const inputRef = useRef<TextInputType>(null);
   const [message, setMessage] = useState('');
   const [inputHeight, setInputHeight] = useState(INPUT_MIN_HEIGHT);
   const [buttonHovered, setButtonHovered] = useState(false);
@@ -51,6 +63,32 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
   const barHeight = barHeightForInput(inputHeight);
   const isMultiline = barHeight > SINGLE_LINE_BAR_HEIGHT + 2;
 
+  const measureWebInputHeight = useCallback(() => {
+    if (Platform.OS !== 'web') return;
+    const node = inputRef.current as WebTextInput | null;
+    const textarea = node?.getScrollableNode?.();
+    if (!textarea) return;
+
+    textarea.style.height = '0px';
+    const nextHeight = clampInputHeight(textarea.scrollHeight);
+    textarea.style.height = `${nextHeight}px`;
+    setInputHeight((current) => (current === nextHeight ? current : nextHeight));
+  }, []);
+
+  const syncInputHeight = useCallback(
+    (contentHeight?: number) => {
+      if (Platform.OS === 'web') {
+        requestAnimationFrame(() => measureWebInputHeight());
+        return;
+      }
+      if (contentHeight != null) {
+        const nextHeight = clampInputHeight(contentHeight);
+        setInputHeight((current) => (current === nextHeight ? current : nextHeight));
+      }
+    },
+    [measureWebInputHeight],
+  );
+
   const handlePress = () => {
     if (!configured) return;
     openWhatsAppChat(phoneDigits, message).catch(() => {});
@@ -62,19 +100,30 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
     setMessage(pickRandomIcebreaker());
   };
 
+  const handleChangeText = (text: string) => {
+    setMessage(text);
+    syncInputHeight();
+  };
+
   const handleContentSizeChange = useCallback(
     (event: { nativeEvent: { contentSize: { height: number } } }) => {
-      const nextHeight = clampInputHeight(event.nativeEvent.contentSize.height);
-      setInputHeight((current) => (current === nextHeight ? current : nextHeight));
+      syncInputHeight(event.nativeEvent.contentSize.height);
     },
-    [],
+    [syncInputHeight],
   );
 
   useEffect(() => {
     if (!message.trim()) {
       setInputHeight(INPUT_MIN_HEIGHT);
+      if (Platform.OS === 'web') {
+        const node = inputRef.current as WebTextInput | null;
+        const textarea = node?.getScrollableNode?.();
+        if (textarea) textarea.style.height = `${INPUT_MIN_HEIGHT}px`;
+      }
+      return;
     }
-  }, [message]);
+    syncInputHeight();
+  }, [message, syncInputHeight]);
 
   const webButtonHoverProps =
     Platform.OS === 'web'
@@ -96,20 +145,24 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
     <View
       style={[
         styles.bar,
-        { minHeight: barHeight, borderRadius: isMultiline ? 28 : 999 },
+        {
+          height: barHeight,
+          borderRadius: isMultiline ? 28 : 999,
+        },
         !configured && styles.barDisabled,
       ]}
     >
       <View
         style={[
           styles.inputWrap,
-          { minHeight: barHeight },
+          { height: barHeight },
           isMultiline ? styles.inputWrapMultiline : styles.inputWrapSingle,
         ]}
       >
         <TextInput
+          ref={inputRef}
           value={message}
-          onChangeText={setMessage}
+          onChangeText={handleChangeText}
           placeholder={compact ? 'Message Alice' : 'Write a message to Alice'}
           placeholderTextColor={colors.foreground}
           multiline
@@ -123,7 +176,8 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
             {
               fontSize,
               lineHeight: INPUT_LINE_HEIGHT,
-              height: inputHeight,
+              height: Platform.OS === 'web' ? inputHeight : inputHeight,
+              minHeight: INPUT_MIN_HEIGHT,
               maxHeight: WHATSAPP_INPUT_MAX_HEIGHT,
             },
             Platform.OS === 'web' && styles.inputWeb,
@@ -158,7 +212,7 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
         disabled={!configured}
         style={({ pressed }) => [
           styles.button,
-          { minHeight: barHeight },
+          { height: barHeight },
           compact && styles.buttonCompact,
           configured && buttonHovered && styles.buttonHovered,
           pressed && configured && styles.pressed,
@@ -219,12 +273,15 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     paddingVertical: 0,
     margin: 0,
-    textAlignVertical: 'center',
+    textAlignVertical: 'top',
   },
   inputWeb: {
     outlineStyle: 'none',
     resize: 'none',
     overflow: 'hidden',
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+    boxSizing: 'border-box',
   } as object,
   inputAndroid: {
     includeFontPadding: false,
@@ -256,7 +313,6 @@ const styles = StyleSheet.create({
     borderLeftColor: colors.border,
     backgroundColor: 'transparent',
     flexShrink: 0,
-    alignSelf: 'stretch',
   },
   buttonCompact: {
     paddingHorizontal: spacing.md,
