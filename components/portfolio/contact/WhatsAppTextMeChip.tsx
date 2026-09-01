@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { WhatsAppIcon } from '@/components/ui/icons/WhatsAppIcon';
+import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
-import { colors, spacing, typography } from '@/constants/theme';
+import { colors, spacing } from '@/constants/theme';
+import { radii } from '@/constants/tokens';
+import { typography } from '@/constants/typography';
 import { openWhatsAppChat } from '@/lib/whatsapp';
 
 import { WHATSAPP_BAR_HEIGHT } from '@/components/portfolio/contact/whatsappBar';
@@ -34,61 +37,60 @@ export function WhatsAppTextMeChip({ phoneDigits, projectTitle }: Props) {
       : {};
 
   return (
-    <Pressable
-      onPress={handlePress}
-      disabled={!configured}
-      style={({ pressed }) => [
-        styles.bar,
-        !configured && styles.barDisabled,
-        configured && buttonHovered && styles.barHovered,
-        pressed && configured && styles.pressed,
-      ]}
-      accessibilityRole="button"
-      accessibilityLabel="Questions, text me on WhatsApp"
-      {...webButtonHoverProps}
+    <GlassSurface
+      rounded={radii.pill}
+      intensity="light"
+      style={[styles.shell, !configured && styles.shellDisabled]}
     >
-      <Text variant="body" style={[styles.prompt, !configured && styles.promptDisabled]}>
-        Questions, text me
-      </Text>
-      <View style={styles.button}>
-        <WhatsAppIcon
-          size={18}
-          color={configured ? colors.muted : colors.subtle}
-          disabled={!configured}
-          hovered={buttonHovered}
-        />
-        <Text variant="mono" style={[styles.buttonLabel, !configured && styles.buttonLabelDisabled]}>
-          Text me
+      <View style={styles.bar}>
+        <Text variant="body" style={[styles.prompt, !configured && styles.promptDisabled]}>
+          Questions, text me
         </Text>
+        <Pressable
+          onPress={handlePress}
+          disabled={!configured}
+          style={({ pressed }) => [
+            styles.button,
+            configured && buttonHovered && styles.buttonHovered,
+            pressed && configured && styles.pressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Text me on WhatsApp"
+          {...webButtonHoverProps}
+        >
+          <WhatsAppIcon
+            size={18}
+            color={configured ? colors.muted : colors.subtle}
+            disabled={!configured}
+            hovered={buttonHovered}
+          />
+          <Text variant="mono" style={[styles.buttonLabel, !configured && styles.buttonLabelDisabled]}>
+            Text me
+          </Text>
+        </Pressable>
       </View>
-    </Pressable>
+    </GlassSurface>
   );
 }
 
 const styles = StyleSheet.create({
+  shell: {
+    width: '100%',
+  },
+  shellDisabled: {
+    opacity: 0.55,
+  },
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
     height: WHATSAPP_BAR_HEIGHT,
-    borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.35)',
     overflow: 'hidden',
     paddingLeft: spacing.md,
   },
-  barDisabled: {
-    opacity: 0.55,
-  },
-  barHovered: {
-    backgroundColor: 'rgba(255, 255, 255, 0.52)',
-  },
   prompt: {
+    ...typography.h3,
     flex: 1,
     minWidth: 0,
-    fontFamily: typography.sans,
-    fontSize: 18,
-    color: colors.foreground,
   },
   promptDisabled: {
     color: colors.subtle,
@@ -102,9 +104,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderLeftWidth: StyleSheet.hairlineWidth,
     borderLeftColor: colors.border,
+    backgroundColor: 'transparent',
+  },
+  buttonHovered: {
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
   },
   buttonLabel: {
-    fontSize: 13,
+    ...typography.caption,
     fontWeight: '500',
   },
   buttonLabelDisabled: {

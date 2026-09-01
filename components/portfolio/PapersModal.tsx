@@ -19,9 +19,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { ModalTabIcon } from '@/components/ui/icons/TabIcons';
+import { ModalDismissButton } from '@/components/ui/ModalDismissButton';
 import { Text } from '@/components/ui/Text';
 import { colors, spacing } from '@/constants/theme';
+import { typography } from '@/constants/typography';
 import { papers } from '@/data/portfolio';
+import { getLeftSlidePanelWidth, getPageHorizontalPadding } from '@/lib/pageLayout';
+import { getFrostedBackdropStyle, mobileWebScrollStyle } from '@/lib/mobileWeb';
 
 type Props = {
   visible: boolean;
@@ -34,10 +38,8 @@ const SLIDE_MS = 280;
 export function PapersModal({ visible, onClose, onPaperPress }: Props) {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
-  const isMobile = screenWidth < 640;
-  const panelWidth = isMobile
-    ? Math.round(screenWidth * 0.8)
-    : Math.min(560, Math.round(screenWidth * 0.42));
+  const panelWidth = getLeftSlidePanelWidth(screenWidth);
+  const contentPadding = getPageHorizontalPadding(screenWidth);
   const [rendered, setRendered] = useState(false);
 
   const slideX = useSharedValue(-panelWidth);
@@ -99,25 +101,18 @@ export function PapersModal({ visible, onClose, onPaperPress }: Props) {
               {
                 paddingTop: insets.top + spacing.lg,
                 paddingBottom: Math.max(insets.bottom, spacing.lg),
+                paddingHorizontal: contentPadding,
               },
             ]}
           >
             <View style={styles.panelHeader}>
+              <ModalDismissButton direction="left" onPress={onClose} />
               <View style={styles.headingGroup}>
                 <ModalTabIcon tab="papers" />
-                <Text variant="title" style={styles.heading}>
+                <Text variant="h2" style={styles.heading}>
                   Papers
                 </Text>
               </View>
-              <Pressable
-                onPress={onClose}
-                style={({ pressed }) => [styles.closeIconBtn, pressed && styles.pressed]}
-                accessibilityLabel="Close"
-              >
-                <Text variant="body" style={styles.closeIcon}>
-                  ✕
-                </Text>
-              </Pressable>
             </View>
 
             <Text variant="body" muted style={styles.intro}>
@@ -125,7 +120,7 @@ export function PapersModal({ visible, onClose, onPaperPress }: Props) {
             </Text>
 
             <ScrollView
-              style={styles.scroll}
+              style={[styles.scroll, mobileWebScrollStyle]}
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
             >
@@ -160,12 +155,6 @@ export function PapersModal({ visible, onClose, onPaperPress }: Props) {
   );
 }
 
-const frostedBackdropWeb = {
-  backdropFilter: 'blur(12px) saturate(140%)',
-  WebkitBackdropFilter: 'blur(12px) saturate(140%)',
-  backgroundColor: 'rgba(255, 255, 255, 0.25)',
-} as object;
-
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
@@ -173,8 +162,7 @@ const styles = StyleSheet.create({
   },
   frostedBackdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    ...(Platform.OS === 'web' ? frostedBackdropWeb : {}),
+    ...getFrostedBackdropStyle(),
   },
   panelWrap: {
     height: '100%',
@@ -189,33 +177,26 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRightWidth: StyleSheet.hairlineWidth,
     borderRightColor: colors.border,
-    paddingHorizontal: spacing.lg,
   },
   panelHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: spacing.sm,
+    gap: spacing.xs,
   },
   headingGroup: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    flexShrink: 1,
-  },
-  closeIconBtn: {
-    padding: spacing.sm,
-  },
-  closeIcon: {
-    fontSize: 18,
-    color: colors.muted,
+    minWidth: 0,
   },
   heading: {
     marginBottom: 0,
   },
   intro: {
+    ...typography.body,
     marginBottom: spacing.md,
-    lineHeight: 20,
   },
   scroll: {
     flex: 1,

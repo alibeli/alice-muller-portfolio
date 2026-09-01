@@ -6,6 +6,7 @@ import {
   Platform,
   Pressable,
   StyleSheet,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import Animated, {
@@ -18,15 +19,16 @@ import { WhatsAppTextMe } from '@/components/portfolio/contact/WhatsAppTextMe';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { GithubIcon, LinkedInIcon } from '@/components/ui/icons/SocialIcons';
 import { Text } from '@/components/ui/Text';
-import { colors, spacing } from '@/constants/theme';
+import { colors, radii, spacing } from '@/constants/theme';
 import { profile, profileDetails } from '@/data/portfolio';
+import { isCoarsePointerDevice } from '@/lib/mobileWeb';
 
 type Props = {
   compact?: boolean;
   bottomInset?: number;
 };
 
-const MOBILE_RADIUS = 24;
+const MOBILE_RADIUS = radii.dockMobile;
 const ANIM_MS = 240;
 
 function CollapsibleSection({
@@ -85,7 +87,10 @@ function CollapsibleSection({
 
 export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
   const [expanded, setExpanded] = useState(false);
-  const [identityHeight, setIdentityHeight] = useState(100);
+  const [identityHeight, setIdentityHeight] = useState(88);
+  const { width } = useWindowDimensions();
+  const narrow = compact && width < 380;
+  const touchGlass = isCoarsePointerDevice();
 
   const detailsHeight = useSharedValue(0);
   const detailsProgress = useSharedValue(0);
@@ -108,23 +113,31 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
 
   return (
     <GlassSurface
-      rounded={compact ? MOBILE_RADIUS : 28}
+      rounded={compact ? MOBILE_RADIUS : radii.dock}
+      corners={compact ? 'top' : 'all'}
       intensity="medium"
       style={[
         styles.card,
         compact ? styles.cardMobile : styles.cardDesktop,
+        touchGlass && styles.cardTouchFallback,
         { paddingBottom: spacing.lg + bottomInset },
       ]}
     >
-      <View style={styles.topRow}>
+      <View style={[styles.topRow, narrow && styles.topRowNarrow]}>
         <Image
           source={profile.headshotLocal}
-          style={[styles.headshot, { width: identityHeight, height: identityHeight }]}
+          style={[
+            styles.headshot,
+            narrow && styles.headshotNarrow,
+            { width: narrow ? 72 : identityHeight, height: narrow ? 72 : identityHeight },
+          ]}
           resizeMode="cover"
         />
         <View
           style={styles.identityText}
-          onLayout={(e) => setIdentityHeight(e.nativeEvent.layout.height)}
+          onLayout={(e) => {
+            if (!narrow) setIdentityHeight(e.nativeEvent.layout.height);
+          }}
         >
           <Text variant="title" style={styles.name} numberOfLines={2}>
             {profile.name}
@@ -139,8 +152,8 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
             {profile.taglineAreas}
           </Text>
 
-          <View style={styles.actionsRow}>
-            <View style={styles.socialRow}>
+          <View style={[styles.actionsRow, narrow && styles.actionsRowNarrow]}>
+            <View style={[styles.socialRow, narrow && styles.socialRowNarrow]}>
               <SocialChip label="LinkedIn" url={profile.linkedin} icon="linkedin" />
               <SocialChip label="Github" url={profile.github} icon="github" />
             </View>
@@ -226,15 +239,19 @@ const styles = StyleSheet.create({
   },
   cardMobile: {
     width: '100%',
-    borderTopLeftRadius: MOBILE_RADIUS,
-    borderTopRightRadius: MOBILE_RADIUS,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
+  },
+  cardTouchFallback: {
+    borderColor: colors.border,
   },
   topRow: {
     flexDirection: 'row',
     alignItems: 'stretch',
     gap: spacing.md,
+  },
+  topRowNarrow: {
+    alignItems: 'flex-start',
   },
   identityText: {
     flex: 1,
@@ -264,6 +281,11 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginTop: spacing.xs,
     minHeight: 32,
+    width: '100%',
+  },
+  actionsRowNarrow: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
   },
   expandBtn: {
     height: 32,
@@ -271,9 +293,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
   },
   headshot: {
-    borderRadius: 24,
+    borderRadius: radii.headshot,
     backgroundColor: colors.surface,
     flexShrink: 0,
+  },
+  headshotNarrow: {
+    borderRadius: 20,
   },
   expandLabel: {
     color: colors.foreground,
@@ -322,6 +347,10 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     alignItems: 'center',
     flexShrink: 0,
+    flexWrap: 'wrap',
+  },
+  socialRowNarrow: {
+    width: '100%',
   },
   textMeRow: {
     marginTop: spacing.md,

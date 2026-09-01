@@ -16,8 +16,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { CurrentlyBuildingBadge } from '@/components/ui/CurrentlyBuildingBadge';
 import { TileTextGlass } from '@/components/ui/HeroGlassMask';
-import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
 import { Text } from '@/components/ui/Text';
 import { getPaperGradient, paperGradientCss, PLACEHOLDER_GRADIENT } from '@/data/paperGradients';
 import type { GridItem } from '@/data/portfolio';
@@ -158,9 +158,21 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
   const imageSource: ImageSourcePropType | null =
     images[index] ? { uri: images[index] } : (item.thumbnailLocal ?? null);
 
+  const taglineFullHeight = useSharedValue(0);
+  const taglineLineHeight = (tileText.tagline.lineHeight as number) ?? 18;
+  const taglineCollapsedHeight = taglineLineHeight * 2;
+
   const imageAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 1 + hoverProgress.value * (motion.tileHover.imageScale - 1) }],
   }));
+
+  const taglineClipStyle = useAnimatedStyle(() => {
+    const full = taglineFullHeight.value || taglineCollapsedHeight;
+    const extra = Math.max(0, full - taglineCollapsedHeight);
+    return {
+      maxHeight: taglineCollapsedHeight + hoverProgress.value * extra,
+    };
+  });
 
   const openInModal =
     (item.kind === 'project' && onProjectPress) || (item.kind === 'paper' && onPaperPress);
@@ -188,22 +200,31 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
         <CarouselDots count={images.length} index={index} />
       ) : null}
 
+      {item.badge === 'currently-building' ? (
+        <View style={styles.badgeWrap} pointerEvents="none">
+          <CurrentlyBuildingBadge compact />
+        </View>
+      ) : null}
+
       <View style={styles.textBlock} pointerEvents="none">
         <View style={styles.textInner}>
           <TileTextGlass roundedTop={radii.tile} />
-          {item.badge === 'currently-building' ? (
-            <ProjectPeriodMeta project={item} />
-          ) : (
-            <Text style={tileText.period} numberOfLines={1}>
-              {formatProjectPeriod(item.period)}
-            </Text>
-          )}
+          <Text style={tileText.period} numberOfLines={1}>
+            {formatProjectPeriod(item.period)}
+          </Text>
           <Text style={tileText.title} numberOfLines={2}>
             {item.title}
           </Text>
-          <Text style={tileText.tagline} numberOfLines={2}>
-            {item.tagline}
-          </Text>
+          <Animated.View style={[styles.taglineClip, taglineClipStyle]}>
+            <Text
+              style={tileText.tagline}
+              onLayout={(e) => {
+                taglineFullHeight.value = e.nativeEvent.layout.height;
+              }}
+            >
+              {item.tagline}
+            </Text>
+          </Animated.View>
           {item.traction ? (
             <Text style={tileText.traction} numberOfLines={2}>
               {item.traction}
@@ -217,11 +238,7 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
   return (
     <View
       {...webHoverProps}
-      style={[
-        styles.tileWrap,
-        { width: size },
-        isHovering && Platform.OS === 'web' && styles.tileWrapHovered,
-      ]}
+      style={[styles.tileWrap, { width: size }]}
     >
       {openInModal ? (
         <Pressable
@@ -249,12 +266,6 @@ const styles = StyleSheet.create({
   },
   tileWrap: {
     borderRadius: radii.tile,
-  },
-  tileWrapHovered: {
-    zIndex: 20,
-    ...(Platform.OS === 'web'
-      ? ({ boxShadow: palette.shadow.tileHover } as object)
-      : {}),
   },
   pressed: {
     opacity: 0.94,
@@ -292,6 +303,15 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: radii.tile,
     borderTopRightRadius: radii.tile,
     overflow: 'hidden',
+  },
+  taglineClip: {
+    overflow: 'hidden',
+  },
+  badgeWrap: {
+    position: 'absolute',
+    top: spacing.sm,
+    left: spacing.sm,
+    zIndex: 3,
   },
   dots: {
     position: 'absolute',

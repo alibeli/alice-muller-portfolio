@@ -26,9 +26,19 @@ export function formatProjectPeriod(period: string): string {
   return period
     .replace(/^Project,\s*/i, '')
     .replace(/\s+to\s+/gi, ' – ')
-    .replace(/\s+–\s+Present/i, ' – Present')
+    .replace(/\s+–\s+/g, ' – ')
+    .replace(/\s+,/g, ',')
+    .replace(/,\s+/g, ', ')
     .replace(/\s{2,}/g, ' ')
     .trim();
+}
+
+/** e.g. "May 2024 – August 2025, Zürich, Switzerland" */
+export function formatProjectMetaLine(period: string, location: string): string {
+  const formattedPeriod = formatProjectPeriod(period);
+  if (!formattedPeriod) return location.trim();
+  if (!location.trim()) return formattedPeriod;
+  return `${formattedPeriod}, ${location.trim()}`;
 }
 
 /** @deprecated Use formatProjectPeriod */

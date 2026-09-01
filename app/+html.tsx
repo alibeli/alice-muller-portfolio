@@ -7,7 +7,10 @@ export default function Root({ children }: PropsWithChildren) {
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no"
+        />
         <title>Alice Müller, Portfolio</title>
         <meta name="description" content="Former founder, CEO, VP of Product. Building AI, SaaS, marketplaces, Web3, and privacy tech." />
         <ScrollViewStyleReset />
@@ -20,23 +23,33 @@ export default function Root({ children }: PropsWithChildren) {
         <style
           dangerouslySetInnerHTML={{
             __html: `
+              html {
+                height: -webkit-fill-available;
+              }
               html, body, #root {
-                height: 100%;
                 width: 100%;
               }
               body {
                 margin: 0;
                 background: #FFFFFF;
-                overflow: auto !important;
+                min-height: 100dvh;
+                min-height: -webkit-fill-available;
+                height: 100%;
+                overflow: hidden !important;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
                 font-family: "Google Sans Flex", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
               }
               #root {
                 display: flex;
                 flex-direction: column;
                 flex: 1;
-                min-height: 100%;
+                min-height: 100dvh;
+                min-height: -webkit-fill-available;
+                height: 100%;
+                overflow: hidden;
               }
               div, span, p, a, button, input, textarea, [class*="css-text-"] {
                 font-family: "Google Sans Flex", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;

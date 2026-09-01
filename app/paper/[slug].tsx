@@ -6,11 +6,7 @@ import { Container } from '@/components/ui/Container';
 import { Link } from '@/components/ui/Link';
 import { Text } from '@/components/ui/Text';
 import { spacing } from '@/constants/tokens';
-import { getAllPaperSlugs, getPaper } from '@/data/portfolio';
-
-export function generateStaticParams() {
-  return getAllPaperSlugs().map((slug) => ({ slug }));
-}
+import { getPaper } from '@/data/portfolio';
 
 export default function PaperScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();

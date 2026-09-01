@@ -2,7 +2,7 @@ import { Platform, StyleSheet, Text as RNText, TextProps, TextStyle } from 'reac
 
 import { fontSans, palette, typeScale, lineHeights, fonts } from '@/constants/tokens';
 
-type Variant = 'hero' | 'title' | 'subtitle' | 'body' | 'caption' | 'mono';
+type Variant = 'hero' | 'title' | 'h2' | 'subtitle' | 'h3' | 'body' | 'caption' | 'mono';
 
 const variantStyles: Record<Variant, TextStyle> = {
   hero: {
@@ -21,7 +21,22 @@ const variantStyles: Record<Variant, TextStyle> = {
     letterSpacing: -0.5,
     lineHeight: typeScale.xxl * lineHeights.tight,
   },
+  h2: {
+    fontFamily: fontSans,
+    fontSize: typeScale.xl,
+    fontWeight: '600',
+    color: palette.foreground,
+    letterSpacing: -0.3,
+    lineHeight: typeScale.xl * lineHeights.tight,
+  },
   subtitle: {
+    fontFamily: fontSans,
+    fontSize: typeScale.lg,
+    fontWeight: '400',
+    color: palette.foreground,
+    lineHeight: typeScale.lg * lineHeights.normal,
+  },
+  h3: {
     fontFamily: fontSans,
     fontSize: typeScale.lg,
     fontWeight: '400',

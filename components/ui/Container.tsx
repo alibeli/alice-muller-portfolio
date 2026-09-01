@@ -1,7 +1,8 @@
-import { ScrollView, StyleSheet, View, ViewProps } from 'react-native';
+import { ScrollView, StyleSheet, View, ViewProps, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, layout, spacing } from '@/constants/theme';
+import { getPageHorizontalPadding } from '@/lib/pageLayout';
 
 type Props = ViewProps & {
   scroll?: boolean;
@@ -11,12 +12,14 @@ type Props = ViewProps & {
 
 export function Container({ scroll, children, noPadding, style, ...props }: Props) {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const horizontalPadding = noPadding ? 0 : getPageHorizontalPadding(width);
 
   const content = (
     <View
       style={[
         styles.inner,
-        !noPadding && { paddingHorizontal: layout.contentPadding },
+        !noPadding && { paddingHorizontal: horizontalPadding },
         style,
       ]}
       {...props}

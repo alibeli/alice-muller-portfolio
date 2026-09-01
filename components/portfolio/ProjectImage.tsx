@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Image, ImageSourcePropType, StyleSheet, View } from 'react-native';
 
-import { palette } from '@/constants/tokens';
+import { palette, radii } from '@/constants/tokens';
 
 const DEFAULT_MAX_WIDTH = 700;
 const CAROUSEL_HEIGHT = 360;
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   image: {
-    borderRadius: 12,
+    borderRadius: radii.image,
     backgroundColor: 'transparent',
   },
   imageFallback: {
@@ -67,12 +67,12 @@ const styles = StyleSheet.create({
   },
   carouselWrap: {
     flexShrink: 0,
-    borderRadius: 12,
+    borderRadius: radii.image,
     overflow: 'hidden',
     backgroundColor: palette.surface,
   },
   carouselImage: {
-    borderRadius: 12,
+    borderRadius: radii.image,
     backgroundColor: 'transparent',
   },
 });

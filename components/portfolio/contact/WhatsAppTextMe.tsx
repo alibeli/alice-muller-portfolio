@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
 
 import { WhatsAppIcon } from '@/components/ui/icons/WhatsAppIcon';
 import { Text } from '@/components/ui/Text';
@@ -15,6 +15,8 @@ type Props = {
 export function WhatsAppTextMe({ phoneDigits }: Props) {
   const [message, setMessage] = useState('');
   const [buttonHovered, setButtonHovered] = useState(false);
+  const { width } = useWindowDimensions();
+  const compact = width < 420;
   const configured = phoneDigits.replace(/\D/g, '').length > 0;
 
   const handlePress = () => {
@@ -40,7 +42,7 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
         returnKeyType="send"
         onSubmitEditing={handlePress}
         editable={configured}
-        style={[styles.input, Platform.OS === 'web' && styles.inputWeb]}
+        style={[styles.input, Platform.OS === 'web' && styles.inputWeb, compact && styles.inputCompact]}
         accessibilityLabel="Message to send on WhatsApp"
       />
       <Pressable
@@ -98,6 +100,9 @@ const styles = StyleSheet.create({
   inputWeb: {
     outlineStyle: 'none',
   } as object,
+  inputCompact: {
+    fontSize: 15,
+  },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
