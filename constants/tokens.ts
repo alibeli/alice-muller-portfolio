@@ -108,7 +108,10 @@ export const spacing = {
 } as const;
 
 export const radii = {
+  /** Inner frosted caption band on grid tiles. */
   tile: 22,
+  /** Outer grid project card — slightly larger than `tile`. */
+  tileOuter: 28,
   dock: 28,
   dockMobile: 24,
   pill: 999,
