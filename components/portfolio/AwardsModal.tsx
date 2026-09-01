@@ -5,7 +5,7 @@ import { SlideOverModal } from '@/components/ui/SlideOverModal';
 import { ModalTabIcon } from '@/components/ui/icons/TabIcons';
 import { Text } from '@/components/ui/Text';
 import { spacing } from '@/constants/theme';
-import { awards } from '@/data/portfolio';
+import { awards, awardCount } from '@/data/portfolio';
 import { getLeftPanelWidth } from '@/lib/modalLayout';
 
 type Props = {
@@ -26,7 +26,7 @@ export function AwardsModal({ visible, onClose }: Props) {
       closeLabel="Close awards"
     >
       <ModalPanelHeader
-        title="Awards"
+        title={`Awards (${awardCount})`}
         onClose={onClose}
         icon={<ModalTabIcon tab="awards" />}
       />

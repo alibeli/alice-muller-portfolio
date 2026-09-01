@@ -12,8 +12,8 @@ export const superpower: ProjectBase = {
   roles: ['CEO', 'VP of Product', 'Product Designer'],
   highlights: ['40K Members, 14 people team, top industry partners'],
   links: [
+    { label: 'Demo video', url: 'https://www.youtube.com/watch?v=MDSaP1WovYw' },
     { label: 'Demo 2024', url: 'https://www.superpower.tech' },
-    { label: 'Demo video', url: 'https://youtu.be/MDSaP1WovYw' },
   ],
   images: [],
   topGallery: [

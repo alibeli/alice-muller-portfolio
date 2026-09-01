@@ -10,7 +10,12 @@ export const ocean_cloud: ProjectBase = {
       'Low cost modular carbon capture system to decarbonise ships while releasing beneficial marine nutrients.',
     roles: ['Solo Project (2019)'],
     highlights: ['Fast Company World Changing Ideas 2020 Finalist'],
-    links: [],
+    links: [
+      {
+        label: 'Fast Company',
+        url: 'https://www.fastcompany.com/90492112/world-changing-ideas-awards-2020-students-finalists-and-honorable-mentions',
+      },
+    ],
     images: [...images.oceanCloud],
     blocks: [
       {

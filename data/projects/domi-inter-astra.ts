@@ -9,7 +9,12 @@ export const domi_inter_astra: ProjectBase = {
     tagline: '"Home Among the Stars", A modular short to long term lunar settlement system from 2030 onwards.',
     roles: ['Space Architecture Lead'],
     highlights: ['Winner Moon Base Competition'],
-    links: [],
+    links: [
+      {
+        label: 'Moon Society',
+        url: 'https://www.moonsociety.org/announcement-of-winners-for-the-moon-societys-first-moon-base-design-contest/',
+      },
+    ],
     images: [],
     blocks: [
       {

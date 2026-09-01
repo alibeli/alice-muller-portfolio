@@ -294,3 +294,7 @@ export function getGridItems(): GridItem[] {
 
   return projectItems;
 }
+
+export const selectedProjectCount = projects.length + otherProjects.length;
+export const paperCount = papers.length;
+export const awardCount = awards.length;

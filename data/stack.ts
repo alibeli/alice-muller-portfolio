@@ -11,7 +11,7 @@ export const stackSections: StackSection[] = [
   },
   {
     title: 'Design & Prototyping',
-    items: ['Figma', 'Adobe Suite'],
+    items: ['Figma', 'Adobe Suite', 'Cursor'],
   },
   {
     title: 'Frameworks & Product Tools',
@@ -69,7 +69,8 @@ export const stackSections: StackSection[] = [
   {
     title: 'Community',
     items: [
-      'Reelarm',
+      'Replicate',
+      'Higgsfield',
       'Canva',
       'TikTok',
       'LinkedIn',

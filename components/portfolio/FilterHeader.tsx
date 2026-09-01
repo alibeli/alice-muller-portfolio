@@ -12,15 +12,15 @@ import { TabIcon, type TabKey } from '@/components/ui/icons/TabIcons';
 import { Text } from '@/components/ui/Text';
 import { spacing } from '@/constants/theme';
 
-const HEADER_TABS: { key: TabKey; label: string }[] = [
-  { key: 'projects', label: 'Projects' },
-  { key: 'papers', label: 'Papers' },
-  { key: 'awards', label: 'Awards' },
+const HEADER_TABS: { key: TabKey; label: string; countKey?: 'projects' | 'papers' | 'awards' }[] = [
+  { key: 'projects', label: 'Projects', countKey: 'projects' },
+  { key: 'papers', label: 'Papers', countKey: 'papers' },
+  { key: 'awards', label: 'Awards', countKey: 'awards' },
   { key: 'stack', label: 'Stack' },
 ];
 
 const TAB_WIDTH = 52;
-const TAB_WIDTH_ACTIVE = 108;
+const TAB_WIDTH_ACTIVE = 120;
 const TAB_WIDTH_COMPACT = 44;
 const TAB_PADDING = 4;
 const TAB_HEIGHT = 44;
@@ -34,6 +34,9 @@ type Props = {
   papersOpen?: boolean;
   awardsOpen?: boolean;
   stackOpen?: boolean;
+  projectCount?: number;
+  paperCount?: number;
+  awardCount?: number;
 };
 
 function isTabSelected(
@@ -70,6 +73,9 @@ export function FilterHeader({
   papersOpen = false,
   awardsOpen = false,
   stackOpen = false,
+  projectCount,
+  paperCount,
+  awardCount,
 }: Props) {
   const { width: screenWidth } = useWindowDimensions();
   const compact = screenWidth < 360;
@@ -121,6 +127,19 @@ export function FilterHeader({
         } as object)
       : {};
 
+  const getTabCount = (countKey?: 'projects' | 'papers' | 'awards') => {
+    if (countKey === 'projects') return projectCount;
+    if (countKey === 'papers') return paperCount;
+    if (countKey === 'awards') return awardCount;
+    return undefined;
+  };
+
+  const getTabLabel = (option: (typeof HEADER_TABS)[number], selected: boolean) => {
+    const count = getTabCount(option.countKey);
+    if (selected && count != null) return `${option.label} (${count})`;
+    return option.label;
+  };
+
   return (
     <GlassSurface rounded={999} intensity="medium" style={styles.glassCard}>
       <View style={styles.toggle}>
@@ -154,7 +173,7 @@ export function FilterHeader({
               />
               {selected && !compact ? (
                 <Text variant="body" style={styles.optionLabelActive} numberOfLines={1}>
-                  {option.label}
+                  {getTabLabel(option, selected)}
                 </Text>
               ) : null}
             </Pressable>

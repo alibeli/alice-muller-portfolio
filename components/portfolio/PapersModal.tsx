@@ -5,7 +5,7 @@ import { SlideOverModal } from '@/components/ui/SlideOverModal';
 import { ModalTabIcon } from '@/components/ui/icons/TabIcons';
 import { Text } from '@/components/ui/Text';
 import { spacing } from '@/constants/theme';
-import { papers } from '@/data/portfolio';
+import { papers, paperCount } from '@/data/portfolio';
 import { getLeftPanelWidth } from '@/lib/modalLayout';
 
 type Props = {
@@ -27,7 +27,7 @@ export function PapersModal({ visible, onClose, onPaperPress }: Props) {
       closeLabel="Close papers"
     >
       <ModalPanelHeader
-        title="Papers"
+        title={`Papers (${paperCount})`}
         onClose={onClose}
         icon={<ModalTabIcon tab="papers" />}
         intro="Academic research and thesis work."

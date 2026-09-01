@@ -13,12 +13,13 @@ import { ProfileDock } from '@/components/portfolio/ProfileDock';
 import { ProjectGridTile } from '@/components/portfolio/ProjectGridTile';
 import { Text } from '@/components/ui/Text';
 import { colors, spacing } from '@/constants/theme';
-import { getGridItems, getPaper, getProject, otherProjects } from '@/data/portfolio';
+import { getGridItems, getPaper, getProject, otherProjects, paperCount, awardCount, selectedProjectCount } from '@/data/portfolio';
 import { readPaperSlugFromPathname, readProjectSlugFromPathname } from '@/lib/modalRoutes';
 import { getPaperPath, getProjectPath } from '@/lib/shareProject';
 import { useModalDeepLink } from '@/lib/useModalDeepLink';
 
 const TAB_BAR_HEIGHT = 52;
+const GRID_MAX_WIDTH = 1200;
 const MOBILE_GRID_INSET = spacing.sm;
 const DESKTOP_GRID_INSET = spacing.lg;
 const MOBILE_GRID_GAP = spacing.sm;
@@ -29,8 +30,9 @@ function getTileSize(
   columns: number,
   horizontalPadding: number,
   gridGap: number,
+  maxContentWidth = GRID_MAX_WIDTH,
 ): number {
-  const contentWidth = screenWidth - horizontalPadding * 2;
+  const contentWidth = Math.min(screenWidth - horizontalPadding * 2, maxContentWidth);
   return Math.floor((contentWidth - gridGap * (columns - 1)) / columns);
 }
 
@@ -205,7 +207,10 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
         ]}
         showsVerticalScrollIndicator
       >
-        <View style={[styles.grid, { gap: gridGap }]}>
+        <Text variant="mono" style={styles.sectionHeading}>
+          Selected projects ({selectedProjectCount})
+        </Text>
+        <View style={[styles.grid, styles.projectGrid, { gap: gridGap }]}>
           {rows.map((row, rowIndex) => (
             <View key={rowIndex} style={[styles.row, { gap: gridGap }]}>
               {row.map((item) => (
@@ -254,6 +259,9 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
           papersOpen={papersOpen}
           awardsOpen={awardsOpen}
           stackOpen={stackOpen}
+          projectCount={selectedProjectCount}
+          paperCount={paperCount}
+          awardCount={awardCount}
         />
       </View>
 
@@ -305,6 +313,14 @@ const styles = StyleSheet.create({
       : {}),
   },
   scrollContent: {},
+  sectionHeading: {
+    fontSize: 11,
+    color: colors.subtle,
+    textAlign: 'center',
+    alignSelf: 'center',
+    width: '100%',
+    marginBottom: spacing.md,
+  },
   tabOverlay: {
     position: 'absolute',
     left: 0,
@@ -313,7 +329,13 @@ const styles = StyleSheet.create({
     zIndex: 20,
     backgroundColor: 'transparent',
   },
-  grid: {},
+  grid: {
+    width: '100%',
+    alignSelf: 'center',
+  },
+  projectGrid: {
+    maxWidth: GRID_MAX_WIDTH,
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'flex-start',

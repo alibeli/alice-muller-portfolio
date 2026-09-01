@@ -196,9 +196,14 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
           <Text style={tileText.title} numberOfLines={2}>
             {item.title}
           </Text>
-          <Text style={tileText.tagline} numberOfLines={item.link ? 1 : 2}>
+          <Text style={tileText.tagline} numberOfLines={2}>
             {item.tagline}
           </Text>
+          {item.traction ? (
+            <Text style={tileText.traction} numberOfLines={2}>
+              {item.traction}
+            </Text>
+          ) : null}
           {item.link ? (
             <Pressable
               style={({ pressed }) => [styles.linkPill, pressed && styles.linkPillPressed]}
@@ -211,11 +216,6 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
                 {item.link.label}
               </Text>
             </Pressable>
-          ) : null}
-          {item.traction ? (
-            <Text style={tileText.traction} numberOfLines={2}>
-              {item.traction}
-            </Text>
           ) : null}
         </View>
       </View>
