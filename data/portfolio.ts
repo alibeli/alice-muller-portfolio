@@ -2,6 +2,7 @@ import { images } from './images';
 import { getLocalThumbnail } from './localImages';
 import { baseProjects } from './projects';
 import { getProjectImpact } from './projectImpact';
+import { getPrimaryProjectLink } from '@/lib/projectLinks';
 import type { ProjectSummary } from './projectImpact';
 import type { ImageSourcePropType } from 'react-native';
 
@@ -39,6 +40,7 @@ export type GridItem = {
   images: string[];
   thumbnailLocal?: ImageSourcePropType;
   badge?: 'currently-building';
+  link?: { label: string; url: string };
 };
 
 export const profile = {
@@ -287,6 +289,7 @@ export function getGridItems(): GridItem[] {
     images: p.images,
     thumbnailLocal: getLocalThumbnail(p.slug),
     badge: p.badge,
+    link: getPrimaryProjectLink(p.links),
   }));
 
   return projectItems;

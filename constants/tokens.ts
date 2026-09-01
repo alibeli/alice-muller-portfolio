@@ -64,7 +64,7 @@ export const lineHeights = {
 } as const;
 
 /** Grid tile caption typography — dark text on frosted band, all tile kinds. */
-export const tileText: Record<'period' | 'title' | 'tagline' | 'traction', TextStyle> = {
+export const tileText: Record<'period' | 'title' | 'tagline' | 'traction' | 'link', TextStyle> = {
   period: {
     fontFamily: fontSans,
     fontSize: typeScale.sm,
@@ -94,6 +94,14 @@ export const tileText: Record<'period' | 'title' | 'tagline' | 'traction', TextS
     lineHeight: 17,
     marginTop: 2,
     color: palette.subtle,
+  },
+  link: {
+    fontFamily: fontSans,
+    fontSize: typeScale.sm,
+    fontWeight: '500',
+    lineHeight: 17,
+    marginTop: 2,
+    color: palette.muted,
   },
 };
 

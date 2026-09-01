@@ -31,6 +31,13 @@ export function formatProjectPeriod(period: string): string {
     .trim();
 }
 
+export function getPrimaryProjectLink(
+  links: { label: string; url: string }[],
+): { label: string; url: string } | undefined {
+  if (links.length === 0) return undefined;
+  return links.find((link) => !isWhatsAppPitchLink(link.url)) ?? links[0];
+}
+
 /** @deprecated Use formatProjectPeriod */
 export function formatTilePeriod(period: string): string {
   return formatProjectPeriod(period);

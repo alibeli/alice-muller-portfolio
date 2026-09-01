@@ -16,7 +16,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { TileTextGlass } from '@/components/ui/HeroGlassMask';
 import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
 import { Text } from '@/components/ui/Text';
 import { getPaperGradient, paperGradientCss, PLACEHOLDER_GRADIENT } from '@/data/paperGradients';
@@ -185,8 +184,8 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
       </View>
 
       <View style={[styles.textBlock, { pointerEvents: 'none' }]}>
+        <View style={styles.textGlass} />
         <View style={styles.textInner}>
-          <TileTextGlass roundedTop={radii.tile} roundedBottom={radii.tileOuter} />
           {item.badge === 'currently-building' ? (
             <ProjectPeriodMeta project={item} />
           ) : (
@@ -200,6 +199,11 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
           <Text style={tileText.tagline} numberOfLines={2}>
             {item.tagline}
           </Text>
+          {item.link ? (
+            <Text style={tileText.link} numberOfLines={1}>
+              {item.link.label}
+            </Text>
+          ) : null}
           {item.traction ? (
             <Text style={tileText.traction} numberOfLines={2}>
               {item.traction}
@@ -242,12 +246,6 @@ const styles = StyleSheet.create({
     backgroundColor: palette.surface,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: palette.tileBorder,
-    ...(Platform.OS === 'web'
-      ? ({
-          contain: 'layout paint',
-          isolation: 'isolate',
-        } as object)
-      : {}),
   },
   tileWrap: {
     borderRadius: radii.tileOuter,
@@ -281,20 +279,28 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 2,
-    backgroundColor: 'transparent',
+  },
+  textGlass: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: palette.glass.frost,
+    borderTopLeftRadius: radii.tile,
+    borderTopRightRadius: radii.tile,
     borderBottomLeftRadius: radii.tileOuter,
     borderBottomRightRadius: radii.tileOuter,
-    overflow: 'hidden',
+    ...(Platform.OS === 'web'
+      ? ({
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        } as object)
+      : {}),
   },
   textInner: {
     padding: spacing.md,
     gap: 3,
     position: 'relative',
-    backgroundColor: 'transparent',
+    zIndex: 1,
     borderTopLeftRadius: radii.tile,
     borderTopRightRadius: radii.tile,
     borderBottomLeftRadius: radii.tileOuter,
     borderBottomRightRadius: radii.tileOuter,
-    overflow: 'hidden',
   },
 });
