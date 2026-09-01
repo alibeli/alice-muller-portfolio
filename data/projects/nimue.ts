@@ -19,11 +19,6 @@ export const nimue: ProjectBase = {
   images: [],
   outcome:
     'Built a privacy-first multi-agent orchestration platform & SDK on Nillion blind-compute research.',
-  decisions: [
-    'TEEs + MPC: agent runs stay private yet provably auditable via immutable chain hashes.',
-    'Modular SDK (10+ components) so teams embed agents without rebuilding orchestration.',
-    'RAG, agent identity & 500+ tools for traceable, interactive workflows.',
-  ],
   blocks: [
     {
       type: 'text',

@@ -1,7 +1,7 @@
 import { ImageSourcePropType } from 'react-native';
 
 export const localThumbnails: Record<string, ImageSourcePropType> = {
-  ilo: require('@/assets/images/projects/nimue-0.png'),
+  ilo: require('@/assets/images/projects/ailo-1.png'),
   nimue: require('@/assets/images/projects/nimue-0.png'),
   yuki: require('@/assets/images/projects/yuki-0.png'),
   swap: require('@/assets/images/projects/swap-0.jpg'),

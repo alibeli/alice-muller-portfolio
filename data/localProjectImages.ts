@@ -26,6 +26,12 @@ export const planetHeroImage: ImageSourcePropType = require('@/assets/images/pro
 
 export const tactMonsterCoverImage: ImageSourcePropType = require('@/assets/images/projects/tact-monster-cover.png');
 
+export const ailoGallery: ImageSourcePropType[] = [
+  require('@/assets/images/projects/ailo-0.png'),
+  require('@/assets/images/projects/ailo-1.png'),
+  require('@/assets/images/projects/ailo-2.png'),
+];
+
 export const domiInterAstraGallery: ImageSourcePropType[] = [
   require('@/assets/images/projects/dia-gallery-0.png'),
   require('@/assets/images/projects/dia-gallery-1.png'),

@@ -21,7 +21,7 @@ import { Text } from '@/components/ui/Text';
 import { getPaperGradient, paperGradientCss, PLACEHOLDER_GRADIENT } from '@/data/paperGradients';
 import type { GridItem } from '@/data/portfolio';
 import { getThumbnailFocalPoint } from '@/data/localImages';
-import { formatProjectPeriod } from '@/lib/projectLinks';
+import { formatProjectPeriod, openProjectLink } from '@/lib/projectLinks';
 import { motion, palette, radii, spacing, tileText } from '@/constants/tokens';
 
 type Props = {
@@ -183,8 +183,8 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
         )}
       </View>
 
-      <View style={[styles.textBlock, { pointerEvents: 'none' }]}>
-        <View style={styles.textGlass} />
+      <View style={styles.textBlock}>
+        <View style={[styles.textGlass, styles.textGlassNonInteractive]} />
         <View style={styles.textInner}>
           {item.badge === 'currently-building' ? (
             <ProjectPeriodMeta project={item} />
@@ -200,9 +200,17 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
             {item.tagline}
           </Text>
           {item.link ? (
-            <Text variant="mono" style={tileText.link} numberOfLines={1}>
-              {item.link.label}
-            </Text>
+            <Pressable
+              style={({ pressed }) => [styles.linkPill, pressed && styles.linkPillPressed]}
+              onPress={(event) => {
+                event.stopPropagation();
+                void openProjectLink(item.link!.url, item.title);
+              }}
+            >
+              <Text variant="mono" style={tileText.link} numberOfLines={1}>
+                {item.link.label}
+              </Text>
+            </Pressable>
           ) : null}
           {item.traction ? (
             <Text style={tileText.traction} numberOfLines={2}>
@@ -280,6 +288,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 2,
   },
+  textGlassNonInteractive: {
+    pointerEvents: 'none',
+  },
   textGlass: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: palette.glass.frost,
@@ -302,5 +313,19 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radii.tile,
     borderBottomLeftRadius: radii.tileOuter,
     borderBottomRightRadius: radii.tileOuter,
+    pointerEvents: 'box-none',
+  },
+  linkPill: {
+    alignSelf: 'flex-start',
+    marginTop: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radii.pill,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: palette.tileBorder,
+    backgroundColor: palette.white,
+  },
+  linkPillPressed: {
+    opacity: 0.86,
   },
 });

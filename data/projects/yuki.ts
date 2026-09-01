@@ -16,14 +16,9 @@ export const yuki: ProjectBase = {
     ],
     links: [],
     images: [...images.yuki],
-    outcome:
-      'As EIR @ Nillion, commercializing blind-compute into a privacy-first health aggregator & AI longevity coach.',
-    decisions: [
-      'Aligned product with Nillion stack: encrypted-by-design, health data never sold or shared.',
-      '15+ widgets unify wearables, labs, cycles & habits into one holistic dashboard.',
-      'Focused on real commercial use cases for Nillion privacy-preserving infrastructure.',
-    ],
-    blocks: [
+  outcome:
+    'As EIR @ Nillion, commercializing blind-compute into a privacy-first health aggregator & AI longevity coach.',
+  blocks: [
       {
         type: 'text',
         title: 'Summary',

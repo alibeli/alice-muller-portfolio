@@ -10,9 +10,9 @@ type Props = {
 };
 
 const BICM_LABELS: { key: keyof ProjectSummary; label: string }[] = [
-  { key: 'background', label: 'Background' },
+  { key: 'background', label: 'Problem' },
   { key: 'insight', label: 'Insight' },
-  { key: 'change', label: 'Change' },
+  { key: 'change', label: 'Impact' },
   { key: 'metric', label: 'Metric' },
 ];
 
@@ -53,6 +53,8 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.md,
     marginBottom: spacing.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: palette.tileBorder,
   },
   roleLine: {
     fontSize: 11,

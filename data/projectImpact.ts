@@ -14,10 +14,13 @@ export const projectImpactBySlug: Record<string, ProjectImpact> = {
   ilo: {
     traction: 'Currently building · Founder',
     summary: {
-      background: 'Community feels fragmented; people want deeper connection beyond feeds.',
-      insight: 'Real community needs intentional product design, not another social network.',
-      change: 'Exploring & building as founder.',
-      metric: 'Early stage — no public metrics yet.',
+      background:
+        'Social apps promise connection but feel performative; sharing location publicly erodes privacy and trust.',
+      insight:
+        'A fully private map can unlock real-world community — meeting new people and keeping friends close — without surveillance-style social graphs.',
+      change:
+        'Building Ailo as founder: private-by-default location, real events, and intentional social design.',
+      metric: 'Early stage — currently building.',
     },
   },
   nimue: {

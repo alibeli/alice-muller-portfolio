@@ -110,19 +110,6 @@ export function ProjectDetailContent({
         </View>
       ) : null}
 
-      {project.decisions && project.decisions.length > 0 ? (
-        <View style={styles.decisionsWrap}>
-          <Text variant="mono" style={styles.decisionsHeading}>
-            Key decisions
-          </Text>
-          {project.decisions.map((decision) => (
-            <Text key={decision} variant="caption" muted style={styles.decisionLine}>
-              · {decision}
-            </Text>
-          ))}
-        </View>
-      ) : null}
-
       {coverUri ? (
         <View style={styles.coverWrap}>
           <ProjectImage source={{ uri: coverUri }} maxWidth={MODAL_IMAGE_MAX_WIDTH} />
@@ -189,21 +176,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontWeight: '500',
     color: palette.foreground,
-  },
-  decisionsWrap: {
-    marginBottom: spacing.lg,
-    gap: spacing.xs,
-  },
-  decisionsHeading: {
-    fontSize: 11,
-    color: palette.subtle,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    marginBottom: 2,
-  },
-  decisionLine: {
-    lineHeight: 18,
-    fontSize: 12,
   },
   coverWrap: {
     width: '100%',
