@@ -196,11 +196,11 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
           <Text style={tileText.title} numberOfLines={2}>
             {item.title}
           </Text>
-          <Text style={tileText.tagline} numberOfLines={2}>
+          <Text style={tileText.tagline} numberOfLines={item.link ? 1 : 2}>
             {item.tagline}
           </Text>
           {item.link ? (
-            <Text style={tileText.link} numberOfLines={1}>
+            <Text variant="mono" style={tileText.link} numberOfLines={1}>
               {item.link.label}
             </Text>
           ) : null}

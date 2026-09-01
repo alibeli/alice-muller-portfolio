@@ -96,12 +96,20 @@ export const tileText: Record<'period' | 'title' | 'tagline' | 'traction' | 'lin
     color: palette.subtle,
   },
   link: {
-    fontFamily: fontSans,
-    fontSize: typeScale.sm,
+    fontSize: typeScale.xs,
     fontWeight: '500',
-    lineHeight: 17,
-    marginTop: 2,
-    color: palette.muted,
+    lineHeight: 14,
+    marginTop: 4,
+    letterSpacing: 0.4,
+    textTransform: 'none',
+    color: palette.foreground,
+    ...(Platform.OS === 'web'
+      ? ({
+          textDecorationLine: 'underline',
+          textDecorationColor: palette.muted,
+          textUnderlineOffset: 2,
+        } as object)
+      : {}),
   },
 };
 
