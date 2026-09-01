@@ -91,7 +91,6 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
     return Math.min(idealHeight, Math.max(tileSize, viewportMax));
   }, [gridGap, insets.bottom, isMobile, scrollTopPad, tileSize, windowHeight]);
 
-  const projectSnapStride = tileHeight + gridGap;
   const moreTileSize = getTileSize(width, moreColumns, horizontalPadding, gridGap);
   const items = getGridItems();
 
@@ -127,11 +126,6 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
     }
     return result;
   }, [moreColumns]);
-
-  const projectSnapOffsets = useMemo(() => {
-    if (!isMobile) return undefined;
-    return rows.map((_, index) => index * projectSnapStride);
-  }, [isMobile, projectSnapStride, rows]);
 
   useEffect(() => {
     const slug = resolveInitialProjectSlug(initialProjectSlug);
@@ -223,7 +217,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
           isMobile &&
             (Platform.OS === 'web'
               ? ({
-                  scrollSnapType: 'y mandatory',
+                  scrollSnapType: 'y proximity',
                   scrollPaddingTop: scrollTopPad,
                 } as object)
               : null),
@@ -237,10 +231,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
           },
         ]}
         showsVerticalScrollIndicator
-        decelerationRate={isMobile ? 'fast' : 'normal'}
-        snapToOffsets={projectSnapOffsets}
-        snapToAlignment={isMobile ? 'start' : undefined}
-        snapToEnd={false}
+        decelerationRate="normal"
       >
         <View style={[styles.grid, styles.constrainedGrid, { gap: gridGap }]}>
           {rows.map((row, rowIndex) => (
@@ -253,7 +244,6 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
                   (Platform.OS === 'web'
                     ? ({
                         scrollSnapAlign: 'start',
-                        scrollSnapStop: 'always',
                       } as object)
                     : styles.snapRow),
               ]}
@@ -272,7 +262,18 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
           ))}
         </View>
 
-        <View style={[styles.moreSection, styles.constrainedGrid]}>
+        <View
+          style={[
+            styles.moreSection,
+            styles.constrainedGrid,
+            isMobile &&
+              (Platform.OS === 'web'
+                ? ({
+                    scrollSnapAlign: 'none',
+                  } as object)
+                : null),
+          ]}
+        >
           <Text variant="mono" style={styles.moreHeading}>
             More projects
           </Text>

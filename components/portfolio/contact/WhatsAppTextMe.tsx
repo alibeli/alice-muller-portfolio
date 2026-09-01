@@ -18,9 +18,24 @@ type Props = {
   phoneDigits: string;
 };
 
-const INPUT_VERTICAL_PAD = 14;
 const INPUT_LINE_HEIGHT = 22;
-const INPUT_MIN_HEIGHT = WHATSAPP_BAR_MIN_HEIGHT - INPUT_VERTICAL_PAD * 2;
+const INPUT_FONT_SIZE = 18;
+const INPUT_FONT_SIZE_COMPACT = 15;
+/** Vertical inset inside the bar — symmetric, no extra top padding. */
+const INPUT_VERTICAL_INSET = 10;
+const INPUT_MIN_HEIGHT = INPUT_LINE_HEIGHT;
+const SINGLE_LINE_BAR_HEIGHT = WHATSAPP_BAR_MIN_HEIGHT;
+
+function clampInputHeight(height: number): number {
+  return Math.min(WHATSAPP_INPUT_MAX_HEIGHT, Math.max(INPUT_MIN_HEIGHT, Math.ceil(height)));
+}
+
+function barHeightForInput(inputHeight: number): number {
+  return Math.min(
+    WHATSAPP_BAR_MAX_HEIGHT,
+    Math.max(SINGLE_LINE_BAR_HEIGHT, inputHeight + INPUT_VERTICAL_INSET * 2),
+  );
+}
 
 export function WhatsAppTextMe({ phoneDigits }: Props) {
   const [message, setMessage] = useState('');
@@ -30,13 +45,11 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
   const [diceSpinToken, setDiceSpinToken] = useState(0);
   const { width } = useWindowDimensions();
   const compact = width < 380;
+  const fontSize = compact ? INPUT_FONT_SIZE_COMPACT : INPUT_FONT_SIZE;
   const configured = phoneDigits.replace(/\D/g, '').length > 0;
 
-  const barHeight = Math.min(
-    WHATSAPP_BAR_MAX_HEIGHT,
-    Math.max(WHATSAPP_BAR_MIN_HEIGHT, inputHeight + INPUT_VERTICAL_PAD * 2),
-  );
-  const isMultiline = barHeight > WHATSAPP_BAR_MIN_HEIGHT + 4;
+  const barHeight = barHeightForInput(inputHeight);
+  const isMultiline = barHeight > SINGLE_LINE_BAR_HEIGHT + 2;
 
   const handlePress = () => {
     if (!configured) return;
@@ -51,10 +64,7 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
 
   const handleContentSizeChange = useCallback(
     (event: { nativeEvent: { contentSize: { height: number } } }) => {
-      const nextHeight = Math.min(
-        WHATSAPP_INPUT_MAX_HEIGHT,
-        Math.max(INPUT_MIN_HEIGHT, Math.ceil(event.nativeEvent.contentSize.height)),
-      );
+      const nextHeight = clampInputHeight(event.nativeEvent.contentSize.height);
       setInputHeight((current) => (current === nextHeight ? current : nextHeight));
     },
     [],
@@ -90,7 +100,13 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
         !configured && styles.barDisabled,
       ]}
     >
-      <View style={[styles.inputWrap, { minHeight: barHeight }]}>
+      <View
+        style={[
+          styles.inputWrap,
+          { minHeight: barHeight },
+          isMultiline ? styles.inputWrapMultiline : styles.inputWrapSingle,
+        ]}
+      >
         <TextInput
           value={message}
           onChangeText={setMessage}
@@ -100,16 +116,15 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
           blurOnSubmit={false}
           returnKeyType="default"
           editable={configured}
-          scrollEnabled={inputHeight >= WHATSAPP_INPUT_MAX_HEIGHT}
+          scrollEnabled={false}
           onContentSizeChange={handleContentSizeChange}
           style={[
             styles.input,
-            compact && styles.inputCompact,
             {
-              height: inputHeight,
+              fontSize,
               lineHeight: INPUT_LINE_HEIGHT,
-              paddingTop: INPUT_VERTICAL_PAD,
-              paddingBottom: INPUT_VERTICAL_PAD,
+              height: inputHeight,
+              maxHeight: WHATSAPP_INPUT_MAX_HEIGHT,
             },
             Platform.OS === 'web' && styles.inputWeb,
             Platform.OS === 'android' && styles.inputAndroid,
@@ -122,6 +137,7 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
           hitSlop={8}
           style={({ pressed }) => [
             styles.diceButton,
+            isMultiline ? styles.diceButtonMultiline : styles.diceButtonSingle,
             configured && diceHovered && styles.diceButtonHovered,
             pressed && configured && styles.pressed,
           ]}
@@ -183,26 +199,32 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     flexDirection: 'row',
-    alignItems: 'flex-end',
     paddingRight: spacing.xs,
+    paddingVertical: INPUT_VERTICAL_INSET,
+  },
+  inputWrapSingle: {
+    alignItems: 'center',
+  },
+  inputWrapMultiline: {
+    alignItems: 'flex-end',
   },
   input: {
     flex: 1,
     minWidth: 0,
     fontFamily: typography.sans,
-    fontSize: 18,
     color: colors.foreground,
     backgroundColor: 'transparent',
     borderWidth: 0,
-    textAlignVertical: 'top',
-  },
-  inputCompact: {
-    fontSize: 15,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingVertical: 0,
+    margin: 0,
+    textAlignVertical: 'center',
   },
   inputWeb: {
     outlineStyle: 'none',
     resize: 'none',
-    overflowY: 'auto',
+    overflow: 'hidden',
   } as object,
   inputAndroid: {
     includeFontPadding: false,
@@ -214,6 +236,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 999,
     flexShrink: 0,
+  },
+  diceButtonSingle: {
+    alignSelf: 'center',
+  },
+  diceButtonMultiline: {
     alignSelf: 'flex-end',
   },
   diceButtonHovered: {
