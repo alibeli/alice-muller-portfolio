@@ -38,7 +38,7 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
         value={message}
         onChangeText={setMessage}
         placeholder={compact ? 'Message Alice' : 'Write a message to Alice'}
-        placeholderTextColor={colors.muted}
+        placeholderTextColor={colors.foreground}
         returnKeyType="send"
         onSubmitEditing={handlePress}
         editable={configured}
@@ -131,6 +131,7 @@ const styles = StyleSheet.create({
   buttonLabel: {
     fontSize: 13,
     fontWeight: '500',
+    color: colors.foreground,
   },
   buttonLabelDisabled: {
     color: colors.subtle,

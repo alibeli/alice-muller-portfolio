@@ -1,4 +1,3 @@
-import { images } from '../images';
 import type { ProjectBase } from './types';
 
 export const nimue: ProjectBase = {
@@ -16,7 +15,7 @@ export const nimue: ProjectBase = {
       '10+ modular SDK components',
     ],
     links: [{ label: 'Expo App', url: 'https://nimue.expo.app' }],
-    images: [...images.nimue],
+    images: [],
     outcome:
       'Built a privacy-first multi-agent orchestration platform & SDK on Nillion blind-compute research.',
     decisions: [

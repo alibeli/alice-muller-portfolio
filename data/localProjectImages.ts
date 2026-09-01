@@ -17,3 +17,14 @@ export const swapStudioImages: ImageSourcePropType[] = [
   require('@/assets/images/projects/swap-studio-4.png'),
   require('@/assets/images/projects/swap-studio-5.png'),
 ];
+
+export const superpowerHeroImage: ImageSourcePropType = require('@/assets/images/projects/superpower-hero.png');
+
+export const tactMonsterCoverImage: ImageSourcePropType = require('@/assets/images/projects/tact-monster-cover.png');
+
+export const domiInterAstraGallery: ImageSourcePropType[] = [
+  require('@/assets/images/projects/dia-gallery-0.png'),
+  require('@/assets/images/projects/dia-gallery-1.png'),
+  require('@/assets/images/projects/dia-gallery-2.png'),
+  require('@/assets/images/projects/dia-gallery-3.png'),
+];

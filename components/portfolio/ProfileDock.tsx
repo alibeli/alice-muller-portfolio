@@ -29,6 +29,8 @@ type Props = {
 
 const MOBILE_RADIUS = 24;
 const ANIM_MS = 240;
+const HEADSHOT_SIZE_DESKTOP = 80;
+const HEADSHOT_SIZE_MOBILE = 68;
 
 function CollapsibleSection({
   title,
@@ -86,9 +88,9 @@ function CollapsibleSection({
 
 export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
   const [expanded, setExpanded] = useState(false);
-  const [identityHeight, setIdentityHeight] = useState(100);
   const { width } = useWindowDimensions();
   const narrow = compact && width < 380;
+  const headshotSize = compact ? HEADSHOT_SIZE_MOBILE : HEADSHOT_SIZE_DESKTOP;
 
   const detailsHeight = useSharedValue(0);
   const detailsProgress = useSharedValue(0);
@@ -111,7 +113,7 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
 
   return (
     <GlassSurface
-      rounded={compact ? MOBILE_RADIUS : 28}
+      rounded={compact ? 0 : 28}
       intensity="medium"
       style={[
         styles.card,
@@ -126,19 +128,13 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
           style={[
             styles.headshot,
             narrow && styles.headshotNarrow,
-            { width: identityHeight, height: identityHeight },
+            { width: headshotSize, height: headshotSize },
           ]}
           resizeMode="cover"
         />
-        <View
-          style={styles.identityText}
-          onLayout={(e) => setIdentityHeight(e.nativeEvent.layout.height)}
-        >
+        <View style={styles.identityText}>
           <Text variant="title" style={styles.name} numberOfLines={2}>
             {profile.name}
-          </Text>
-          <Text variant="caption" muted style={styles.credentials}>
-            {profile.credentials}
           </Text>
           <Text variant="caption" muted style={styles.tagline}>
             {profile.tagline}
@@ -148,6 +144,9 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
               {profile.taglineAreas}
             </Text>
           ) : null}
+          <Text variant="caption" muted style={styles.credentials}>
+            {profile.credentials}
+          </Text>
 
           <View style={styles.actionsRow}>
             <View style={styles.socialRow}>
@@ -247,7 +246,7 @@ const styles = StyleSheet.create({
   },
   topRow: {
     flexDirection: 'row',
-    alignItems: 'stretch',
+    alignItems: 'flex-start',
     gap: spacing.md,
   },
   identityText: {
@@ -262,7 +261,7 @@ const styles = StyleSheet.create({
   credentials: {
     lineHeight: 16,
     fontSize: 11,
-    marginTop: 1,
+    marginTop: 2,
   },
   tagline: {
     lineHeight: 18,

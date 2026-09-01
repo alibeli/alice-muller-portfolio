@@ -27,7 +27,7 @@ function BlockRenderer({ block, inModal }: { block: ProjectBlock; inModal: boole
           contentContainerStyle={styles.imageRowContent}
         >
           {block.assets.map((asset, i) => (
-            <ProjectImage key={i} source={asset} carousel />
+            <ProjectImage key={i} source={asset} carousel caption={block.caption} />
           ))}
         </ScrollView>
         {block.caption ? (
@@ -44,7 +44,8 @@ function BlockRenderer({ block, inModal }: { block: ProjectBlock; inModal: boole
       <View style={styles.imageBlock}>
         <ProjectImage
           source={blockImageSource(block)}
-          maxWidth={inModal ? MODAL_IMAGE_MAX_WIDTH : MODAL_IMAGE_MAX_WIDTH}
+          maxWidth={MODAL_IMAGE_MAX_WIDTH}
+          caption={block.caption}
         />
         {block.caption ? (
           <Text variant="caption" style={styles.caption}>

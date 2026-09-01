@@ -1,4 +1,4 @@
-import { images } from '../images';
+import { tactMonsterCoverImage } from '../localProjectImages';
 import type { ProjectBase } from './types';
 
 export const tact_monster: ProjectBase = {
@@ -10,7 +10,7 @@ export const tact_monster: ProjectBase = {
     roles: ['Co Founder'],
     highlights: ['InnovationRCA Incubator'],
     links: [],
-    images: [...images.tactMonster],
+    images: [],
     blocks: [
       {
         type: 'text',
@@ -30,6 +30,10 @@ export const tact_monster: ProjectBase = {
         title: 'Autonomous robot + university interest',
         body: 'Built a fully autonomous portable robot. Letters of interest from Imperial, Cambridge, Oxford & Edinburgh basketball teams. InnovationRCA incubator.',
       },
-      { type: 'image', uri: images.tactMonster[0], caption: 'Tact Monster autonomous training robot' },
+      {
+        type: 'image',
+        asset: tactMonsterCoverImage,
+        caption: 'Tact Monster — autonomous training robot, player experience, and companion app.',
+      },
     ],
   };

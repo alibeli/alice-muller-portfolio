@@ -320,6 +320,7 @@ const styles = StyleSheet.create({
   },
   moreSection: {
     marginTop: spacing.xxl,
+    marginBottom: spacing.xxxl,
     gap: spacing.md,
   },
   moreHeading: {

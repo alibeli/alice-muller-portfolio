@@ -1,6 +1,8 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
+import { siteMeta } from '@/lib/siteMeta';
+
 export default function Root({ children }: PropsWithChildren) {
   return (
     <html lang="en">
@@ -11,8 +13,17 @@ export default function Root({ children }: PropsWithChildren) {
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
         />
-        <title>Alice Müller, Portfolio</title>
-        <meta name="description" content="Former founder, CEO, VP of Product. Building AI, SaaS, marketplaces, Web3, and privacy tech." />
+        <title>{siteMeta.pageTitle}</title>
+        <meta name="description" content={siteMeta.description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={siteMeta.title} />
+        <meta property="og:description" content={siteMeta.description} />
+        <meta property="og:image" content={siteMeta.imageUrl} />
+        <meta property="og:url" content={siteMeta.url} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={siteMeta.title} />
+        <meta name="twitter:description" content={siteMeta.description} />
+        <meta name="twitter:image" content={siteMeta.imageUrl} />
         <ScrollViewStyleReset />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
