@@ -1,26 +1,31 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { CountChip } from '@/components/ui/CountChip';
 import { Text } from '@/components/ui/Text';
 import { colors, spacing } from '@/constants/theme';
 
 type Props = {
   title: ReactNode;
+  count?: number;
   onClose: () => void;
   icon?: ReactNode;
   intro?: string;
 };
 
-export function ModalPanelHeader({ title, onClose, icon, intro }: Props) {
+export function ModalPanelHeader({ title, count, onClose, icon, intro }: Props) {
   return (
     <>
       <View style={styles.header}>
         <View style={styles.headingGroup}>
           {icon}
           {typeof title === 'string' ? (
-            <Text variant="title" style={styles.heading} numberOfLines={2}>
-              {title}
-            </Text>
+            <View style={styles.titleRow}>
+              <Text variant="title" style={styles.heading} numberOfLines={2}>
+                {title}
+              </Text>
+              {count != null ? <CountChip count={count} /> : null}
+            </View>
           ) : (
             title
           )}
@@ -57,6 +62,12 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     flexShrink: 1,
     flex: 1,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 1,
   },
   closeBtn: {
     padding: spacing.sm,

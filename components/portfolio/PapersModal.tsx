@@ -27,7 +27,8 @@ export function PapersModal({ visible, onClose, onPaperPress }: Props) {
       closeLabel="Close papers"
     >
       <ModalPanelHeader
-        title={`Papers (${paperCount})`}
+        title="Papers"
+        count={paperCount}
         onClose={onClose}
         icon={<ModalTabIcon tab="papers" />}
         intro="Academic research and thesis work."

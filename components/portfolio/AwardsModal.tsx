@@ -26,7 +26,8 @@ export function AwardsModal({ visible, onClose }: Props) {
       closeLabel="Close awards"
     >
       <ModalPanelHeader
-        title={`Awards (${awardCount})`}
+        title="Awards"
+        count={awardCount}
         onClose={onClose}
         icon={<ModalTabIcon tab="awards" />}
       />

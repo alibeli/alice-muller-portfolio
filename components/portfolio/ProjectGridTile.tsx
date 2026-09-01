@@ -17,6 +17,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
+import { OpenInNewTabIcon } from '@/components/ui/icons/OpenInNewTabIcon';
 import { Text } from '@/components/ui/Text';
 import { getPaperGradient, paperGradientCss, PLACEHOLDER_GRADIENT } from '@/data/paperGradients';
 import type { GridItem } from '@/data/portfolio';
@@ -27,6 +28,8 @@ import { motion, palette, radii, spacing, tileText } from '@/constants/tokens';
 type Props = {
   item: GridItem;
   size: number;
+  /** Defaults to square (`size`). Use on mobile for taller portrait tiles. */
+  height?: number;
   /** Opens project in slide-over modal instead of navigating. */
   onProjectPress?: (slug: string) => void;
   /** Opens paper in left slide-over modal instead of navigating. */
@@ -92,7 +95,8 @@ function PlaceholderBackground() {
   );
 }
 
-export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Props) {
+export function ProjectGridTile({ item, size, height, onProjectPress, onPaperPress }: Props) {
+  const tileHeight = height ?? size;
   const isPaper = item.kind === 'paper';
   const images = !isPaper && item.images.length > 0 ? item.images : [];
   const [index, setIndex] = useState(0);
@@ -161,7 +165,7 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
   };
 
   const tileContent = (
-    <View style={[styles.tile, { width: size, height: size }]}>
+    <View style={[styles.tile, { width: size, height: tileHeight }]}>
       <View style={styles.mediaStage}>
         {isPaper ? (
           <PaperGradientBackground slug={item.slug} />
@@ -215,6 +219,9 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
               <Text variant="mono" style={tileText.link} numberOfLines={1}>
                 {item.link.label}
               </Text>
+              {item.link.url.startsWith('http') ? (
+                <OpenInNewTabIcon size={11} color={palette.muted} />
+              ) : null}
             </Pressable>
           ) : null}
         </View>
@@ -313,6 +320,9 @@ const styles = StyleSheet.create({
   },
   linkPill: {
     alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
     marginTop: 4,
     paddingHorizontal: 10,
     paddingVertical: 5,

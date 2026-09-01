@@ -24,6 +24,9 @@ const MOBILE_GRID_INSET = spacing.sm;
 const DESKTOP_GRID_INSET = spacing.lg;
 const MOBILE_GRID_GAP = spacing.sm;
 const DESKTOP_GRID_GAP = spacing.md;
+/** Mobile portrait tiles: width × aspect */
+const MOBILE_TILE_ASPECT = 1.32;
+const MOBILE_BREAKPOINT = 640;
 
 function getTileSize(
   screenWidth: number,
@@ -38,7 +41,8 @@ function getTileSize(
 
 function getColumns(screenWidth: number): number {
   if (screenWidth >= 900) return 3;
-  return 2;
+  if (screenWidth >= MOBILE_BREAKPOINT) return 2;
+  return 1;
 }
 
 function getMoreColumns(screenWidth: number): number {
@@ -66,12 +70,14 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
   const [paperSlug, setPaperSlug] = useState<string | null>(() => readPaperSlugFromPathname());
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const isMobile = width < 640;
+  const isMobile = width < MOBILE_BREAKPOINT;
   const horizontalPadding = isMobile ? MOBILE_GRID_INSET : DESKTOP_GRID_INSET;
   const gridGap = isMobile ? MOBILE_GRID_GAP : DESKTOP_GRID_GAP;
   const columns = getColumns(width);
   const moreColumns = getMoreColumns(width);
   const tileSize = getTileSize(width, columns, horizontalPadding, gridGap);
+  const tileHeight = isMobile ? Math.floor(tileSize * MOBILE_TILE_ASPECT) : tileSize;
+  const projectSnapStride = tileHeight + gridGap;
   const moreTileSize = getTileSize(width, moreColumns, horizontalPadding, gridGap);
   const items = getGridItems();
 
@@ -110,6 +116,11 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
     }
     return result;
   }, [moreColumns]);
+
+  const projectSnapOffsets = useMemo(() => {
+    if (!isMobile) return undefined;
+    return rows.map((_, index) => index * projectSnapStride);
+  }, [isMobile, projectSnapStride, rows]);
 
   useEffect(() => {
     const slug = resolveInitialProjectSlug(initialProjectSlug);
@@ -196,7 +207,16 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
   return (
     <View style={styles.page}>
       <ScrollView
-        style={styles.scroll}
+        style={[
+          styles.scroll,
+          isMobile &&
+            (Platform.OS === 'web'
+              ? ({
+                  scrollSnapType: 'y mandatory',
+                  scrollPaddingTop: scrollTopPad,
+                } as object)
+              : null),
+        ]}
         contentContainerStyle={[
           styles.scrollContent,
           {
@@ -206,18 +226,33 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
           },
         ]}
         showsVerticalScrollIndicator
+        decelerationRate={isMobile ? 'fast' : 'normal'}
+        snapToOffsets={projectSnapOffsets}
+        snapToAlignment={isMobile ? 'start' : undefined}
+        snapToEnd={false}
       >
-        <Text variant="mono" style={styles.sectionHeading}>
-          Selected projects ({selectedProjectCount})
-        </Text>
         <View style={[styles.grid, styles.constrainedGrid, { gap: gridGap }]}>
           {rows.map((row, rowIndex) => (
-            <View key={rowIndex} style={[styles.row, { gap: gridGap }]}>
+            <View
+              key={rowIndex}
+              style={[
+                styles.row,
+                { gap: gridGap },
+                isMobile &&
+                  (Platform.OS === 'web'
+                    ? ({
+                        scrollSnapAlign: 'start',
+                        scrollSnapStop: 'always',
+                      } as object)
+                    : styles.snapRow),
+              ]}
+            >
               {row.map((item) => (
                 <ProjectGridTile
                   key={`${item.kind}-${item.slug}`}
                   item={item}
                   size={tileSize}
+                  height={tileHeight}
                   onProjectPress={handleProjectPress}
                 />
               ))}
@@ -305,14 +340,6 @@ const styles = StyleSheet.create({
       : {}),
   },
   scrollContent: {},
-  sectionHeading: {
-    fontSize: 11,
-    color: colors.subtle,
-    textAlign: 'center',
-    alignSelf: 'center',
-    width: '100%',
-    marginBottom: spacing.md,
-  },
   tabOverlay: {
     position: 'absolute',
     left: 0,
@@ -331,6 +358,9 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  snapRow: {
+    width: '100%',
   },
   moreSection: {
     marginTop: spacing.xxl,

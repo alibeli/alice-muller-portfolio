@@ -14,6 +14,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { CountChip } from '@/components/ui/CountChip';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { TabIcon, type TabKey } from '@/components/ui/icons/TabIcons';
 import { Text } from '@/components/ui/Text';
@@ -65,16 +66,6 @@ function getActiveIndex(papersOpen: boolean, awardsOpen: boolean, stackOpen: boo
   if (awardsOpen) return 2;
   if (papersOpen) return 1;
   return 0;
-}
-
-function CountChip({ count }: { count: number }) {
-  return (
-    <View style={styles.countChip}>
-      <Text variant="mono" style={styles.countChipText}>
-        {count}
-      </Text>
-    </View>
-  );
 }
 
 /** Tab pill with skeuomorphic icons — large when idle, shrink on select to reveal label. */
@@ -263,20 +254,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#0A0A0A',
     flexShrink: 0,
-  },
-  countChip: {
-    minWidth: 20,
-    height: 20,
-    paddingHorizontal: 6,
-    borderRadius: 999,
-    backgroundColor: 'rgba(0, 0, 0, 0.08)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  countChipText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#0A0A0A',
-    lineHeight: 12,
   },
 });
