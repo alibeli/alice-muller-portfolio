@@ -18,6 +18,8 @@ export const swapStudioImages: ImageSourcePropType[] = [
   require('@/assets/images/projects/swap-studio-5.png'),
 ];
 
+export const nimueHeroImage: ImageSourcePropType = require('@/assets/images/projects/nimue-0.png');
+
 export const superpowerHeroImage: ImageSourcePropType = require('@/assets/images/projects/superpower-hero.png');
 
 export const tactMonsterCoverImage: ImageSourcePropType = require('@/assets/images/projects/tact-monster-cover.png');

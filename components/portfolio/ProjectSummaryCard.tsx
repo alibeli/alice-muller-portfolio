@@ -30,8 +30,15 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 }
 
 export function ProjectSummaryCard({ project }: Props) {
+  const roleLine = project.roles.join(' · ');
+
   return (
     <GlassSurface intensity="light" rounded={radii.tile} style={styles.card}>
+      {roleLine ? (
+        <Text variant="mono" style={styles.roleLine}>
+          {roleLine}
+        </Text>
+      ) : null}
       <View style={styles.bicm}>
         {BICM_LABELS.map(({ key, label }) => (
           <SummaryRow key={key} label={label} value={project.summary[key]} />
@@ -46,6 +53,12 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.md,
     marginBottom: spacing.lg,
+  },
+  roleLine: {
+    fontSize: 11,
+    color: palette.foreground,
+    letterSpacing: 0.3,
+    textTransform: 'uppercase',
   },
   bicm: {
     gap: spacing.sm,

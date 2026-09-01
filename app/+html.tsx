@@ -63,6 +63,13 @@ export default function Root({ children }: PropsWithChildren) {
                 background: #0A0A0A;
                 color: #FFFFFF;
               }
+              [data-hide-scrollbar="true"] {
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+              }
+              [data-hide-scrollbar="true"]::-webkit-scrollbar {
+                display: none;
+              }
             `,
           }}
         />

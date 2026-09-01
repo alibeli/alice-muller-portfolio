@@ -1,6 +1,7 @@
-import { ImageSourcePropType, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ImageSourcePropType, StyleSheet, View } from 'react-native';
 
 import { ProjectImage } from '@/components/portfolio/ProjectImage';
+import { SnapCarousel } from '@/components/ui/SnapCarousel';
 import { ProjectLinkChip } from '@/components/portfolio/ProjectLinkChip';
 import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
 import { ProjectSummaryCard } from '@/components/portfolio/ProjectSummaryCard';
@@ -17,24 +18,37 @@ function blockImageSource(block: Extract<ProjectBlock, { type: 'image' }>): Imag
   return { uri: block.uri ?? '' };
 }
 
+function getProjectGallery(project: Project): ImageSourcePropType[] {
+  const fromBlocks: ImageSourcePropType[] = [];
+
+  for (const block of project.blocks ?? []) {
+    if (block.type === 'image-row') {
+      fromBlocks.push(...block.assets);
+    } else if (block.type === 'image') {
+      fromBlocks.push(blockImageSource(block));
+    }
+  }
+
+  if (fromBlocks.length > 0) return fromBlocks;
+  return project.images.map((uri) => ({ uri }));
+}
+
 function BlockRenderer({ block, inModal }: { block: ProjectBlock; inModal: boolean }) {
+  if (inModal && (block.type === 'image' || block.type === 'image-row')) {
+    return null;
+  }
+
   if (block.type === 'image-row') {
     return (
       <View style={styles.imageRowWrap}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={Platform.OS === 'web'}
-          contentContainerStyle={styles.imageRowContent}
-        >
-          {block.assets.map((asset, i) => (
-            <ProjectImage key={i} source={asset} carousel caption={block.caption} />
-          ))}
-        </ScrollView>
-        {block.caption ? (
-          <Text variant="caption" style={styles.caption}>
-            {block.caption}
-          </Text>
-        ) : null}
+        <SnapCarousel
+          items={block.assets}
+          slideMaxWidth={MODAL_IMAGE_MAX_WIDTH}
+          caption={block.caption}
+          renderItem={(asset) => (
+            <ProjectImage source={asset} maxWidth={MODAL_IMAGE_MAX_WIDTH} caption={block.caption} />
+          )}
+        />
       </View>
     );
   }
@@ -93,6 +107,7 @@ export function ProjectDetailContent({
   inModal = false,
 }: Props) {
   const coverUri = !inModal && project.images[0] ? project.images[0] : null;
+  const galleryImages = inModal ? getProjectGallery(project) : [];
 
   return (
     <>
@@ -159,6 +174,18 @@ export function ProjectDetailContent({
       ) : null}
 
       {inModal ? <ProjectSummaryCard project={project} /> : null}
+
+      {galleryImages.length > 0 ? (
+        <View style={styles.galleryWrap}>
+          <SnapCarousel
+            items={galleryImages}
+            slideMaxWidth={MODAL_IMAGE_MAX_WIDTH}
+            renderItem={(source) => (
+              <ProjectImage source={source} maxWidth={MODAL_IMAGE_MAX_WIDTH} />
+            )}
+          />
+        </View>
+      ) : null}
 
       {project.outcome && !inModal ? (
         <View style={styles.outcomeWrap}>
@@ -268,6 +295,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: spacing.md,
   },
+  galleryWrap: {
+    marginBottom: spacing.lg,
+    width: '100%',
+    alignSelf: 'center',
+  },
   textBlock: {
     marginBottom: spacing.md,
   },
@@ -279,11 +311,6 @@ const styles = StyleSheet.create({
   imageRowWrap: {
     marginBottom: spacing.lg,
     gap: spacing.sm,
-  },
-  imageRowContent: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
   },
   caption: {
     paddingTop: spacing.xs,

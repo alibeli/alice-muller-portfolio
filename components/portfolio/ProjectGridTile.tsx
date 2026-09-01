@@ -92,18 +92,6 @@ function PlaceholderBackground() {
   );
 }
 
-function CarouselDots({ count, index }: { count: number; index: number }) {
-  if (count <= 1) return null;
-
-  return (
-    <View style={[styles.dots, { pointerEvents: 'none' }]}>
-      {Array.from({ length: count }).map((_, i) => (
-        <View key={i} style={[styles.dot, i === index && styles.dotActive]} />
-      ))}
-    </View>
-  );
-}
-
 export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Props) {
   const isPaper = item.kind === 'paper';
   const images = !isPaper && item.images.length > 0 ? item.images : [];
@@ -183,10 +171,6 @@ export function ProjectGridTile({ item, size, onProjectPress, onPaperPress }: Pr
           <PlaceholderBackground />
         )}
       </View>
-
-      {isHovering && images.length > 1 ? (
-        <CarouselDots count={images.length} index={index} />
-      ) : null}
 
       <View style={[styles.textBlock, { pointerEvents: 'none' }]}>
         <View style={styles.textInner}>
@@ -308,23 +292,5 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: radii.tile,
     borderTopRightRadius: radii.tile,
     overflow: 'hidden',
-  },
-  dots: {
-    position: 'absolute',
-    top: spacing.sm,
-    right: spacing.sm,
-    flexDirection: 'row',
-    gap: 4,
-    zIndex: 3,
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(0, 0, 0, 0.18)',
-  },
-  dotActive: {
-    backgroundColor: palette.foreground,
-    width: 12,
   },
 });
