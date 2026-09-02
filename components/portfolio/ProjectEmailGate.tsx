@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  StyleSheet,
+  TextInput,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 
 import { useTheme } from '@/components/ThemeProvider';
-import { WHATSAPP_BAR_MIN_HEIGHT } from '@/components/portfolio/contact/whatsappBar';
 import { Button } from '@/components/ui/Button';
-import { AutoGrowInputBar, DEFAULT_AUTO_GROW_METRICS } from '@/components/ui/AutoGrowInputBar';
 import { BottomSheetOverlay } from '@/components/ui/BottomSheetOverlay';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
-import { lineHeights, radii, spacing, type ColorPalette, typeScale } from '@/design-system';
+import { lineHeights, radii, spacing, TOUCH_TARGET_MIN, type ColorPalette, typeScale } from '@/design-system';
 import { getProject } from '@/data/portfolio';
 import { isValidEmail, normalizeEmail } from '@/lib/validateEmail';
 
@@ -20,21 +25,9 @@ type Props = {
   error?: string | null;
 };
 
-const INPUT_LINE_HEIGHT = lineHeights.bodyLarge;
-const INPUT_FONT_SIZE = typeScale.bodyLarge;
-const INPUT_FONT_SIZE_COMPACT = typeScale.bodyMedium;
 const INVALID_EMAIL_MESSAGE = 'Enter a valid email address.';
 
-/** Single-line email bar — same shell as WhatsApp, no vertical growth. */
-const EMAIL_BAR_METRICS = {
-  ...DEFAULT_AUTO_GROW_METRICS,
-  minInputHeight: INPUT_LINE_HEIGHT,
-  maxInputHeight: INPUT_LINE_HEIGHT,
-  minBarHeight: WHATSAPP_BAR_MIN_HEIGHT,
-  maxBarHeight: WHATSAPP_BAR_MIN_HEIGHT,
-};
-
-function createStyles(p: ColorPalette) {
+function createStyles(p: ColorPalette, compact: boolean) {
   return StyleSheet.create({
     panel: {
       paddingTop: spacing.lg,
@@ -56,44 +49,44 @@ function createStyles(p: ColorPalette) {
     },
     closeIcon: {
       color: p.icon.muted,
+      fontSize: typeScale.headlineSmall,
+      lineHeight: lineHeights.headlineSmall,
+    },
+    inputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      minHeight: TOUCH_TARGET_MIN,
+      borderRadius: radii.pill,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: p.border,
+      backgroundColor: p.glass.chip,
+      overflow: 'hidden',
+    },
+    input: {
+      flex: 1,
+      minWidth: 0,
+      height: TOUCH_TARGET_MIN,
+      paddingHorizontal: spacing.lg,
+      fontSize: compact ? typeScale.bodyMedium : typeScale.bodyLarge,
+      lineHeight: lineHeights.bodyLarge,
+      color: p.foreground,
+      ...(Platform.OS === 'web'
+        ? ({
+            outlineStyle: 'none',
+            overflow: 'hidden',
+          } as object)
+        : {}),
+    },
+    submitWrap: {
+      height: TOUCH_TARGET_MIN,
+      justifyContent: 'center',
+      alignItems: 'center',
+      minWidth: 88,
+      paddingHorizontal: spacing.lg,
     },
     error: {
       color: p.destructive,
       marginTop: -spacing.xs,
-    },
-    reassurance: {
-      marginTop: -spacing.xs,
-    },
-    submitWrap: {
-      height: WHATSAPP_BAR_MIN_HEIGHT,
-      justifyContent: 'center',
-      alignItems: 'center',
-      minWidth: 108,
-      paddingHorizontal: spacing.lg,
-    },
-    continueButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: spacing.sm,
-      paddingHorizontal: spacing.lg,
-      borderLeftWidth: StyleSheet.hairlineWidth,
-      borderLeftColor: p.border,
-    },
-    continueButtonCompact: {
-      paddingHorizontal: spacing.md,
-    },
-    continueButtonHovered: {
-      backgroundColor: p.glass.clear,
-    },
-    continueLabel: {
-      color: p.foreground,
-    },
-    continueLabelDisabled: {
-      color: p.subtle,
-    },
-    pressed: {
-      opacity: 0.72,
     },
   });
 }
@@ -109,9 +102,8 @@ export function ProjectEmailGate({
   const { width } = useWindowDimensions();
   const isMobile = width < 640;
   const compact = width < 380;
-  const styles = useMemo(() => createStyles(palette), [palette]);
+  const styles = useMemo(() => createStyles(palette, compact), [palette, compact]);
   const [email, setEmail] = useState('');
-  const [buttonHovered, setButtonHovered] = useState(false);
   const [touched, setTouched] = useState(false);
 
   const project = projectSlug ? getProject(projectSlug) : undefined;
@@ -136,14 +128,6 @@ export function ProjectEmailGate({
     onContinue(normalized, projectSlug);
   };
 
-  const webButtonHoverProps =
-    Platform.OS === 'web'
-      ? ({
-          onMouseEnter: () => setButtonHovered(true),
-          onMouseLeave: () => setButtonHovered(false),
-        } as object)
-      : {};
-
   return (
     <BottomSheetOverlay visible={visible} onClose={onClose}>
       <GlassSurface
@@ -154,9 +138,9 @@ export function ProjectEmailGate({
       >
         <View style={styles.headerRow}>
           <View style={styles.headerText}>
-            <Text variant="title">Unlock {project?.title}</Text>
+            <Text variant="title">View {project?.title}</Text>
             <Text variant="body" muted>
-              Enter your email to open the full case study — I use it only to see who's exploring the work. No newsletters, no spam.
+              Thanks for your interest!
             </Text>
           </View>
           <Button
@@ -164,66 +148,49 @@ export function ProjectEmailGate({
             onPress={onClose}
             accessibilityLabel="Close"
             icon={
-              <Text variant="titleMedium" style={styles.closeIcon}>
+              <Text style={styles.closeIcon} accessibilityElementsHidden importantForAccessibility="no">
                 ✕
               </Text>
             }
           />
         </View>
 
-        <AutoGrowInputBar
-          value={email}
-          onChangeText={setEmail}
-          metrics={EMAIL_BAR_METRICS}
-          fontSize={compact ? INPUT_FONT_SIZE_COMPACT : INPUT_FONT_SIZE}
-          lineHeight={INPUT_LINE_HEIGHT}
-          placeholder="you@company.com"
-          placeholderTextColor={palette.muted}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          textContentType="emailAddress"
-          editable={!isSubmitting}
-          returnKeyType="go"
-          onSubmitEditing={handleSubmit}
-          onBlur={() => setTouched(true)}
-          accessibilityLabel="Email address"
-          action={({ barHeight }) =>
-            isSubmitting ? (
-              <View style={styles.submitWrap}>
-                <ActivityIndicator color={palette.foreground} />
-              </View>
-            ) : (
-              <Pressable
-                onPress={handleSubmit}
-                disabled={!canSubmit}
-                accessibilityRole="button"
-                accessibilityLabel="View case study"
-                style={({ pressed }) => [
-                  styles.continueButton,
-                  { height: barHeight },
-                  canSubmit && buttonHovered && styles.continueButtonHovered,
-                  pressed && canSubmit && styles.pressed,
-                  compact && styles.continueButtonCompact,
-                ]}
-                {...webButtonHoverProps}
-              >
-                <Text
-                  variant="label"
-                  style={[styles.continueLabel, !canSubmit && styles.continueLabelDisabled]}
-                >
-                  View case study
-                </Text>
-              </Pressable>
-            )
-          }
-        />
-
-        {!showValidationError && !error ? (
-          <Text variant="caption" muted style={styles.reassurance}>
-            One quick step — then you're in.
-          </Text>
-        ) : null}
+        <View style={styles.inputRow}>
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            placeholder="you@company.com"
+            placeholderTextColor={palette.muted}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            textContentType="emailAddress"
+            editable={!isSubmitting}
+            returnKeyType="go"
+            onSubmitEditing={handleSubmit}
+            onBlur={() => setTouched(true)}
+            accessibilityLabel="Email address"
+            multiline={false}
+            scrollEnabled={false}
+            style={styles.input}
+          />
+          {isSubmitting ? (
+            <View style={styles.submitWrap}>
+              <ActivityIndicator color={palette.foreground} />
+            </View>
+          ) : (
+            <Button
+              variant="primary"
+              size="lg"
+              dividerLeft
+              label="View"
+              onPress={handleSubmit}
+              disabled={!canSubmit}
+              accessibilityLabel="View project"
+              style={{ height: TOUCH_TARGET_MIN, borderRadius: 0 }}
+            />
+          )}
+        </View>
 
         {showValidationError ? (
           <Text variant="caption" style={styles.error}>

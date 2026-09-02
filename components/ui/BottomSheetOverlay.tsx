@@ -23,8 +23,8 @@ const SLIDE_MS = 320;
 
 function createStyles(p: ColorPalette) {
   const frostedBackdropWeb = {
-    backdropFilter: 'blur(16px) saturate(140%)',
-    WebkitBackdropFilter: 'blur(16px) saturate(140%)',
+    backdropFilter: 'blur(10px) saturate(120%)',
+    WebkitBackdropFilter: 'blur(10px) saturate(120%)',
     backgroundColor: p.overlay.sheet,
   } as object;
 

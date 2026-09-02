@@ -83,7 +83,7 @@ export const lightPalette: ColorPalette = {
     light: 'rgba(0, 0, 0, 0.06)',
     dark: 'rgba(0, 0, 0, 0.12)',
     backdrop: 'rgba(247, 247, 245, 0.55)',
-    sheet: 'rgba(31, 31, 31, 0.2)',
+    sheet: 'rgba(31, 31, 31, 0.1)',
   },
   glass: {
     border: 'rgba(255, 255, 255, 0.5)',
@@ -138,7 +138,7 @@ export const darkPalette: ColorPalette = {
     light: 'rgba(255, 255, 255, 0.05)',
     dark: 'rgba(255, 255, 255, 0.10)',
     backdrop: 'rgba(30, 30, 30, 0.62)',
-    sheet: 'rgba(0, 0, 0, 0.2)',
+    sheet: 'rgba(0, 0, 0, 0.1)',
   },
   glass: {
     border: 'rgba(255, 255, 255, 0.10)',
