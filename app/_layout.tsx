@@ -7,6 +7,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
+import { ConvexAppProvider } from '@/components/providers/ConvexAppProvider';
 import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
 
 export { ErrorBoundary } from 'expo-router';
@@ -54,7 +55,9 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <RootStack />
+        <ConvexAppProvider>
+          <RootStack />
+        </ConvexAppProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

@@ -12,7 +12,7 @@ export function ThemeToggleChip() {
       accessibilityLabel={colorScheme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
       icon={
         colorScheme === 'light' ? (
-          <MoonIcon size={14} color={palette.foreground} />
+          <MoonIcon size={14} color={palette.mutedStrong} />
         ) : (
           <SunIcon size={14} color={palette.foreground} />
         )

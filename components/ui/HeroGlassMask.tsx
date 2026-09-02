@@ -9,7 +9,7 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 
-import { palette } from '@/constants/tokens';
+import { useTheme } from '@/components/ThemeProvider';
 import type { PaperGradient } from '@/data/paperGradients';
 
 /** Shorter bottom frosted band for grid tiles. */
@@ -63,6 +63,7 @@ export function TileTextGlass({
   roundedTop?: number;
   roundedBottom?: number;
 }) {
+  const { palette } = useTheme();
   const blurPx = Math.round(intensity * 0.55);
   const radiusStyle =
     roundedTop > 0 || roundedBottom > 0
@@ -113,6 +114,7 @@ export function HeroGlassMask({
   intensity = 64,
   maskLocations = TILE_MASK_LOCATIONS,
 }: Props) {
+  const { palette } = useTheme();
   const overlayColor = palette.glass.frost;
 
   if (Platform.OS === 'web') {

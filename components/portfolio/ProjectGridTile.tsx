@@ -335,7 +335,7 @@ function createTileStyles(p: ColorPalette) {
       backgroundColor: p.glass.frost,
       ...(Platform.OS === 'web'
         ? ({
-            backgroundColor: p.glass.frost,
+            backgroundColor: p.glass.tileCaption,
           } as object)
         : {}),
     },

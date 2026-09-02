@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { useTheme } from '@/components/ThemeProvider';
 import {
   ProjectBlockList,
   ProjectTopGallery,
@@ -11,7 +13,7 @@ import { ProjectSummaryCard } from '@/components/portfolio/ProjectSummaryCard';
 import { Link } from '@/components/ui/Link';
 import { Text } from '@/components/ui/Text';
 import { isWhatsAppPitchLink } from '@/lib/projectLinks';
-import { palette, spacing } from '@/constants/tokens';
+import { spacing, type ColorPalette, typeScale } from '@/constants/tokens';
 import type { Project } from '@/data/portfolio';
 
 const MODAL_IMAGE_MAX_WIDTH = 700;
@@ -31,6 +33,8 @@ export function ProjectDetailContent({
   showLinks = true,
   inModal = false,
 }: Props) {
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
   const coverUri = !inModal && project.images[0] ? project.images[0] : null;
   const topGallery = inModal ? (project.topGallery ?? []) : [];
 
@@ -126,59 +130,60 @@ export function ProjectDetailContent({
   );
 }
 
-const styles = StyleSheet.create({
-  hero: {
-    marginBottom: spacing.xl,
-    gap: spacing.sm,
-  },
-  meta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    alignItems: 'center',
-  },
-  title: {
-    marginTop: spacing.sm,
-  },
-  tagline: {
-    lineHeight: 22,
-  },
-  roles: {
-    marginTop: spacing.sm,
-    color: palette.subtle,
-  },
-  highlights: {
-    color: palette.muted,
-  },
-  links: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.lg,
-    marginTop: spacing.md,
-  },
-  linksCompact: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  outcomeWrap: {
-    marginBottom: spacing.md,
-  },
-  outcome: {
-    fontSize: 15,
-    lineHeight: 22,
-    fontWeight: '500',
-    color: palette.foreground,
-  },
-  coverWrap: {
-    width: '100%',
-    alignSelf: 'center',
-    marginBottom: spacing.md,
-  },
-  footer: {
-    marginTop: spacing.xxxl,
-    marginBottom: spacing.xxxl,
-  },
-});
+const createStyles = (p: ColorPalette) =>
+  StyleSheet.create({
+    hero: {
+      marginBottom: spacing.xl,
+      gap: spacing.sm,
+    },
+    meta: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+      alignItems: 'center',
+    },
+    title: {
+      marginTop: spacing.sm,
+    },
+    tagline: {
+      lineHeight: 22,
+    },
+    roles: {
+      marginTop: spacing.sm,
+      color: p.subtle,
+    },
+    highlights: {
+      color: p.muted,
+    },
+    links: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.lg,
+      marginTop: spacing.md,
+    },
+    linksCompact: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.lg,
+      marginBottom: spacing.lg,
+    },
+    outcomeWrap: {
+      marginBottom: spacing.md,
+    },
+    outcome: {
+      fontSize: typeScale.base,
+      lineHeight: 22,
+      fontWeight: '500',
+      color: p.foreground,
+    },
+    coverWrap: {
+      width: '100%',
+      alignSelf: 'center',
+      marginBottom: spacing.md,
+    },
+    footer: {
+      marginTop: spacing.xxxl,
+      marginBottom: spacing.xxxl,
+    },
+  });

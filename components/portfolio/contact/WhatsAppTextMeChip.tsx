@@ -28,6 +28,7 @@ function createStyles(p: ColorPalette) {
       alignItems: 'center',
       height: WHATSAPP_BAR_HEIGHT,
       paddingLeft: spacing.md,
+      gap: spacing.md,
     },
     barDisabled: {
       opacity: 0.55,
@@ -97,12 +98,12 @@ export function WhatsAppTextMeChip({ phoneDigits, projectTitle }: Props) {
         disabled={!configured}
         style={({ pressed }) => [pressed && configured && styles.pressed]}
         accessibilityRole="button"
-        accessibilityLabel="Questions, text me on WhatsApp"
+        accessibilityLabel="Questions? Text me on WhatsApp"
         {...webButtonHoverProps}
       >
         <GlassSurface rounded={999} intensity="medium" style={[styles.bar, !configured && styles.barDisabled]}>
           <Text variant="body" style={[styles.prompt, !configured && styles.promptDisabled]}>
-            Questions, text me
+            Questions? Text me
           </Text>
           <View style={[styles.button, configured && buttonHovered && styles.buttonHovered]}>
             <WhatsAppIcon

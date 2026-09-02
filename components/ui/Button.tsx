@@ -25,6 +25,7 @@ function createStyles(p: ColorPalette) {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
+      gap: spacing.sm,
     },
     chip: {
       gap: spacing.sm,
@@ -40,10 +41,9 @@ function createStyles(p: ColorPalette) {
     },
     icon: {
       padding: spacing.xs,
-      marginRight: -spacing.xs,
     },
     action: {
-      gap: spacing.sm,
+      gap: spacing.md,
       paddingHorizontal: spacing.lg,
       backgroundColor: 'transparent',
     },

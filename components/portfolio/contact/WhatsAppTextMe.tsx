@@ -251,7 +251,9 @@ function createStyles(p: ColorPalette) {
       flex: 1,
       minWidth: 0,
       flexDirection: 'row',
-      paddingRight: spacing.xs,
+      alignItems: 'center',
+      gap: spacing.xs,
+      paddingRight: spacing.sm,
       paddingVertical: INPUT_VERTICAL_INSET,
     },
     inputWrapSingle: {
@@ -289,6 +291,7 @@ function createStyles(p: ColorPalette) {
       height: 36,
       borderRadius: 999,
       flexShrink: 0,
+      marginRight: spacing.sm,
     },
     diceButtonSingle: {
       alignSelf: 'center',

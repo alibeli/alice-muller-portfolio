@@ -63,6 +63,13 @@ function createStyles(p: ColorPalette) {
     title: {
       flexShrink: 1,
     },
+    roleLine: {
+      marginTop: HEADER_ROW_GAP,
+      fontSize: typeScale.xs,
+      color: p.mutedStrong,
+      letterSpacing: 0.3,
+      textTransform: 'uppercase',
+    },
     closeIcon: {
       fontSize: typeScale.lg,
       color: p.muted,
@@ -115,6 +122,7 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
   };
 
   const tractionLine = project.traction || null;
+  const roleLine = project.roles.filter(Boolean).join(' · ');
 
   const showPeriodComma =
     project.badge !== 'currently-building' && project.period.trim().length > 0;
@@ -148,6 +156,12 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
           }
         />
       </View>
+
+      {roleLine ? (
+        <Text variant="mono" style={styles.roleLine}>
+          {roleLine}
+        </Text>
+      ) : null}
 
       <View style={styles.titleRow}>
         <View style={styles.titleGroup}>

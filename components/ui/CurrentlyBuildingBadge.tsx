@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import { useTheme } from '@/components/ThemeProvider';
 import { Text } from '@/components/ui/Text';
-import { palette } from '@/constants/tokens';
+import { type ColorPalette } from '@/constants/tokens';
 
 /** Soft pastel holographic wash — low saturation, gentle transitions. */
 const HOLO_COLORS = ['#F4EEFF', '#EEF6FF', '#FFF2F6', '#F0FAF3', '#F4EEFF'] as const;
@@ -13,7 +15,47 @@ type Props = {
   compact?: boolean;
 };
 
+function createStyles(p: ColorPalette) {
+  return StyleSheet.create({
+    wrap: {
+      alignSelf: 'flex-start',
+      flexShrink: 0,
+      flexGrow: 0,
+    },
+    badge: {
+      paddingHorizontal: 9,
+      paddingVertical: 3,
+      borderRadius: 999,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: 'rgba(255,255,255,0.55)',
+    },
+    badgeCompact: {
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 999,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: 'rgba(255,255,255,0.55)',
+    },
+    label: {
+      fontSize: 10,
+      fontWeight: '600',
+      color: p.foreground,
+      letterSpacing: 0.15,
+      textTransform: 'none',
+    },
+    labelCompact: {
+      fontSize: 9,
+      fontWeight: '600',
+      color: p.foreground,
+      letterSpacing: 0.1,
+      textTransform: 'none',
+    },
+  });
+}
+
 export function CurrentlyBuildingBadge({ compact = false }: Props) {
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
   const labelStyle = compact ? styles.labelCompact : styles.label;
   const badgeStyle = compact ? styles.badgeCompact : styles.badge;
 
@@ -42,39 +84,3 @@ export function CurrentlyBuildingBadge({ compact = false }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    alignSelf: 'flex-start',
-    flexShrink: 0,
-    flexGrow: 0,
-  },
-  badge: {
-    paddingHorizontal: 9,
-    paddingVertical: 3,
-    borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.55)',
-  },
-  badgeCompact: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.55)',
-  },
-  label: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: palette.foreground,
-    letterSpacing: 0.15,
-    textTransform: 'none',
-  },
-  labelCompact: {
-    fontSize: 9,
-    fontWeight: '600',
-    color: palette.foreground,
-    letterSpacing: 0.1,
-    textTransform: 'none',
-  },
-});

@@ -309,7 +309,7 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
               style={styles.expandBtn}
             >
               <Text variant="caption" style={styles.expandLabel}>
-                {expanded ? 'Show less ↑' : 'More about me ↓'}
+                {expanded ? 'Show less ↑' : 'About Alice ↓'}
               </Text>
             </Button>
           </View>

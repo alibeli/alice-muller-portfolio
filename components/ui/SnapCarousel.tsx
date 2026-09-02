@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -8,13 +8,23 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
+import { useTheme } from '@/components/ThemeProvider';
 import { Text } from '@/components/ui/Text';
-import { palette, spacing } from '@/constants/tokens';
+import { getMediaAspectRatio, slideHeightForWidth } from '@/lib/mediaAsset';
+import { spacing, type ColorPalette } from '@/constants/tokens';
 
 export type CarouselSlideLayout = {
   width: number;
   height: number;
+  aspectRatio: number;
+  onAspectRatioResolved?: (aspectRatio: number) => void;
 };
 
 type Props<T> = {
@@ -22,11 +32,12 @@ type Props<T> = {
   renderItem: (item: T, index: number, slide: CarouselSlideLayout) => ReactNode;
   caption?: string;
   slideMaxWidth?: number;
-  /** Height ratio relative to slide width (default 0.62). */
-  slideHeightRatio?: number;
+  /** Resolve intrinsic aspect ratio per slide. Falls back to registered metadata or 4:5. */
+  getAspectRatio?: (item: T, index: number) => number | null | undefined;
 };
 
-const DEFAULT_SLIDE_HEIGHT_RATIO = 0.62;
+const DEFAULT_ASPECT_RATIO = 4 / 5;
+const HEIGHT_TRANSITION_MS = 220;
 
 const hideScrollbarWeb = Platform.OS === 'web'
   ? ({
@@ -36,8 +47,20 @@ const hideScrollbarWeb = Platform.OS === 'web'
     } as object)
   : {};
 
-function slideHeightForWidth(width: number, ratio: number): number {
-  return Math.max(Math.round(width * ratio), 240);
+function resolveItemAspectRatio<T>(
+  item: T,
+  index: number,
+  getAspectRatio?: (item: T, index: number) => number | null | undefined,
+): number {
+  const explicit = getAspectRatio?.(item, index);
+  if (explicit && explicit > 0) return explicit;
+
+  if (typeof item === 'object' && item !== null && ('uri' in item || !Array.isArray(item))) {
+    const fromSource = getMediaAspectRatio(item as never);
+    if (fromSource && fromSource > 0) return fromSource;
+  }
+
+  return DEFAULT_ASPECT_RATIO;
 }
 
 export function SnapCarousel<T>({
@@ -45,11 +68,14 @@ export function SnapCarousel<T>({
   renderItem,
   caption,
   slideMaxWidth,
-  slideHeightRatio = DEFAULT_SLIDE_HEIGHT_RATIO,
+  getAspectRatio,
 }: Props<T>) {
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
   const scrollRef = useRef<ScrollView>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [index, setIndex] = useState(0);
+  const [resolvedAspectRatios, setResolvedAspectRatios] = useState<Record<number, number>>({});
 
   const slideWidth =
     containerWidth > 0
@@ -58,8 +84,51 @@ export function SnapCarousel<T>({
         : containerWidth
       : 0;
 
-  const slideHeight = slideWidth > 0 ? slideHeightForWidth(slideWidth, slideHeightRatio) : 0;
-  const slideLayout: CarouselSlideLayout = { width: slideWidth, height: slideHeight };
+  const aspectRatioForIndex = useCallback(
+    (itemIndex: number) => {
+      const item = items[itemIndex];
+      if (!item) return DEFAULT_ASPECT_RATIO;
+      return (
+        resolvedAspectRatios[itemIndex] ??
+        resolveItemAspectRatio(item, itemIndex, getAspectRatio)
+      );
+    },
+    [getAspectRatio, items, resolvedAspectRatios],
+  );
+
+  const slideHeightForIndex = useCallback(
+    (itemIndex: number) => {
+      if (slideWidth <= 0) return 0;
+      return slideHeightForWidth(slideWidth, aspectRatioForIndex(itemIndex));
+    },
+    [aspectRatioForIndex, slideWidth],
+  );
+
+  const activeHeight = slideHeightForIndex(index);
+  const maxSlideHeight =
+    slideWidth > 0
+      ? Math.max(...items.map((_, itemIndex) => slideHeightForIndex(itemIndex)))
+      : 0;
+
+  const animatedHeight = useSharedValue(0);
+
+  useEffect(() => {
+    if (activeHeight <= 0) return;
+    animatedHeight.value = withTiming(activeHeight, {
+      duration: HEIGHT_TRANSITION_MS,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [activeHeight, animatedHeight]);
+
+  useEffect(() => {
+    if (activeHeight > 0 && animatedHeight.value === 0) {
+      animatedHeight.value = activeHeight;
+    }
+  }, [activeHeight, animatedHeight]);
+
+  const viewportAnimatedStyle = useAnimatedStyle(() => ({
+    height: animatedHeight.value > 0 ? animatedHeight.value : activeHeight,
+  }));
 
   const onLayout = useCallback((width: number) => {
     if (width > 0) setContainerWidth(width);
@@ -79,13 +148,28 @@ export function SnapCarousel<T>({
     setIndex(next);
   };
 
+  const reportAspectRatio = useCallback((itemIndex: number, aspectRatio: number) => {
+    if (!aspectRatio || aspectRatio <= 0) return;
+    setResolvedAspectRatios((current) => {
+      if (current[itemIndex] === aspectRatio) return current;
+      return { ...current, [itemIndex]: aspectRatio };
+    });
+  }, []);
+
+  const buildSlideLayout = (itemIndex: number): CarouselSlideLayout => {
+    const aspectRatio = aspectRatioForIndex(itemIndex);
+    const height = slideHeightForWidth(slideWidth, aspectRatio);
+    return { width: slideWidth, height, aspectRatio };
+  };
+
   if (items.length === 0) return null;
 
   if (items.length === 1) {
+    const slide = buildSlideLayout(0);
     return (
       <View style={styles.wrap}>
-        <View style={[styles.singleSlide, slideWidth > 0 ? { width: slideWidth, height: slideHeight } : null]}>
-          {renderItem(items[0], 0, slideLayout)}
+        <View style={[styles.singleSlide, slide.width > 0 ? { width: slide.width } : null]}>
+          {renderItem(items[0], 0, slide)}
         </View>
         {caption ? (
           <Text variant="caption" style={styles.caption}>
@@ -101,7 +185,13 @@ export function SnapCarousel<T>({
       style={styles.wrap}
       onLayout={(event) => onLayout(event.nativeEvent.layout.width)}
     >
-      <View style={[styles.viewport, slideWidth > 0 ? { width: slideWidth } : styles.hiddenUntilLayout]}>
+      <Animated.View
+        style={[
+          styles.viewport,
+          slideWidth > 0 ? { width: slideWidth } : styles.hiddenUntilLayout,
+          slideWidth > 0 ? viewportAnimatedStyle : null,
+        ]}
+      >
         {index > 0 ? (
           <Pressable
             style={[styles.navBtn, styles.navPrev]}
@@ -127,25 +217,38 @@ export function SnapCarousel<T>({
           showsHorizontalScrollIndicator={false}
           onScroll={onScroll}
           scrollEventThrottle={16}
-          style={[styles.scroll, slideHeight > 0 ? { height: slideHeight } : null, hideScrollbarWeb]}
+          style={[styles.scroll, hideScrollbarWeb]}
           contentContainerStyle={
             slideWidth > 0
-              ? { width: slideWidth * items.length, height: slideHeight }
+              ? { width: slideWidth * items.length, height: maxSlideHeight }
               : styles.hiddenUntilLayout
           }
           {...(Platform.OS === 'web' ? ({ dataSet: { hideScrollbar: 'true' } } as object) : {})}
         >
-          {items.map((item, i) => (
-            <View
-              key={i}
-              style={[
-                styles.slide,
-                slideWidth > 0 ? { width: slideWidth, height: slideHeight } : styles.hiddenUntilLayout,
-              ]}
-            >
-              {renderItem(item, i, slideLayout)}
-            </View>
-          ))}
+          {items.map((item, itemIndex) => {
+            const slide = buildSlideLayout(itemIndex);
+            return (
+              <View
+                key={itemIndex}
+                style={[
+                  styles.slide,
+                  slideWidth > 0
+                    ? {
+                        width: slideWidth,
+                        height: maxSlideHeight,
+                        paddingTop: Math.max(0, (maxSlideHeight - slide.height) / 2),
+                      }
+                    : styles.hiddenUntilLayout,
+                ]}
+              >
+                {renderItem(item, itemIndex, {
+                  ...slide,
+                  onAspectRatioResolved: (aspectRatio: number) =>
+                    reportAspectRatio(itemIndex, aspectRatio),
+                })}
+              </View>
+            );
+          })}
         </ScrollView>
 
         {index < items.length - 1 ? (
@@ -159,11 +262,11 @@ export function SnapCarousel<T>({
             </Text>
           </Pressable>
         ) : null}
-      </View>
+      </Animated.View>
 
       <View style={styles.dots} pointerEvents="none">
-        {items.map((_, i) => (
-          <View key={i} style={[styles.dot, i === index && styles.dotActive]} />
+        {items.map((_, dotIndex) => (
+          <View key={dotIndex} style={[styles.dot, dotIndex === index && styles.dotActive]} />
         ))}
       </View>
 
@@ -176,76 +279,79 @@ export function SnapCarousel<T>({
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: {
-    gap: spacing.sm,
-    width: '100%',
-    alignItems: 'center',
-  },
-  viewport: {
-    position: 'relative',
-    alignSelf: 'center',
-    maxWidth: '100%',
-  },
-  scroll: {
-    width: '100%',
-  },
-  slide: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  singleSlide: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
-  hiddenUntilLayout: {
-    opacity: 0,
-  },
-  navBtn: {
-    position: 'absolute',
-    top: '50%',
-    marginTop: -18,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
-    zIndex: 2,
-  },
-  navPrev: {
-    left: spacing.sm,
-  },
-  navNext: {
-    right: spacing.sm,
-  },
-  navLabel: {
-    color: palette.white,
-    fontSize: 24,
-    lineHeight: 26,
-    marginTop: -2,
-  },
-  dots: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 6,
-    paddingTop: spacing.xs,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: palette.subtle,
-    opacity: 0.45,
-  },
-  dotActive: {
-    backgroundColor: palette.foreground,
-    opacity: 1,
-    width: 18,
-  },
-  caption: {
-    color: palette.muted,
-    textAlign: 'center',
-  },
-});
+const createStyles = (p: ColorPalette) =>
+  StyleSheet.create({
+    wrap: {
+      gap: spacing.sm,
+      width: '100%',
+      alignItems: 'center',
+    },
+    viewport: {
+      position: 'relative',
+      alignSelf: 'center',
+      maxWidth: '100%',
+      overflow: 'hidden',
+    },
+    scroll: {
+      width: '100%',
+      flex: 1,
+    },
+    slide: {
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+    },
+    singleSlide: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+    },
+    hiddenUntilLayout: {
+      opacity: 0,
+    },
+    navBtn: {
+      position: 'absolute',
+      top: '50%',
+      marginTop: -18,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.45)',
+      zIndex: 2,
+    },
+    navPrev: {
+      left: spacing.sm,
+    },
+    navNext: {
+      right: spacing.sm,
+    },
+    navLabel: {
+      color: p.white,
+      fontSize: 24,
+      lineHeight: 26,
+      marginTop: -2,
+    },
+    dots: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: 6,
+      paddingTop: spacing.xs,
+    },
+    dot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: p.subtle,
+      opacity: 0.45,
+    },
+    dotActive: {
+      backgroundColor: p.foreground,
+      opacity: 1,
+      width: 18,
+    },
+    caption: {
+      color: p.muted,
+      textAlign: 'center',
+    },
+  });

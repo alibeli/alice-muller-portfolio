@@ -38,11 +38,14 @@ function MoonGlyph({ size, color }: { size: number; color: string }) {
         width: size,
         height: size,
         viewBox: '0 0 24 24',
-        fill: color,
+        fill: 'none',
         xmlns: 'http://www.w3.org/2000/svg',
       },
       createElement('path', {
         d: 'M21 14.5A7.5 7.5 0 1 1 9.5 3.2a6.5 6.5 0 1 0 11.5 11.3Z',
+        fill: color,
+        stroke: color,
+        strokeWidth: 0.75,
       }),
     );
   }

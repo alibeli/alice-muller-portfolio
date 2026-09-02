@@ -219,9 +219,11 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
         style={[
           styles.scroll,
           isMobile &&
+            columns === 1 &&
             (Platform.OS === 'web'
               ? ({
-                  scrollSnapType: 'y proximity',
+                  scrollSnapType: 'y mandatory',
+                  WebkitScrollSnapType: 'y mandatory',
                   scrollPaddingTop: scrollTopPad,
                 } as object)
               : null),
@@ -245,9 +247,14 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
                 styles.row,
                 { gap: gridGap },
                 isMobile &&
+                  columns === 1 &&
                   (Platform.OS === 'web'
                     ? ({
                         scrollSnapAlign: 'start',
+                        WebkitScrollSnapAlign: 'start',
+                        scrollSnapStop: 'always',
+                        minHeight: tileHeight,
+                        width: '100%',
                       } as object)
                     : styles.snapRow),
               ]}

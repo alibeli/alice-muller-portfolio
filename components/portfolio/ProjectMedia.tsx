@@ -1,9 +1,11 @@
+import { useMemo } from 'react';
 import { ImageSourcePropType, StyleSheet, View } from 'react-native';
 
-import { ProjectImage } from '@/components/portfolio/ProjectImage';
+import { useTheme } from '@/components/ThemeProvider';
+import { MediaFrame } from '@/components/ui/MediaFrame';
 import { SnapCarousel } from '@/components/ui/SnapCarousel';
 import { Text } from '@/components/ui/Text';
-import { palette, spacing } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/constants/tokens';
 import type { ProjectBlock } from '@/data/portfolio';
 
 const MODAL_IMAGE_MAX_WIDTH = 700;
@@ -13,23 +15,57 @@ function blockImageSource(block: Extract<ProjectBlock, { type: 'image' }>): Imag
   return { uri: block.uri ?? '' };
 }
 
+function createStyles(p: ColorPalette) {
+  return StyleSheet.create({
+    galleryWrap: {
+      marginBottom: spacing.lg,
+      width: '100%',
+      alignSelf: 'center',
+    },
+    textBlock: {
+      marginBottom: spacing.md,
+    },
+    imageBlock: {
+      marginBottom: spacing.lg,
+      alignSelf: 'stretch',
+      width: '100%',
+    },
+    imageRowWrap: {
+      marginBottom: spacing.lg,
+      gap: spacing.md,
+    },
+    caption: {
+      paddingTop: spacing.xs,
+      color: p.muted,
+    },
+    sectionLabel: {
+      marginBottom: spacing.sm,
+    },
+    sectionTitle: {
+      marginBottom: spacing.sm,
+    },
+  });
+}
+
 /** Optional browse carousel — only rendered when a project sets `topGallery` explicitly. */
 export function ProjectTopGallery({ sources }: { sources: ImageSourcePropType[] }) {
   if (sources.length === 0) return null;
 
   return (
-    <View style={styles.galleryWrap}>
+    <View style={stylesStatic.galleryWrap}>
       <SnapCarousel
         items={sources}
         slideMaxWidth={MODAL_IMAGE_MAX_WIDTH}
         renderItem={(source, index, slide) => (
-          <ProjectImage
+          <MediaFrame
             source={source}
+            width={slide.width}
             maxWidth={slide.width}
-            slideHeight={slide.height}
-            variant="carousel"
+            aspectRatio={slide.aspectRatio}
+            compact
             gallerySources={sources}
             galleryIndex={index}
+            onAspectRatioResolved={slide.onAspectRatioResolved}
           />
         )}
       />
@@ -38,25 +74,28 @@ export function ProjectTopGallery({ sources }: { sources: ImageSourcePropType[] 
 }
 
 export function ProjectBlockMedia({ block }: { block: ProjectBlock }) {
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
+
   if (block.type === 'image-row') {
     return (
       <View style={styles.imageRowWrap}>
-        <SnapCarousel
-          items={block.assets}
-          slideMaxWidth={MODAL_IMAGE_MAX_WIDTH}
-          caption={block.caption}
-          renderItem={(asset, index, slide) => (
-            <ProjectImage
-              source={asset}
-              maxWidth={slide.width}
-              slideHeight={slide.height}
-              variant="carousel"
-              caption={block.caption}
-              gallerySources={block.assets}
-              galleryIndex={index}
-            />
-          )}
-        />
+        {block.assets.map((asset, index) => (
+          <MediaFrame
+            key={index}
+            source={asset}
+            maxWidth={MODAL_IMAGE_MAX_WIDTH}
+            compact
+            caption={block.caption}
+            gallerySources={block.assets}
+            galleryIndex={index}
+          />
+        ))}
+        {block.caption ? (
+          <Text variant="caption" style={styles.caption}>
+            {block.caption}
+          </Text>
+        ) : null}
       </View>
     );
   }
@@ -64,7 +103,7 @@ export function ProjectBlockMedia({ block }: { block: ProjectBlock }) {
   if (block.type === 'image') {
     return (
       <View style={styles.imageBlock}>
-        <ProjectImage
+        <MediaFrame
           source={blockImageSource(block)}
           maxWidth={MODAL_IMAGE_MAX_WIDTH}
           caption={block.caption}
@@ -109,32 +148,10 @@ export function ProjectBlockList({ blocks }: { blocks: ProjectBlock[] }) {
   );
 }
 
-const styles = StyleSheet.create({
+const stylesStatic = StyleSheet.create({
   galleryWrap: {
     marginBottom: spacing.lg,
     width: '100%',
     alignSelf: 'center',
-  },
-  textBlock: {
-    marginBottom: spacing.md,
-  },
-  imageBlock: {
-    marginBottom: spacing.lg,
-    alignSelf: 'stretch',
-    width: '100%',
-  },
-  imageRowWrap: {
-    marginBottom: spacing.lg,
-    gap: spacing.sm,
-  },
-  caption: {
-    paddingTop: spacing.xs,
-    color: palette.muted,
-  },
-  sectionLabel: {
-    marginBottom: spacing.sm,
-  },
-  sectionTitle: {
-    marginBottom: spacing.sm,
   },
 });

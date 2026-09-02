@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 
+import { useTheme } from '@/components/ThemeProvider';
 import { Link } from '@/components/ui/Link';
 import { Text } from '@/components/ui/Text';
-import { palette, spacing } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/constants/tokens';
 import type { Paper } from '@/data/portfolio';
 
 type Props = {
@@ -11,7 +13,40 @@ type Props = {
   showTitle?: boolean;
 };
 
+function createStyles(p: ColorPalette) {
+  return StyleSheet.create({
+    hero: {
+      marginBottom: spacing.xl,
+      gap: spacing.sm,
+    },
+    title: {
+      marginTop: spacing.sm,
+    },
+    tagline: {
+      lineHeight: 22,
+    },
+    coverWrap: {
+      width: '100%',
+      aspectRatio: 16 / 10,
+      backgroundColor: p.surface,
+      overflow: 'hidden',
+      borderRadius: 12,
+    },
+    cover: {
+      width: '100%',
+      height: '100%',
+    },
+    footer: {
+      marginTop: spacing.xxxl,
+      marginBottom: spacing.xxxl,
+    },
+  });
+}
+
 export function PaperDetailContent({ paper, showFooter = true, showTitle = true }: Props) {
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
+
   return (
     <>
       <View style={styles.hero}>
@@ -47,31 +82,3 @@ export function PaperDetailContent({ paper, showFooter = true, showTitle = true 
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  hero: {
-    marginBottom: spacing.xl,
-    gap: spacing.sm,
-  },
-  title: {
-    marginTop: spacing.sm,
-  },
-  tagline: {
-    lineHeight: 22,
-  },
-  coverWrap: {
-    width: '100%',
-    aspectRatio: 16 / 10,
-    backgroundColor: palette.surface,
-    overflow: 'hidden',
-    borderRadius: 12,
-  },
-  cover: {
-    width: '100%',
-    height: '100%',
-  },
-  footer: {
-    marginTop: spacing.xxxl,
-    marginBottom: spacing.xxxl,
-  },
-});

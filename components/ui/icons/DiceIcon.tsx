@@ -21,6 +21,8 @@ type Props = {
 
 const SPIN_FAST_MS = 160;
 const SPIN_SLOW_MS = 520;
+/** Resting orientation so the 3-face reads upright in the skeuomorphic asset. */
+const IDLE_ROTATION_DEG = 45;
 
 function DiceGlyph({ size }: { size: number }) {
   return (
@@ -64,7 +66,7 @@ export function DiceIcon({ size = 18, color = '#737373', disabled = false, spinT
   }, [rotation, spinToken]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
+    transform: [{ rotate: `${IDLE_ROTATION_DEG + rotation.value}deg` }],
     opacity: disabled ? 0.45 : 1,
   }));
 
