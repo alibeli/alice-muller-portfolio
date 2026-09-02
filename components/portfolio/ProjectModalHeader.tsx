@@ -14,7 +14,7 @@ import { shareProject } from '@/lib/shareProject';
 import { tractionHasAward } from '@/lib/tractionHasAward';
 import type { Project } from '@/data/portfolio';
 
-const HEADER_ROW_GAP = spacing.sm;
+const HEADER_GAP = spacing.sm;
 const awardIcon = require('@/assets/icons/icon-awards.png');
 
 type Props = {
@@ -47,12 +47,8 @@ function createStyles(p: ColorPalette) {
       minWidth: 0,
     },
     title: {
-      marginTop: HEADER_ROW_GAP,
+      marginTop: HEADER_GAP,
       flexShrink: 1,
-    },
-    roleLine: {
-      marginTop: HEADER_ROW_GAP,
-      color: p.mutedStrong,
     },
     closeIcon: {
       color: p.icon.muted,
@@ -62,20 +58,20 @@ function createStyles(p: ColorPalette) {
       flexWrap: 'wrap',
       alignItems: 'center',
       gap: spacing.sm,
-      marginTop: spacing.xs,
+      marginTop: spacing.md,
     },
     meta: {},
     metaDot: {
       color: p.subtle,
     },
     tagline: {
-      marginTop: spacing.sm,
+      marginTop: HEADER_GAP,
     },
     tractionRow: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.xs,
-      marginTop: spacing.xs,
+      marginTop: HEADER_GAP,
       flexWrap: 'wrap',
     },
     traction: {
@@ -100,7 +96,6 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
   };
 
   const tractionLine = project.traction || null;
-  const roleLine = project.roles.filter(Boolean).join(' · ');
   const showLocation = project.location.trim().length > 0;
   const showMetaSeparator =
     showLocation &&
@@ -138,12 +133,6 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
           }
         />
       </View>
-
-      {roleLine ? (
-        <Text variant="overline" style={styles.roleLine}>
-          {roleLine}
-        </Text>
-      ) : null}
 
       <Text variant="titleMd" style={styles.title} numberOfLines={3}>
         {project.title}

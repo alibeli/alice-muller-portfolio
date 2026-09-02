@@ -28,6 +28,8 @@ export type ProjectBase = {
   outcome?: string;
   decisions?: string[];
   badge?: 'currently-building';
+  /** Primary role label shown in the project summary card (e.g. Entrepreneur in Residence). */
+  roleTitle?: string;
   /** Optional browse carousel in the project modal, separate from inline block images. */
   topGallery?: ImageSourcePropType[];
   blocks?: ProjectBlock[];

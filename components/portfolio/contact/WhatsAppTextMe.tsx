@@ -90,6 +90,8 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
               color={configured ? palette.muted : palette.subtle}
               disabled={!configured}
               spinToken={diceSpinToken}
+              hovered={diceHovered}
+              idleWink={configured}
             />
           }
         />

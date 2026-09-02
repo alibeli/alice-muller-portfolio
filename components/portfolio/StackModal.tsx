@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
 
 import { useTheme } from '@/components/ThemeProvider';
 import { ModalPanelHeader } from '@/components/portfolio/ModalPanelHeader';
+import { StackChip } from '@/components/portfolio/StackChip';
 import { SlideOverModal } from '@/components/ui/SlideOverModal';
 import { ModalTabIcon } from '@/components/ui/icons/TabIcons';
 import { Text } from '@/components/ui/Text';
@@ -31,14 +32,6 @@ function createStyles(p: ColorPalette) {
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: spacing.xs,
-    },
-    chip: {
-      paddingVertical: spacing.xs,
-      paddingHorizontal: spacing.sm,
-      borderRadius: 999,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: p.border,
-      backgroundColor: p.glass.chip,
     },
   });
 }
@@ -69,9 +62,7 @@ export function StackModal({ visible, onClose }: Props) {
             <Text variant="titleSmall">{section.title}</Text>
             <View style={styles.chips}>
               {section.items.map((item) => (
-                <View key={item} style={styles.chip}>
-                  <Text variant="label">{item}</Text>
-                </View>
+                <StackChip key={item.name} item={item} />
               ))}
             </View>
           </View>

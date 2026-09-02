@@ -59,6 +59,37 @@ export const recordProjectView = internalMutation({
       throw new Error("Could not create visitor profile");
     }
 
+    const recentViews = await ctx.db
+      .query("projectViews")
+      .withIndex("by_visitor", (q) => q.eq("visitorId", visitorId))
+      .order("desc")
+      .take(8);
+
+    const duplicateWindowMs = 30_000;
+    const duplicateView = recentViews.find(
+      (view) =>
+        view.projectSlug === args.projectSlug && now - view.viewedAt < duplicateWindowMs,
+    );
+
+    if (duplicateView) {
+      const allViews = await ctx.db
+        .query("projectViews")
+        .withIndex("by_visitor", (q) => q.eq("visitorId", visitorId))
+        .collect();
+      const viewedProjects = uniqueViewedProjects(allViews);
+
+      return {
+        visitorId,
+        viewId: duplicateView._id,
+        normalizedEmail,
+        totalViews: allViews.length,
+        uniqueProjectCount: viewedProjects.length,
+        viewedProjects,
+        viewedAt: duplicateView.viewedAt,
+        skippedDuplicate: true,
+      };
+    }
+
     const viewId = await ctx.db.insert("projectViews", {
       visitorId,
       projectSlug: args.projectSlug,
@@ -81,6 +112,7 @@ export const recordProjectView = internalMutation({
       uniqueProjectCount: viewedProjects.length,
       viewedProjects,
       viewedAt: now,
+      skippedDuplicate: false,
     };
   },
 });
@@ -104,6 +136,7 @@ export const requestProjectAccess = action({
       uniqueProjectCount: number;
       viewedProjects: ViewedProject[];
       viewedAt: number;
+      skippedDuplicate: boolean;
     } = await ctx.runMutation(internal.portfolioAccess.recordProjectView, {
       email: args.email,
       projectSlug: args.projectSlug,
@@ -111,7 +144,7 @@ export const requestProjectAccess = action({
     });
 
     const notifyTo = portfolioNotifyEmails();
-    if (notifyTo.length > 0) {
+    if (notifyTo.length > 0 && !result.skippedDuplicate) {
       await sendPortfolioViewAlert(notifyTo, {
         normalizedEmail: result.normalizedEmail,
         projectTitle: args.projectTitle,

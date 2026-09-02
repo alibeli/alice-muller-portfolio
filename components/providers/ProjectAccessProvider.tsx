@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useAction } from 'convex/react';
 
 import { api } from '@/convex/_generated/api';
@@ -24,11 +24,14 @@ type ProjectAccessContextValue = {
 
 const ProjectAccessContext = createContext<ProjectAccessContextValue | null>(null);
 
+const TRACK_DEDUPE_MS = 30_000;
+
 export function ProjectAccessProvider({ children }: { children: ReactNode }) {
   const recordAccess = useAction(api.portfolioAccess.requestProjectAccess);
   const [visitorEmail, setVisitorEmail] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const lastTrackRef = useRef<{ email: string; projectSlug: string; at: number } | null>(null);
 
   useEffect(() => {
     clearLegacyVisitorEmail();
@@ -44,6 +47,18 @@ export function ProjectAccessProvider({ children }: { children: ReactNode }) {
     ({ email, projectSlug, projectTitle }: TrackViewArgs) => {
       const normalized = normalizeEmail(email);
       if (!normalized) return;
+
+      const now = Date.now();
+      const last = lastTrackRef.current;
+      if (
+        last &&
+        last.email === normalized &&
+        last.projectSlug === projectSlug &&
+        now - last.at < TRACK_DEDUPE_MS
+      ) {
+        return;
+      }
+      lastTrackRef.current = { email: normalized, projectSlug, at: now };
 
       setIsSubmitting(true);
       setError(null);

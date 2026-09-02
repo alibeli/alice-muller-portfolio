@@ -1,6 +1,13 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { useTheme } from '@/components/ThemeProvider';
 import { Text } from '@/components/ui/Text';
@@ -31,6 +38,7 @@ function createStyles(p: ColorPalette) {
       alignSelf: 'flex-start',
       flexShrink: 0,
       flexGrow: 0,
+      overflow: 'hidden',
     },
     badge: {
       paddingHorizontal: spacing.sm,
@@ -59,6 +67,37 @@ function createStyles(p: ColorPalette) {
   });
 }
 
+function NativeShimmer({ colorScheme }: { colorScheme: 'light' | 'dark' }) {
+  const translateX = useSharedValue(-120);
+  const shimmerColors =
+    colorScheme === 'light'
+      ? (['rgba(255,255,255,0)', 'rgba(255,255,255,0.55)', 'rgba(255,255,255,0)'] as const)
+      : (['rgba(255,255,255,0)', 'rgba(255,255,255,0.18)', 'rgba(255,255,255,0)'] as const);
+
+  useEffect(() => {
+    translateX.value = withRepeat(
+      withTiming(220, { duration: 3200, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      false,
+    );
+  }, [translateX]);
+
+  const shimmerStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: `${translateX.value}%` }],
+  }));
+
+  return (
+    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, shimmerStyle]}>
+      <LinearGradient
+        colors={[...shimmerColors]}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 1, y: 0.5 }}
+        style={StyleSheet.absoluteFill}
+      />
+    </Animated.View>
+  );
+}
+
 export function CurrentlyBuildingBadge({ compact = false }: Props) {
   const { colorScheme, palette } = useTheme();
   const styles = useMemo(() => createStyles(palette), [palette]);
@@ -68,7 +107,17 @@ export function CurrentlyBuildingBadge({ compact = false }: Props) {
 
   if (Platform.OS === 'web') {
     return (
-      <View style={[styles.wrap, badgeStyle, { backgroundImage: holo.css } as object]}>
+      <View
+        style={[
+          styles.wrap,
+          badgeStyle,
+          {
+            backgroundImage: holo.css,
+            backgroundSize: '220% 100%',
+            animation: 'currentlyBuildingShimmer 4.8s ease-in-out infinite',
+          } as object,
+        ]}
+      >
         <Text variant="label" style={labelStyle}>
           Currently building
         </Text>
@@ -84,6 +133,7 @@ export function CurrentlyBuildingBadge({ compact = false }: Props) {
         end={{ x: 1, y: 0.5 }}
         style={badgeStyle}
       >
+        <NativeShimmer colorScheme={colorScheme} />
         <Text variant="label" style={labelStyle}>
           Currently building
         </Text>

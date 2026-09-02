@@ -8,6 +8,7 @@ export const runtime: ProjectBase = {
   location: 'Zürich, Switzerland',
   tagline:
     'Private, auditable and interactive multi-agent orchestration for individuals & teams, with platform & SDK.',
+  roleTitle: 'Entrepreneur in Residence',
   roles: ['Defined & built end to end'],
   highlights: [
     'TEEs, MPC, Decentralized Compute',

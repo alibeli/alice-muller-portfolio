@@ -8,6 +8,7 @@ export const yuki: ProjectBase = {
     location: 'Zürich, Switzerland',
     tagline:
       'Privacy-first holistic health aggregator, connecting wearables, labs, cycles & habits into one AI-powered longevity dashboard.',
+    roleTitle: 'Entrepreneur in Residence',
     roles: ['Entrepreneur in Residence @ Nillion', 'Defined & built end to end'],
     highlights: [
       '15+ health widgets',

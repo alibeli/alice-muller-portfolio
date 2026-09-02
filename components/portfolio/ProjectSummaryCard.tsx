@@ -18,18 +18,19 @@ const BICM_LABELS: { key: keyof ProjectSummary; label: string }[] = [
   { key: 'metric', label: 'Metric' },
 ];
 
+function getRoleLabel(project: Project): string {
+  if (project.roleTitle?.trim()) return project.roleTitle.trim();
+  return project.roles.filter(Boolean).join(' · ');
+}
+
 function createStyles(p: ColorPalette) {
   return StyleSheet.create({
     card: {
       padding: spacing.md,
-      gap: spacing.md,
+      gap: spacing.sm,
       marginBottom: spacing.lg,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: p.tileBorder,
-    },
-    roleTitleLine: {
-      color: p.foreground,
-      letterSpacing: 0.3,
     },
     bicm: {
       gap: spacing.sm,
@@ -70,15 +71,12 @@ function SummaryRow({
 export function ProjectSummaryCard({ project }: Props) {
   const { palette } = useTheme();
   const styles = useMemo(() => createStyles(palette), [palette]);
-  const roleLine = project.roles.filter(Boolean).join(' · ');
-  const roleTitleLine = roleLine ? `${roleLine} · · ${project.title}` : project.title;
+  const roleLabel = getRoleLabel(project);
 
   return (
     <GlassSurface intensity="light" rounded={radii.tile} style={styles.card}>
-      <Text variant="overline" style={styles.roleTitleLine}>
-        {roleTitleLine}
-      </Text>
       <View style={styles.bicm}>
+        {roleLabel ? <SummaryRow label="Role" value={roleLabel} styles={styles} /> : null}
         {BICM_LABELS.map(({ key, label }) => (
           <SummaryRow key={key} label={label} value={project.summary[key]} styles={styles} />
         ))}

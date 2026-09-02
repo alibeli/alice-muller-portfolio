@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/components/ThemeProvider';
@@ -22,6 +23,7 @@ import { StackModal } from '@/components/portfolio/StackModal';
 import { FilterHeader } from '@/components/portfolio/FilterHeader';
 import { ProfileDock } from '@/components/portfolio/ProfileDock';
 import { ProjectGridTile } from '@/components/portfolio/ProjectGridTile';
+import { GridSkeleton } from '@/components/ui/GridSkeleton';
 import { Text } from '@/components/ui/Text';
 import { gutter, spacing } from '@/design-system';
 import { getGridItems, getPaper, getProject, otherProjects, paperCount, awardCount, selectedProjectCount } from '@/data/portfolio';
@@ -65,8 +67,13 @@ function getHorizontalPadding(
   return DESKTOP_GRID_INSET;
 }
 
+function readWebCoarsePointer(): boolean {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return false;
+  return window.matchMedia('(pointer: coarse)').matches;
+}
+
 function useWebCoarsePointer(): boolean {
-  const [coarse, setCoarse] = useState(false);
+  const [coarse, setCoarse] = useState(readWebCoarsePointer);
 
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') return;
@@ -120,20 +127,18 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
   const horizontalPadding = getHorizontalPadding(width, webCoarsePointer);
   const gridGap = isMobile ? MOBILE_GRID_GAP : DESKTOP_GRID_GAP;
   const moreColumns = getMoreColumns(width);
-  const [gridInnerWidth, setGridInnerWidth] = useState(() =>
-    Math.max(0, width - horizontalPadding * 2),
-  );
-
-  useEffect(() => {
-    setGridInnerWidth(Math.max(0, width - horizontalPadding * 2));
-  }, [horizontalPadding, width]);
+  const [gridInnerWidth, setGridInnerWidth] = useState(0);
 
   const handleGridLayout = useCallback((event: LayoutChangeEvent) => {
     const measuredWidth = event.nativeEvent.layout.width;
-    if (measuredWidth > 0) setGridInnerWidth(measuredWidth);
+    if (measuredWidth <= 0) return;
+    setGridInnerWidth((prev) => (Math.abs(prev - measuredWidth) < 1 ? prev : measuredWidth));
   }, []);
 
-  const tileSize = getTileSize(gridInnerWidth, columns, gridGap);
+  const gridReady = gridInnerWidth > 0;
+  const estimatedGridWidth = Math.max(0, width - horizontalPadding * 2);
+  const layoutWidth = gridReady ? gridInnerWidth : estimatedGridWidth;
+  const tileSize = getTileSize(layoutWidth, columns, gridGap);
 
   const headerTop = insets.top + spacing.sm;
   const scrollTopPad = headerTop + TAB_BAR_HEIGHT + spacing.md;
@@ -147,8 +152,16 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
     return Math.min(idealHeight, Math.max(tileSize, viewportMax));
   }, [gridGap, insets.bottom, isMobile, scrollTopPad, tileSize, windowHeight]);
 
-  const moreTileSize = getTileSize(gridInnerWidth, moreColumns, gridGap);
+  const moreTileSize = getTileSize(layoutWidth, moreColumns, gridGap);
   const items = getGridItems();
+  const skeletonTileHeight = useMemo(() => {
+    if (!isMobile) return Math.max(tileSize, 280);
+    const viewportMax = Math.floor(
+      windowHeight - scrollTopPad - MOBILE_DOCK_RESERVE - insets.bottom - gridGap,
+    );
+    const idealHeight = Math.floor(tileSize * MOBILE_TILE_ASPECT);
+    return Math.min(Math.max(idealHeight, 280), Math.max(viewportMax, 280));
+  }, [gridGap, insets.bottom, isMobile, scrollTopPad, tileSize, windowHeight]);
 
   const projectDeepLink = useModalDeepLink({
     slug: projectSlug,
@@ -378,52 +391,64 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
           onLayout={handleGridLayout}
           style={[styles.grid, styles.constrainedGrid, { gap: gridGap }]}
         >
-          {rows.map((row, rowIndex) => {
-            const isLastRow = rowIndex === rows.length - 1;
-            const snapThisRow = mobileSnapScroll && !isLastRow;
+          {!gridReady ? (
+            <GridSkeleton
+              columns={columns}
+              rows={Math.min(rows.length, 3)}
+              tileHeight={skeletonTileHeight}
+              gridGap={gridGap}
+            />
+          ) : (
+            <Animated.View entering={FadeIn.duration(220)} style={{ gap: gridGap }}>
+              {rows.map((row, rowIndex) => {
+                const isLastRow = rowIndex === rows.length - 1;
+                const snapThisRow = mobileSnapScroll && !isLastRow;
 
-            return (
-            <View
-              key={rowIndex}
-              style={[
-                styles.row,
-                { gap: gridGap },
-                snapThisRow &&
-                  (Platform.OS === 'web'
-                    ? ({
-                        scrollSnapAlign: 'start',
-                        WebkitScrollSnapAlign: 'start',
-                        scrollSnapStop: 'always',
-                        minHeight: tileHeight,
-                        width: '100%',
-                      } as object)
-                    : styles.snapRow),
-                mobileSnapScroll &&
-                  isLastRow &&
-                  (Platform.OS === 'web'
-                    ? ({
-                        scrollSnapAlign: 'none',
-                        WebkitScrollSnapAlign: 'none',
-                        width: '100%',
-                      } as object)
-                    : styles.snapRowFree),
-              ]}
-            >
-              {row.map((item) => (
-                <ProjectGridTile
-                  key={`${item.kind}-${item.slug}`}
-                  item={item}
-                  size={tileSize}
-                  height={tileHeight}
-                  captionPlacement={isMobile ? 'top' : 'bottom'}
-                  onProjectPress={handleProjectPress}
-                />
-              ))}
-            </View>
-            );
-          })}
+                return (
+                  <View
+                    key={rowIndex}
+                    style={[
+                      styles.row,
+                      { gap: gridGap },
+                      snapThisRow &&
+                        (Platform.OS === 'web'
+                          ? ({
+                              scrollSnapAlign: 'start',
+                              WebkitScrollSnapAlign: 'start',
+                              scrollSnapStop: 'always',
+                              minHeight: tileHeight,
+                              width: '100%',
+                            } as object)
+                          : styles.snapRow),
+                      mobileSnapScroll &&
+                        isLastRow &&
+                        (Platform.OS === 'web'
+                          ? ({
+                              scrollSnapAlign: 'none',
+                              WebkitScrollSnapAlign: 'none',
+                              width: '100%',
+                            } as object)
+                          : styles.snapRowFree),
+                    ]}
+                  >
+                    {row.map((item) => (
+                      <ProjectGridTile
+                        key={`${item.kind}-${item.slug}`}
+                        item={item}
+                        size={tileSize}
+                        height={tileHeight}
+                        captionPlacement={isMobile ? 'top' : 'bottom'}
+                        onProjectPress={handleProjectPress}
+                      />
+                    ))}
+                  </View>
+                );
+              })}
+            </Animated.View>
+          )}
         </View>
 
+        {gridReady ? (
         <View
           style={[
             styles.moreSection,
@@ -449,6 +474,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
             ))}
           </View>
         </View>
+        ) : null}
 
         {mobileSnapScroll ? <View style={{ height: spacing.xxl }} /> : null}
       </ScrollView>
