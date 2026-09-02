@@ -10,7 +10,7 @@ import { PaperModal } from '@/components/portfolio/PaperModal';
 import { PapersModal } from '@/components/portfolio/PapersModal';
 import { ProjectEmailGate } from '@/components/portfolio/ProjectEmailGate';
 import { ProjectModal } from '@/components/portfolio/ProjectModal';
-import { readVisitorEmail, useProjectAccess } from '@/components/providers/ProjectAccessProvider';
+import { useProjectAccess } from '@/components/providers/ProjectAccessProvider';
 import { StackModal } from '@/components/portfolio/StackModal';
 import { FilterHeader } from '@/components/portfolio/FilterHeader';
 import { ProfileDock } from '@/components/portfolio/ProfileDock';
@@ -19,6 +19,7 @@ import { Text } from '@/components/ui/Text';
 import { gutter, spacing } from '@/design-system';
 import { getGridItems, getPaper, getProject, otherProjects, paperCount, awardCount, selectedProjectCount } from '@/data/portfolio';
 import { readPaperSlugFromPathname, readProjectSlugFromPathname } from '@/lib/modalRoutes';
+import { resolveProjectSlug } from '@/lib/projectSlugAliases';
 import { getPaperPath, getProjectPath } from '@/lib/shareProject';
 import { useModalDeepLink } from '@/lib/useModalDeepLink';
 
@@ -58,7 +59,10 @@ function getMoreColumns(screenWidth: number): number {
 }
 
 function resolveInitialProjectSlug(initialProjectSlug?: string): string | null {
-  if (initialProjectSlug && getProject(initialProjectSlug)) return initialProjectSlug;
+  if (initialProjectSlug) {
+    const slug = resolveProjectSlug(initialProjectSlug);
+    if (getProject(slug)) return slug;
+  }
   return readProjectSlugFromPathname();
 }
 
@@ -75,7 +79,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
   /** When set, email gate overlay is open for this project slug. */
   const [emailGateSlug, setEmailGateSlug] = useState<string | null>(null);
   const initialRouteHandled = useRef(false);
-  const { saveEmail, trackView, isSubmitting, error, clearError } = useProjectAccess();
+  const { visitorEmail, saveEmail, trackView, isSubmitting, error, clearError } = useProjectAccess();
   const insets = useSafeAreaInsets();
   const { width, height: windowHeight } = useWindowDimensions();
   const isMobile = width < MOBILE_BREAKPOINT;
@@ -148,7 +152,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
       const project = getProject(slug);
       if (!project) return;
 
-      const email = readVisitorEmail();
+      const email = visitorEmail;
       if (!email) {
         clearError();
         setEmailGateSlug(slug);
@@ -158,7 +162,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
       openProject(slug);
       trackView({ email, projectSlug: slug, projectTitle: project.title });
     },
-    [clearError, openProject, trackView],
+    [clearError, openProject, trackView, visitorEmail],
   );
 
   const requestProjectRef = useRef(requestProject);
@@ -357,7 +361,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
                 : null),
           ]}
         >
-          <Text variant="overline" style={{ color: palette.subtle, textAlign: 'center', alignSelf: 'center', width: '100%' }}>
+          <Text variant="overline" style={[styles.moreHeading, { color: palette.subtle }]}>
             More projects
           </Text>
           <View style={[styles.grid, styles.constrainedGrid, { gap: gridGap }]}>
@@ -476,6 +480,11 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     width: '100%',
     alignSelf: 'center',
+  },
+  moreHeading: {
+    textAlign: 'center',
+    alignSelf: 'center',
+    width: '100%',
   },
   dockHost: {
     position: 'absolute',

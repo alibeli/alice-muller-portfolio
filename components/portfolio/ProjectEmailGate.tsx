@@ -10,7 +10,6 @@ import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
 import { lineHeights, radii, spacing, type ColorPalette, typeScale } from '@/design-system';
 import { getProject } from '@/data/portfolio';
-import { getStoredVisitorEmail } from '@/lib/projectAccessStorage';
 import { isValidEmail } from '@/lib/validateEmail';
 
 type Props = {
@@ -56,8 +55,6 @@ function createStyles(p: ColorPalette) {
       paddingRight: spacing.sm,
     },
     closeIcon: {
-      fontSize: typeScale.headlineSmall,
-      lineHeight: lineHeights.headlineSmall,
       color: p.icon.muted,
     },
     error: {
@@ -86,7 +83,7 @@ export function ProjectEmailGate({
   const isMobile = width < 640;
   const compact = width < 380;
   const styles = useMemo(() => createStyles(palette), [palette]);
-  const [email, setEmail] = useState(() => getStoredVisitorEmail() ?? '');
+  const [email, setEmail] = useState('');
   const [buttonHovered, setButtonHovered] = useState(false);
   const [touched, setTouched] = useState(false);
 
@@ -99,7 +96,7 @@ export function ProjectEmailGate({
 
   useEffect(() => {
     if (visible) {
-      setEmail(getStoredVisitorEmail() ?? '');
+      setEmail('');
       setTouched(false);
     }
   }, [projectSlug, visible]);
@@ -138,7 +135,11 @@ export function ProjectEmailGate({
             variant="icon"
             onPress={onClose}
             accessibilityLabel="Close"
-            icon={<Text style={styles.closeIcon}>✕</Text>}
+            icon={
+            <Text variant="titleMedium" style={styles.closeIcon}>
+              ✕
+            </Text>
+          }
           />
         </View>
 

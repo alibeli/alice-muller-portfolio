@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Platform, StyleSheet, useWindowDimensions } from 'react-native';
+import { Platform, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 
 import { useTheme } from '@/components/ThemeProvider';
 import { Button } from '@/components/ui/Button';
 import { AutoGrowInputBar } from '@/components/ui/AutoGrowInputBar';
 import { DiceIcon } from '@/components/ui/icons/DiceIcon';
 import { WhatsAppIcon } from '@/components/ui/icons/WhatsAppIcon';
+import { Text } from '@/components/ui/Text';
 import { lineHeights, spacing, type ColorPalette, typeScale } from '@/design-system';
 import { pickRandomIcebreaker } from '@/data/icebreakerPrompts';
 import { openWhatsAppChat } from '@/lib/whatsapp';
@@ -69,7 +70,8 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
       placeholderTextColor={palette.foreground}
       returnKeyType="default"
       accessibilityLabel="Message to send on WhatsApp"
-      middle={({ isMultiline }) => (
+      barStyle={styles.barInset}
+      leading={({ isMultiline }) => (
         <Button
           variant="icon"
           onPress={handleDicePress}
@@ -93,26 +95,33 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
         />
       )}
       action={({ barHeight }) => (
-        <Button
-          variant="primary"
-          size="lg"
-          dividerLeft
+        <Pressable
           onPress={handlePress}
           disabled={!configured}
-          hovered={buttonHovered}
-          style={[{ height: barHeight }, compact && styles.buttonCompact]}
+          accessibilityRole="button"
           accessibilityLabel="Open WhatsApp conversation"
+          style={({ pressed }) => [
+            styles.textMeButton,
+            { height: barHeight },
+            configured && buttonHovered && styles.textMeButtonHovered,
+            pressed && configured && styles.pressed,
+            compact && styles.textMeButtonCompact,
+          ]}
           {...webButtonHoverProps}
-          icon={
-            <WhatsAppIcon
-              size={18}
-              color={configured ? palette.muted : palette.subtle}
-              disabled={!configured}
-              hovered={buttonHovered}
-            />
-          }
-          label="Text me"
-        />
+        >
+          <WhatsAppIcon
+            size={18}
+            color={configured ? palette.muted : palette.subtle}
+            disabled={!configured}
+            hovered={buttonHovered}
+          />
+          <Text
+            variant="label"
+            style={[styles.textMeLabel, !configured && styles.textMeLabelDisabled]}
+          >
+            Text me
+          </Text>
+        </Pressable>
       )}
     />
   );
@@ -120,12 +129,15 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
 
 function createStyles(p: ColorPalette) {
   return StyleSheet.create({
+    barInset: {
+      paddingLeft: spacing.sm,
+    },
     diceButton: {
       width: 36,
       height: 36,
       borderRadius: 999,
       flexShrink: 0,
-      marginRight: spacing.sm,
+      marginRight: spacing.xs,
     },
     diceButtonSingle: {
       alignSelf: 'center',
@@ -136,9 +148,29 @@ function createStyles(p: ColorPalette) {
     diceButtonHovered: {
       backgroundColor: p.glass.chip,
     },
-    buttonCompact: {
-      paddingHorizontal: spacing.md,
+    textMeButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
       gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      borderLeftWidth: StyleSheet.hairlineWidth,
+      borderLeftColor: p.border,
+    },
+    textMeButtonCompact: {
+      paddingHorizontal: spacing.md,
+    },
+    textMeButtonHovered: {
+      backgroundColor: p.glass.clear,
+    },
+    textMeLabel: {
+      color: p.foreground,
+    },
+    textMeLabelDisabled: {
+      color: p.subtle,
+    },
+    pressed: {
+      opacity: 0.72,
     },
   });
 }

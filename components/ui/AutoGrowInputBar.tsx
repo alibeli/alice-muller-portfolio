@@ -15,7 +15,7 @@ import {
   WHATSAPP_BAR_MIN_HEIGHT,
   WHATSAPP_INPUT_MAX_HEIGHT,
 } from '@/components/portfolio/contact/whatsappBar';
-import { spacing, typography, type ColorPalette } from '@/design-system';
+import { lineHeights, spacing, typography, type ColorPalette } from '@/design-system';
 import { useAutoGrowInput, type AutoGrowMetrics } from '@/lib/useAutoGrowInput';
 
 export type AutoGrowBarContext = {
@@ -24,7 +24,7 @@ export type AutoGrowBarContext = {
 };
 
 export const DEFAULT_AUTO_GROW_METRICS: AutoGrowMetrics = {
-  minInputHeight: 22,
+  minInputHeight: lineHeights.bodyLarge,
   maxInputHeight: WHATSAPP_INPUT_MAX_HEIGHT,
   minBarHeight: WHATSAPP_BAR_MIN_HEIGHT,
   maxBarHeight: WHATSAPP_BAR_MAX_HEIGHT,
@@ -34,6 +34,8 @@ export const DEFAULT_AUTO_GROW_METRICS: AutoGrowMetrics = {
 type Props = Omit<TextInputProps, 'multiline' | 'onChangeText' | 'style'> & {
   value: string;
   onChangeText: (text: string) => void;
+  /** Slot before the input (e.g. dice button). */
+  leading?: ReactNode | ((ctx: AutoGrowBarContext) => ReactNode);
   /** Slot between input and trailing action (e.g. dice button). */
   middle?: ReactNode | ((ctx: AutoGrowBarContext) => ReactNode);
   /** Trailing action — receives barHeight so the button stretches with the shell. */
@@ -115,6 +117,7 @@ function renderSlot(
 export function AutoGrowInputBar({
   value,
   onChangeText,
+  leading,
   middle,
   action,
   metrics = DEFAULT_AUTO_GROW_METRICS,
@@ -167,6 +170,7 @@ export function AutoGrowInputBar({
           isMultiline ? styles.inputWrapMultiline : styles.inputWrapSingle,
         ]}
       >
+        {renderSlot(leading, ctx)}
         <TextInput
           ref={inputRef}
           value={value}

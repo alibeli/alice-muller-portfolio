@@ -1,22 +1,11 @@
 import { Platform } from 'react-native';
 
-const STORAGE_KEY = 'portfolio-visitor-email';
+/** Legacy key — email is session-only now; cleared on app load. */
+const LEGACY_STORAGE_KEY = 'portfolio-visitor-email';
 
-export function getStoredVisitorEmail(): string | null {
+/** Remove persisted email from older builds so refresh always prompts again. */
+export function clearLegacyVisitorEmail(): void {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    return window.localStorage.getItem(STORAGE_KEY);
-  }
-  return null;
-}
-
-export function setStoredVisitorEmail(email: string): void {
-  if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    window.localStorage.setItem(STORAGE_KEY, email.trim());
-  }
-}
-
-export function clearStoredVisitorEmail(): void {
-  if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
   }
 }

@@ -1,8 +1,8 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useAction } from 'convex/react';
 
 import { api } from '@/convex/_generated/api';
-import { getStoredVisitorEmail, setStoredVisitorEmail } from '@/lib/projectAccessStorage';
+import { clearLegacyVisitorEmail } from '@/lib/projectAccessStorage';
 
 type TrackViewArgs = {
   email: string;
@@ -11,6 +11,8 @@ type TrackViewArgs = {
 };
 
 type ProjectAccessContextValue = {
+  /** Email entered this browser session — cleared on refresh. */
+  visitorEmail: string | null;
   isSubmitting: boolean;
   error: string | null;
   saveEmail: (email: string) => void;
@@ -23,13 +25,18 @@ const ProjectAccessContext = createContext<ProjectAccessContextValue | null>(nul
 
 export function ProjectAccessProvider({ children }: { children: ReactNode }) {
   const recordAccess = useAction(api.portfolioAccess.requestProjectAccess);
+  const [visitorEmail, setVisitorEmail] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    clearLegacyVisitorEmail();
+  }, []);
 
   const saveEmail = useCallback((email: string) => {
     const trimmed = email.trim();
     if (!trimmed) return;
-    setStoredVisitorEmail(trimmed);
+    setVisitorEmail(trimmed);
   }, []);
 
   const trackView = useCallback(
@@ -55,13 +62,14 @@ export function ProjectAccessProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
+      visitorEmail,
       isSubmitting,
       error,
       saveEmail,
       trackView,
       clearError: () => setError(null),
     }),
-    [error, isSubmitting, saveEmail, trackView],
+    [error, isSubmitting, saveEmail, trackView, visitorEmail],
   );
 
   return <ProjectAccessContext.Provider value={value}>{children}</ProjectAccessContext.Provider>;
@@ -73,9 +81,4 @@ export function useProjectAccess() {
     throw new Error('useProjectAccess must be used within ProjectAccessProvider');
   }
   return context;
-}
-
-/** Read stored email directly — single source of truth for gate checks. */
-export function readVisitorEmail(): string | null {
-  return getStoredVisitorEmail()?.trim() || null;
 }
