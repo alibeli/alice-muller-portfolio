@@ -19,7 +19,6 @@ import { Text } from '@/components/ui/Text';
 import { gutter, spacing } from '@/design-system';
 import { getGridItems, getPaper, getProject, otherProjects, paperCount, awardCount, selectedProjectCount } from '@/data/portfolio';
 import { readPaperSlugFromPathname, readProjectSlugFromPathname } from '@/lib/modalRoutes';
-import { resolveProjectSlug } from '@/lib/projectSlugAliases';
 import { getPaperPath, getProjectPath } from '@/lib/shareProject';
 import { useModalDeepLink } from '@/lib/useModalDeepLink';
 
@@ -59,10 +58,7 @@ function getMoreColumns(screenWidth: number): number {
 }
 
 function resolveInitialProjectSlug(initialProjectSlug?: string): string | null {
-  if (initialProjectSlug) {
-    const slug = resolveProjectSlug(initialProjectSlug);
-    if (getProject(slug)) return slug;
-  }
+  if (initialProjectSlug && getProject(initialProjectSlug)) return initialProjectSlug;
   return readProjectSlugFromPathname();
 }
 
