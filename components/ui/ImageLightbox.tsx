@@ -384,7 +384,7 @@ function createLightboxStyles(p: ColorPalette) {
   return StyleSheet.create({
     overlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.88)',
+      backgroundColor: p.media.scrim,
     },
     toolbar: {
       flexDirection: 'row',
@@ -394,7 +394,7 @@ function createLightboxStyles(p: ColorPalette) {
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.sm,
       zIndex: 2,
-      backgroundColor: 'rgba(20, 20, 20, 0.55)',
+      backgroundColor: p.media.toolbar,
       ...(Platform.OS === 'web' ? frostedToolbarWeb : {}),
     },
     toolbarLeft: {
@@ -418,7 +418,7 @@ function createLightboxStyles(p: ColorPalette) {
       borderRadius: radii.pill,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(255, 255, 255, 0.12)',
+      backgroundColor: p.media.control,
       paddingHorizontal: spacing.sm,
     },
     controlLabel: {
@@ -454,7 +454,7 @@ function createLightboxStyles(p: ColorPalette) {
       borderRadius: radii.pill,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(255, 255, 255, 0.12)',
+      backgroundColor: p.media.control,
       marginHorizontal: spacing.sm,
       zIndex: 2,
     },

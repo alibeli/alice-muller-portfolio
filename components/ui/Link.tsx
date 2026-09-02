@@ -37,7 +37,7 @@ function createStyles(p: ColorPalette) {
     externalRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.sm,
+      gap: spacing.xs,
     },
   });
 }

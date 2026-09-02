@@ -245,6 +245,7 @@ export function ProjectGridTile({
                   <OpenInNewTabIcon size={11} color={palette.icon.muted} />
                 ) : undefined
               }
+              iconPosition="right"
               style={styles.linkPill}
             />
           ) : null}

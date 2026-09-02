@@ -4,7 +4,7 @@ import { MoonIcon, SunIcon } from '@/components/ui/icons/ThemeIcons';
 
 export function ThemeToggleChip() {
   const { colorScheme, toggleColorScheme, palette } = useTheme();
-  const iconColor = palette.icon.default;
+  const iconColor = palette.icon.muted;
 
   return (
     <Button

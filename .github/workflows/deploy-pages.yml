@@ -34,6 +34,7 @@ jobs:
       - name: Export static web build
         env:
           EXPO_PUBLIC_CONVEX_URL: ${{ secrets.EXPO_PUBLIC_CONVEX_URL || 'https://vibrant-grasshopper-113.convex.cloud' }}
+          EXPO_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.EXPO_PUBLIC_GA_MEASUREMENT_ID || 'G-0W0YG538P6' }}
         run: npx expo export --platform web
 
       - name: Add GitHub Pages 404 fallback

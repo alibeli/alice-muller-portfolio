@@ -1,7 +1,7 @@
 // Remote image URLs sourced from alice-muller.com (Cargo CDN)
 
 export const images = {
-  nimue: [],
+  runtime: [],
   yuki: [],
   swap: [
     'https://freight.cargo.site/w/1200/i/4b928d3113fa3e305582367834a308a65b58856e9887ea8e2db21631ef551de3/Preview-27.jpg',

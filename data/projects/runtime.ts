@@ -1,9 +1,9 @@
-import { nimueHeroImage } from '../localProjectImages';
+import { runtimeHeroImage } from '../localProjectImages';
 import type { ProjectBase } from './types';
 
-export const nimue: ProjectBase = {
-  slug: 'nimue',
-  title: 'Nimue',
+export const runtime: ProjectBase = {
+  slug: 'runtime',
+  title: 'Runtime',
   period: 'April 2026 – Present',
   location: 'Zürich, Switzerland',
   tagline:
@@ -15,7 +15,7 @@ export const nimue: ProjectBase = {
     '500+ tools',
     '10+ modular SDK components',
   ],
-  links: [{ label: 'Expo App', url: 'https://nimue.expo.app' }],
+  links: [{ label: 'Expo App', url: 'https://runtime.expo.app' }],
   images: [],
   outcome:
     'Built a privacy-first multi-agent orchestration platform & SDK on Nillion blind-compute research.',
@@ -27,8 +27,8 @@ export const nimue: ProjectBase = {
     },
     {
       type: 'image',
-      asset: nimueHeroImage,
-      caption: 'Nimue — multi-agent orchestration platform.',
+      asset: runtimeHeroImage,
+      caption: 'Runtime — multi-agent orchestration platform.',
     },
   ],
 };

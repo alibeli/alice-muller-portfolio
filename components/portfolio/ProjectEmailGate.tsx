@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { useTheme } from '@/components/ThemeProvider';
 import { WHATSAPP_BAR_MIN_HEIGHT } from '@/components/portfolio/contact/whatsappBar';
@@ -10,7 +10,7 @@ import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
 import { lineHeights, radii, spacing, type ColorPalette, typeScale } from '@/design-system';
 import { getProject } from '@/data/portfolio';
-import { isValidEmail } from '@/lib/validateEmail';
+import { isValidEmail, normalizeEmail } from '@/lib/validateEmail';
 
 type Props = {
   projectSlug: string | null;
@@ -25,7 +25,7 @@ const INPUT_FONT_SIZE = typeScale.bodyLarge;
 const INPUT_FONT_SIZE_COMPACT = typeScale.bodyMedium;
 const INVALID_EMAIL_MESSAGE = 'Enter a valid email address.';
 
-/** Single-line email bar — same shell, no vertical growth. */
+/** Single-line email bar — same shell as WhatsApp, no vertical growth. */
 const EMAIL_BAR_METRICS = {
   ...DEFAULT_AUTO_GROW_METRICS,
   minInputHeight: INPUT_LINE_HEIGHT,
@@ -61,12 +61,39 @@ function createStyles(p: ColorPalette) {
       color: p.destructive,
       marginTop: -spacing.xs,
     },
+    reassurance: {
+      marginTop: -spacing.xs,
+    },
     submitWrap: {
       height: WHATSAPP_BAR_MIN_HEIGHT,
       justifyContent: 'center',
       alignItems: 'center',
       minWidth: 108,
       paddingHorizontal: spacing.lg,
+    },
+    continueButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      borderLeftWidth: StyleSheet.hairlineWidth,
+      borderLeftColor: p.border,
+    },
+    continueButtonCompact: {
+      paddingHorizontal: spacing.md,
+    },
+    continueButtonHovered: {
+      backgroundColor: p.glass.clear,
+    },
+    continueLabel: {
+      color: p.foreground,
+    },
+    continueLabelDisabled: {
+      color: p.subtle,
+    },
+    pressed: {
+      opacity: 0.72,
     },
   });
 }
@@ -104,8 +131,9 @@ export function ProjectEmailGate({
   const handleSubmit = () => {
     if (!projectSlug || !project) return;
     setTouched(true);
-    if (!isValidEmail(email)) return;
-    onContinue(email.trim(), projectSlug);
+    const normalized = normalizeEmail(email);
+    if (!normalized) return;
+    onContinue(normalized, projectSlug);
   };
 
   const webButtonHoverProps =
@@ -126,9 +154,9 @@ export function ProjectEmailGate({
       >
         <View style={styles.headerRow}>
           <View style={styles.headerText}>
-            <Text variant="title">View {project?.title}</Text>
+            <Text variant="title">Unlock {project?.title}</Text>
             <Text variant="body" muted>
-              Thanks for your interest!
+              Enter your email to open the full case study — I use it only to see who's exploring the work. No newsletters, no spam.
             </Text>
           </View>
           <Button
@@ -136,10 +164,10 @@ export function ProjectEmailGate({
             onPress={onClose}
             accessibilityLabel="Close"
             icon={
-            <Text variant="titleMedium" style={styles.closeIcon}>
-              ✕
-            </Text>
-          }
+              <Text variant="titleMedium" style={styles.closeIcon}>
+                ✕
+              </Text>
+            }
           />
         </View>
 
@@ -166,21 +194,36 @@ export function ProjectEmailGate({
                 <ActivityIndicator color={palette.foreground} />
               </View>
             ) : (
-              <Button
-                variant="primary"
-                size="lg"
-                dividerLeft
-                label="Continue"
+              <Pressable
                 onPress={handleSubmit}
                 disabled={!canSubmit}
-                hovered={buttonHovered}
-                style={{ height: barHeight }}
-                accessibilityLabel="Continue to project"
+                accessibilityRole="button"
+                accessibilityLabel="View case study"
+                style={({ pressed }) => [
+                  styles.continueButton,
+                  { height: barHeight },
+                  canSubmit && buttonHovered && styles.continueButtonHovered,
+                  pressed && canSubmit && styles.pressed,
+                  compact && styles.continueButtonCompact,
+                ]}
                 {...webButtonHoverProps}
-              />
+              >
+                <Text
+                  variant="label"
+                  style={[styles.continueLabel, !canSubmit && styles.continueLabelDisabled]}
+                >
+                  View case study
+                </Text>
+              </Pressable>
             )
           }
         />
+
+        {!showValidationError && !error ? (
+          <Text variant="caption" muted style={styles.reassurance}>
+            One quick step — then you're in.
+          </Text>
+        ) : null}
 
         {showValidationError ? (
           <Text variant="caption" style={styles.error}>

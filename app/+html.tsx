@@ -2,6 +2,7 @@ import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
 import { htmlThemeCss } from '@/design-system';
+import { GA_MEASUREMENT_ID } from '@/lib/analytics';
 import { siteMeta } from '@/lib/siteMeta';
 
 export default function Root({ children }: PropsWithChildren) {
@@ -47,6 +48,21 @@ export default function Root({ children }: PropsWithChildren) {
             `,
           }}
         />
+        {GA_MEASUREMENT_ID ? (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
+                `,
+              }}
+            />
+          </>
+        ) : null}
         <style
           dangerouslySetInnerHTML={{
             __html: `

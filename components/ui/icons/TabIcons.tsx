@@ -98,13 +98,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   emoji: {
-    fontSize: 30,
-    lineHeight: 34,
+    fontSize: ICON_SIZE_LARGE,
+    lineHeight: ICON_SIZE_LARGE + 4,
     backgroundColor: 'transparent',
   },
   emojiSelected: {
-    fontSize: 22,
-    lineHeight: 26,
+    fontSize: ICON_SIZE_SMALL,
+    lineHeight: ICON_SIZE_SMALL + 4,
   },
   modalIcon: {
     width: MODAL_ICON_SIZE,

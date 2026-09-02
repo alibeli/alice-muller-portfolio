@@ -2,7 +2,7 @@ import type { ProjectBase } from './types';
 import { domi_inter_astra } from './domi-inter-astra';
 import { ailo } from './ailo';
 import { metavogue } from './metavogue';
-import { nimue } from './nimue';
+import { runtime } from './runtime';
 import { ocean_cloud } from './ocean-cloud';
 import { planet } from './planet';
 import { poqy } from './poqy';
@@ -15,7 +15,7 @@ import { yuki } from './yuki';
 
 export const baseProjects: ProjectBase[] = [
   ailo,
-  nimue,
+  runtime,
   yuki,
   swap,
   swap_studio,

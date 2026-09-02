@@ -19,6 +19,7 @@ import {
   type LegacyButtonVariant,
 } from '@/design-system/buttons';
 import type { ColorPalette } from '@/design-system/colors';
+import { spacing } from '@/design-system/spacing';
 
 export type { ButtonSize, ButtonVariant, LegacyButtonVariant };
 
@@ -28,6 +29,8 @@ type Props = Omit<PressableProps, 'children'> & {
   size?: ButtonSize;
   label?: string;
   icon?: ReactNode;
+  /** Icon before (default) or after the label — external-link chips use `right`. */
+  iconPosition?: 'left' | 'right';
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
@@ -61,6 +64,7 @@ export function Button({
   size = 'md',
   label,
   icon,
+  iconPosition = 'left',
   children,
   style,
   contentStyle,
@@ -92,13 +96,20 @@ export function Button({
       {...props}
     >
       {children ?? (
-        <View style={[shared.base, contentStyle]}>
-          {icon}
+        <View
+          style={[
+            shared.base,
+            contentStyle,
+            icon && label ? { gap: iconPosition === 'right' ? spacing.xs : spacing.sm } : null,
+          ]}
+        >
+          {iconPosition === 'left' ? icon : null}
           {label ? (
             <Text variant="label" style={[variantStyles.label, { color: variantStyles.labelColor }]}>
               {label}
             </Text>
           ) : null}
+          {iconPosition === 'right' ? icon : null}
         </View>
       )}
     </Pressable>

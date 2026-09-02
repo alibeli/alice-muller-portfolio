@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { useAction } from 'convex/react';
 
 import { api } from '@/convex/_generated/api';
+import { normalizeEmail } from '@/lib/validateEmail';
 import { clearLegacyVisitorEmail } from '@/lib/projectAccessStorage';
 
 type TrackViewArgs = {
@@ -34,20 +35,20 @@ export function ProjectAccessProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const saveEmail = useCallback((email: string) => {
-    const trimmed = email.trim();
-    if (!trimmed) return;
-    setVisitorEmail(trimmed);
+    const normalized = normalizeEmail(email);
+    if (!normalized) return;
+    setVisitorEmail(normalized);
   }, []);
 
   const trackView = useCallback(
     ({ email, projectSlug, projectTitle }: TrackViewArgs) => {
-      const trimmed = email.trim();
-      if (!trimmed) return;
+      const normalized = normalizeEmail(email);
+      if (!normalized) return;
 
       setIsSubmitting(true);
       setError(null);
 
-      void recordAccess({ email: trimmed, projectSlug, projectTitle })
+      void recordAccess({ email: normalized, projectSlug, projectTitle })
         .catch((caught) => {
           const message =
             caught instanceof Error ? caught.message : 'Could not save your visit. Please try again.';

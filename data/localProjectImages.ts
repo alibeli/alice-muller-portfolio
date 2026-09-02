@@ -20,7 +20,7 @@ export const swapStudioImages: ImageSourcePropType[] = [
   defineMedia(require('@/assets/images/projects/swap-studio-5.png'), 832, 1024),
 ];
 
-export const nimueHeroImage: ImageSourcePropType = defineMedia(
+export const runtimeHeroImage: ImageSourcePropType = defineMedia(
   require('@/assets/images/projects/nimue-0.png'),
   762,
   811,

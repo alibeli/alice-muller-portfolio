@@ -1,6 +1,11 @@
 import { Platform } from 'react-native';
 
 import { getPaper, getProject } from '@/data/portfolio';
+import {
+  isLegacyProjectSlug,
+  resolveProjectSlug,
+} from '@/lib/projectSlugAliases';
+import { getProjectPath } from '@/lib/shareProject';
 
 export function readSlugFromPathname(prefix: string, isValid: (slug: string) => boolean): string | null {
   if (Platform.OS !== 'web' || typeof window === 'undefined') return null;
@@ -11,7 +16,16 @@ export function readSlugFromPathname(prefix: string, isValid: (slug: string) => 
 }
 
 export function readProjectSlugFromPathname(): string | null {
-  return readSlugFromPathname('/project', (slug) => !!getProject(slug));
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return null;
+  const match = window.location.pathname.match(/^\/project\/([^/]+)\/?$/);
+  if (!match) return null;
+  const rawSlug = decodeURIComponent(match[1]);
+  const slug = resolveProjectSlug(rawSlug);
+  if (!getProject(slug)) return null;
+  if (isLegacyProjectSlug(rawSlug)) {
+    replaceWebPath(getProjectPath(slug));
+  }
+  return slug;
 }
 
 export function readPaperSlugFromPathname(): string | null {

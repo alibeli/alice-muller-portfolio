@@ -20,6 +20,7 @@ export function ProjectLinkChip({ label, url, projectTitle }: Props) {
       label={label}
       onPress={() => openProjectLink(url, projectTitle).catch(() => {})}
       icon={isHttpLink ? <OpenInNewTabIcon size={12} color={palette.icon.muted} /> : undefined}
+      iconPosition="right"
     />
   );
 }

@@ -21,7 +21,7 @@ import { GlassSurface } from '@/components/ui/GlassSurface';
 import { GithubIcon, LinkedInIcon } from '@/components/ui/icons/SocialIcons';
 import { ThemeToggleChip } from '@/components/ui/ThemeToggleChip';
 import { Text } from '@/components/ui/Text';
-import { fontWeights, lineHeights, radii, spacing, type ColorPalette, typeScale } from '@/design-system';
+import { fontWeights, lineHeights, radii, spacing, buttonSizes, type ColorPalette, typeScale } from '@/design-system';
 import { profile, profileDetails } from '@/data/portfolio';
 
 type Props = {
@@ -95,7 +95,7 @@ function createStyles(p: ColorPalette) {
       minHeight: 32,
     },
     expandBtn: {
-      height: 32,
+      height: buttonSizes.sm.height,
       justifyContent: 'center',
     },
     headshot: {
@@ -335,7 +335,7 @@ function SocialChip({
       label={label}
       onPress={() => Linking.openURL(url)}
       icon={icon === 'linkedin' ? <LinkedInIcon size={13} /> : <GithubIcon size={13} />}
-      contentStyle={{ gap: 4 }}
+      contentStyle={{ gap: spacing.xxs }}
     />
   );
 }

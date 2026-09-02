@@ -23,14 +23,14 @@ export const projectImpactBySlug: Record<string, ProjectImpact> = {
       metric: 'Early stage — currently building.',
     },
   },
-  nimue: {
+  runtime: {
     traction: '500+ tools · 10+ SDK modules · TEEs + MPC · Live demo',
     summary: {
       background:
         "Teams need multi-agent workflows but can't trust cloud-only orchestration with sensitive data.",
       insight: 'Privacy + auditability must be architectural, not policy.',
       change: 'Built platform + SDK with TEEs, MPC, RAG, 500+ tools, immutable audit hashes.',
-      metric: '10+ SDK modules · 500+ tool integrations · Live at nimue.expo.app',
+      metric: '10+ SDK modules · 500+ tool integrations · Live at runtime.expo.app',
     },
   },
   yuki: {

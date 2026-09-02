@@ -11,6 +11,7 @@
 import type * as lib_emails_sendEmail from "../lib/emails/sendEmail.js";
 import type * as lib_normalizeEmail from "../lib/normalizeEmail.js";
 import type * as lib_notifyAdmins from "../lib/notifyAdmins.js";
+import type * as lib_portfolioViewEmail from "../lib/portfolioViewEmail.js";
 import type * as portfolioAccess from "../portfolioAccess.js";
 
 import type {
@@ -23,6 +24,7 @@ declare const fullApi: ApiFromModules<{
   "lib/emails/sendEmail": typeof lib_emails_sendEmail;
   "lib/normalizeEmail": typeof lib_normalizeEmail;
   "lib/notifyAdmins": typeof lib_notifyAdmins;
+  "lib/portfolioViewEmail": typeof lib_portfolioViewEmail;
   portfolioAccess: typeof portfolioAccess;
 }>;
 

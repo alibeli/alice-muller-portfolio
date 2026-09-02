@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
 import { ConvexAppProvider } from '@/components/providers/ConvexAppProvider';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
 
 export { ErrorBoundary } from 'expo-router';
@@ -56,6 +57,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ThemeProvider>
         <ConvexAppProvider>
+          <GoogleAnalytics />
           <RootStack />
         </ConvexAppProvider>
       </ThemeProvider>

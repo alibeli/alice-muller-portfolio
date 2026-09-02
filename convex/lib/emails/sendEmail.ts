@@ -3,14 +3,14 @@
  *
  * Convex env (same keys as friendapp):
  *   RESEND_API_KEY       — re_...
- *   RESEND_FROM          — e.g. "Ailo <hello@ailo.life>"
+ *   RESEND_FROM          — e.g. "Portfolio <notifications@system.ailo.life>"
  *   RESEND_FROM_OUTREACH — optional outreach from address
  *   AILO_SUPPORT_ADMINS  — +41799154475=alice@ailo.life (portfolio view alerts)
  */
 
 import { Resend } from "resend";
 
-const DEFAULT_FROM = "Ailo <hello@ailo.life>";
+const DEFAULT_FROM = "Portfolio <notifications@system.ailo.life>";
 
 export type SendEmailArgs = {
   to: string | string[];

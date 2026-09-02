@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  LayoutChangeEvent,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/components/ThemeProvider';
@@ -19,6 +26,7 @@ import { Text } from '@/components/ui/Text';
 import { gutter, spacing } from '@/design-system';
 import { getGridItems, getPaper, getProject, otherProjects, paperCount, awardCount, selectedProjectCount } from '@/data/portfolio';
 import { readPaperSlugFromPathname, readProjectSlugFromPathname } from '@/lib/modalRoutes';
+import { trackEvent } from '@/lib/analytics';
 import { getPaperPath, getProjectPath } from '@/lib/shareProject';
 import { useModalDeepLink } from '@/lib/useModalDeepLink';
 
@@ -35,14 +43,41 @@ const MOBILE_BREAKPOINT = 640;
 const MOBILE_DOCK_RESERVE = 300;
 
 function getTileSize(
-  screenWidth: number,
+  innerContentWidth: number,
   columns: number,
-  horizontalPadding: number,
   gridGap: number,
   maxContentWidth = GRID_MAX_WIDTH,
 ): number {
-  const contentWidth = Math.min(screenWidth - horizontalPadding * 2, maxContentWidth);
+  const contentWidth = Math.min(innerContentWidth, maxContentWidth);
+  if (contentWidth <= 0 || columns <= 0) return 0;
   return Math.floor((contentWidth - gridGap * (columns - 1)) / columns);
+}
+
+function getHorizontalPadding(
+  viewportWidth: number,
+  webCoarsePointer: boolean,
+): number {
+  const narrow = viewportWidth < MOBILE_BREAKPOINT;
+  if (Platform.OS !== 'web') {
+    return narrow ? MOBILE_GRID_INSET : DESKTOP_GRID_INSET;
+  }
+  if (narrow && webCoarsePointer) return MOBILE_GRID_INSET;
+  return DESKTOP_GRID_INSET;
+}
+
+function useWebCoarsePointer(): boolean {
+  const [coarse, setCoarse] = useState(false);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const mq = window.matchMedia('(pointer: coarse)');
+    const apply = () => setCoarse(mq.matches);
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
+
+  return coarse;
 }
 
 function getColumns(screenWidth: number): number {
@@ -78,13 +113,27 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
   const { visitorEmail, saveEmail, trackView, isSubmitting, error, clearError } = useProjectAccess();
   const insets = useSafeAreaInsets();
   const { width, height: windowHeight } = useWindowDimensions();
+  const webCoarsePointer = useWebCoarsePointer();
   const isMobile = width < MOBILE_BREAKPOINT;
   const columns = getColumns(width);
   const isSingleColumn = columns === 1;
-  const horizontalPadding = isMobile ? MOBILE_GRID_INSET : DESKTOP_GRID_INSET;
+  const horizontalPadding = getHorizontalPadding(width, webCoarsePointer);
   const gridGap = isMobile ? MOBILE_GRID_GAP : DESKTOP_GRID_GAP;
   const moreColumns = getMoreColumns(width);
-  const tileSize = getTileSize(width, columns, horizontalPadding, gridGap);
+  const [gridInnerWidth, setGridInnerWidth] = useState(() =>
+    Math.max(0, width - horizontalPadding * 2),
+  );
+
+  useEffect(() => {
+    setGridInnerWidth(Math.max(0, width - horizontalPadding * 2));
+  }, [horizontalPadding, width]);
+
+  const handleGridLayout = useCallback((event: LayoutChangeEvent) => {
+    const measuredWidth = event.nativeEvent.layout.width;
+    if (measuredWidth > 0) setGridInnerWidth(measuredWidth);
+  }, []);
+
+  const tileSize = getTileSize(gridInnerWidth, columns, gridGap);
 
   const headerTop = insets.top + spacing.sm;
   const scrollTopPad = headerTop + TAB_BAR_HEIGHT + spacing.md;
@@ -98,7 +147,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
     return Math.min(idealHeight, Math.max(tileSize, viewportMax));
   }, [gridGap, insets.bottom, isMobile, scrollTopPad, tileSize, windowHeight]);
 
-  const moreTileSize = getTileSize(width, moreColumns, horizontalPadding, gridGap);
+  const moreTileSize = getTileSize(gridInnerWidth, moreColumns, gridGap);
   const items = getGridItems();
 
   const projectDeepLink = useModalDeepLink({
@@ -152,11 +201,20 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
       if (!email) {
         clearError();
         setEmailGateSlug(slug);
+        trackEvent('email_gate_shown', {
+          project_slug: slug,
+          project_title: project.title,
+        });
         return;
       }
 
       openProject(slug);
       trackView({ email, projectSlug: slug, projectTitle: project.title });
+      trackEvent('project_view', {
+        project_slug: slug,
+        project_title: project.title,
+        via_gate: false,
+      });
     },
     [clearError, openProject, trackView, visitorEmail],
   );
@@ -204,9 +262,17 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
 
   const handleProjectPress = useCallback(
     (slug: string) => {
+      const project = getProject(slug);
+      if (!project) return;
+
+      trackEvent('project_click', {
+        project_slug: slug,
+        project_title: project.title,
+        has_email: Boolean(visitorEmail),
+      });
       requestProject(slug);
     },
-    [requestProject],
+    [requestProject, visitorEmail],
   );
 
   const handleEmailGateClose = useCallback(() => {
@@ -219,10 +285,20 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
       const project = getProject(slug);
       if (!project) return;
 
+      trackEvent('email_gate_submit', {
+        project_slug: slug,
+        project_title: project.title,
+      });
+
       saveEmail(email);
       setEmailGateSlug(null);
       openProject(slug);
       trackView({ email, projectSlug: slug, projectTitle: project.title });
+      trackEvent('project_view', {
+        project_slug: slug,
+        project_title: project.title,
+        via_gate: true,
+      });
     },
     [openProject, saveEmail, trackView],
   );
@@ -298,7 +374,10 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
         showsVerticalScrollIndicator
         decelerationRate="normal"
       >
-        <View style={[styles.grid, styles.constrainedGrid, { gap: gridGap }]}>
+        <View
+          onLayout={handleGridLayout}
+          style={[styles.grid, styles.constrainedGrid, { gap: gridGap }]}
+        >
           {rows.map((row, rowIndex) => {
             const isLastRow = rowIndex === rows.length - 1;
             const snapThisRow = mobileSnapScroll && !isLastRow;
