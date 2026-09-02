@@ -11,11 +11,11 @@ import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
 import { spacing, type ColorPalette } from '@/design-system';
 import { shareProject } from '@/lib/shareProject';
-import { tractionHasAward } from '@/lib/tractionHasAward';
 import type { Project } from '@/data/portfolio';
 
-const HEADER_GAP = spacing.sm;
-const awardIcon = require('@/assets/icons/icon-awards.png');
+const META_TO_TITLE_GAP = spacing.sm;
+const TITLE_TO_TAGLINE_GAP = spacing.sm;
+const TAGLINE_TO_LINKS_GAP = spacing.sm + spacing.xs;
 
 type Props = {
   project: Project;
@@ -47,7 +47,7 @@ function createStyles(p: ColorPalette) {
       minWidth: 0,
     },
     title: {
-      marginTop: HEADER_GAP,
+      marginTop: META_TO_TITLE_GAP,
       flexShrink: 1,
     },
     closeIcon: {
@@ -58,30 +58,14 @@ function createStyles(p: ColorPalette) {
       flexWrap: 'wrap',
       alignItems: 'center',
       gap: spacing.sm,
-      marginTop: spacing.md,
+      marginTop: TAGLINE_TO_LINKS_GAP,
     },
     meta: {},
     metaDot: {
       color: p.subtle,
     },
     tagline: {
-      marginTop: HEADER_GAP,
-    },
-    tractionRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.xs,
-      marginTop: HEADER_GAP,
-      flexWrap: 'wrap',
-    },
-    traction: {
-      flexShrink: 1,
-      color: p.muted,
-    },
-    awardIconInline: {
-      width: 16,
-      height: 16,
-      opacity: 0.88,
+      marginTop: TITLE_TO_TAGLINE_GAP,
     },
   });
 }
@@ -95,12 +79,10 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
     shareProject(project).catch(() => {});
   };
 
-  const tractionLine = project.traction || null;
   const showLocation = project.location.trim().length > 0;
   const showMetaSeparator =
     showLocation &&
     (project.badge === 'currently-building' || project.period.trim().length > 0);
-  const showAwardInTraction = tractionLine ? tractionHasAward(tractionLine) : false;
 
   return (
     <GlassSurface
@@ -141,17 +123,6 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
       <Text variant="subtitle" muted style={styles.tagline}>
         {project.tagline}
       </Text>
-
-      {tractionLine ? (
-        <View style={styles.tractionRow}>
-          {showAwardInTraction ? (
-            <Image source={awardIcon} style={styles.awardIconInline} resizeMode="contain" />
-          ) : null}
-          <Text variant="caption" style={styles.traction}>
-            {tractionLine}
-          </Text>
-        </View>
-      ) : null}
 
       <View style={styles.linksRow}>
         {project.links.map((link) => (
