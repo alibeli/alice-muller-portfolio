@@ -1,6 +1,8 @@
 import { createElement } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
+import { fontWeights } from '@/design-system/typography';
+
 type IconProps = {
   size?: number;
   color?: string;
@@ -42,15 +44,13 @@ function MoonGlyph({ size, color }: { size: number; color: string }) {
         xmlns: 'http://www.w3.org/2000/svg',
       },
       createElement('path', {
-        d: 'M21 14.5A7.5 7.5 0 1 1 9.5 3.2a6.5 6.5 0 1 0 11.5 11.3Z',
+        d: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z',
         fill: color,
-        stroke: color,
-        strokeWidth: 0.75,
       }),
     );
   }
 
-  return <Text style={{ fontSize: size * 0.85, color, lineHeight: size }}>☾</Text>;
+  return <Text style={{ fontSize: size * 0.9, color, lineHeight: size, fontWeight: fontWeights.medium }}>☾</Text>;
 }
 
 export function SunIcon({ size = 14, color = 'currentColor' }: IconProps) {
