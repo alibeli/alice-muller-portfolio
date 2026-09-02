@@ -1,18 +1,26 @@
 import { Platform, TextStyle } from 'react-native';
 
 export type ColorPalette = {
+  /** Soft white — never pure #FFFFFF in UI surfaces. */
   white: string;
   background: string;
   foreground: string;
+  /** Primary interactive / emphasis color. */
+  primary: string;
+  primaryForeground: string;
   muted: string;
   mutedStrong: string;
   subtle: string;
   border: string;
   surface: string;
+  /** Secondary card / tile fill. */
+  card: string;
   accent: string;
   overlay: {
     light: string;
     dark: string;
+    /** Modal / slide-over scrim. */
+    backdrop: string;
   };
   glass: {
     border: string;
@@ -35,28 +43,32 @@ export type ColorPalette = {
   };
 };
 
-/** Light mode palette. */
+/** Light mode — warm off-white background, soft charcoal text (Cursor-inspired). */
 export const lightPalette: ColorPalette = {
-  white: '#FFFFFF',
-  background: '#FFFFFF',
-  foreground: '#0A0A0A',
-  muted: '#737373',
-  mutedStrong: '#3D3D3D',
-  subtle: '#A3A3A3',
-  border: '#E5E5E5',
-  surface: '#FAFAFA',
-  accent: '#171717',
+  white: '#FEFEFE',
+  background: '#F7F7F5',
+  foreground: '#1F1F1F',
+  primary: '#1F1F1F',
+  primaryForeground: '#F7F7F5',
+  muted: '#6B6B6B',
+  mutedStrong: '#404040',
+  subtle: '#949494',
+  border: '#DDDDD8',
+  surface: '#EFEFED',
+  card: 'rgba(255, 255, 255, 0.62)',
+  accent: '#1F1F1F',
   overlay: {
-    light: 'rgba(0, 0, 0, 0.08)',
-    dark: 'rgba(0, 0, 0, 0.14)',
+    light: 'rgba(0, 0, 0, 0.06)',
+    dark: 'rgba(0, 0, 0, 0.12)',
+    backdrop: 'rgba(247, 247, 245, 0.55)',
   },
   glass: {
-    border: 'rgba(255, 255, 255, 0.4)',
-    light: 'rgba(255, 255, 255, 0.45)',
-    medium: 'rgba(255, 255, 255, 0.62)',
-    clear: 'rgba(255, 255, 255, 0.12)',
-    chip: 'rgba(255, 255, 255, 0.35)',
-    frost: 'rgba(255, 255, 255, 0.62)',
+    border: 'rgba(255, 255, 255, 0.5)',
+    light: 'rgba(255, 255, 255, 0.52)',
+    medium: 'rgba(255, 255, 255, 0.68)',
+    clear: 'rgba(255, 255, 255, 0.14)',
+    chip: 'rgba(255, 255, 255, 0.42)',
+    frost: 'rgba(255, 255, 255, 0.68)',
   },
   shadow: {
     tile: '0 4px 24px rgba(0,0,0,0.06)',
@@ -66,33 +78,37 @@ export const lightPalette: ColorPalette = {
   tileBorder: 'rgba(0, 0, 0, 0.08)',
   tabPill: 'rgba(0, 0, 0, 0.06)',
   selection: {
-    background: '#0A0A0A',
-    foreground: '#FFFFFF',
+    background: '#1F1F1F',
+    foreground: '#F7F7F5',
   },
 };
 
-/** Dark mode palette. */
+/** Dark mode — charcoal background, soft gray text (Cursor-inspired). */
 export const darkPalette: ColorPalette = {
-  white: '#FFFFFF',
-  background: '#0A0A0A',
-  foreground: '#FAFAFA',
-  muted: '#A3A3A3',
-  mutedStrong: '#D4D4D4',
-  subtle: '#737373',
-  border: '#262626',
-  surface: '#171717',
-  accent: '#E5E5E5',
+  white: '#E8E8E8',
+  background: '#1E1E1E',
+  foreground: '#D4D4D4',
+  primary: '#D4D4D4',
+  primaryForeground: '#1E1E1E',
+  muted: '#A0A0A0',
+  mutedStrong: '#C8C8C8',
+  subtle: '#707070',
+  border: '#3C3C3C',
+  surface: '#252526',
+  card: 'rgba(255, 255, 255, 0.06)',
+  accent: '#E8E8E8',
   overlay: {
-    light: 'rgba(255, 255, 255, 0.06)',
-    dark: 'rgba(255, 255, 255, 0.12)',
+    light: 'rgba(255, 255, 255, 0.05)',
+    dark: 'rgba(255, 255, 255, 0.10)',
+    backdrop: 'rgba(30, 30, 30, 0.62)',
   },
   glass: {
-    border: 'rgba(255, 255, 255, 0.12)',
-    light: 'rgba(30, 30, 30, 0.72)',
-    medium: 'rgba(24, 24, 24, 0.82)',
-    clear: 'rgba(255, 255, 255, 0.04)',
+    border: 'rgba(255, 255, 255, 0.10)',
+    light: 'rgba(37, 37, 38, 0.78)',
+    medium: 'rgba(30, 30, 30, 0.86)',
+    clear: 'rgba(255, 255, 255, 0.05)',
     chip: 'rgba(255, 255, 255, 0.08)',
-    frost: 'rgba(24, 24, 24, 0.78)',
+    frost: 'rgba(30, 30, 30, 0.82)',
   },
   shadow: {
     tile: '0 4px 24px rgba(0,0,0,0.32)',
@@ -102,8 +118,8 @@ export const darkPalette: ColorPalette = {
   tileBorder: 'rgba(255, 255, 255, 0.08)',
   tabPill: 'rgba(255, 255, 255, 0.08)',
   selection: {
-    background: '#FAFAFA',
-    foreground: '#0A0A0A',
+    background: '#D4D4D4',
+    foreground: '#1E1E1E',
   },
 };
 
@@ -113,6 +129,22 @@ export const palettes = {
 } as const;
 
 export type ColorScheme = keyof typeof palettes;
+
+/** Inline CSS theme values for `app/+html.tsx` — keep in sync with palettes. */
+export const htmlThemeCss = {
+  light: {
+    background: lightPalette.background,
+    foreground: lightPalette.foreground,
+    selectionBackground: lightPalette.selection.background,
+    selectionForeground: lightPalette.selection.foreground,
+  },
+  dark: {
+    background: darkPalette.background,
+    foreground: darkPalette.foreground,
+    selectionBackground: darkPalette.selection.background,
+    selectionForeground: darkPalette.selection.foreground,
+  },
+} as const;
 
 /** @deprecated Prefer `useTheme().palette` for theme-aware colors. */
 export const palette = lightPalette;
@@ -203,17 +235,43 @@ export function getTileText(p: ColorPalette): Record<
 /** @deprecated Prefer `getTileText(useTheme().palette)` for theme-aware tile text. */
 export const tileText = getTileText(lightPalette);
 
+/** Base grid unit — all spacing and gutters are multiples of 8px. */
+export const GRID_UNIT = 8;
+
+/** Raw 8px-grid steps. Prefer `spacing` / `gutter` semantic aliases in components. */
+export const space = {
+  half: GRID_UNIT / 2,
+  unit: GRID_UNIT,
+  double: GRID_UNIT * 2,
+  triple: GRID_UNIT * 3,
+  quad: GRID_UNIT * 4,
+  sextuple: GRID_UNIT * 6,
+  octuple: GRID_UNIT * 8,
+} as const;
+
+/** Internal padding and vertical rhythm. */
 export const spacing = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
-  xxxl: 64,
+  xs: space.half,
+  sm: space.unit,
+  md: space.double,
+  lg: space.triple,
+  xl: space.quad,
+  xxl: space.sextuple,
+  xxxl: space.octuple,
+} as const;
+
+/** Layout gutters — column gaps and page insets. */
+export const gutter = {
+  columnMobile: space.unit,
+  columnDesktop: space.double,
+  insetMobile: space.unit,
+  insetDesktop: space.triple,
+  content: space.triple,
 } as const;
 
 export const radii = {
+  /** Inline and carousel media in project detail views. */
+  media: 12,
   /** Inner frosted caption band on grid tiles. */
   tile: 22,
   /** Outer grid project card — slightly larger than `tile`. */
@@ -226,7 +284,7 @@ export const radii = {
 
 export const layout = {
   maxWidth: 720,
-  contentPadding: 24,
+  contentPadding: gutter.content,
 } as const;
 
 /** Motion presets for hover / carousel interactions. */

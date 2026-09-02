@@ -27,7 +27,7 @@ function createStyles(p: ColorPalette) {
       justifyContent: 'center',
     },
     chip: {
-      gap: 6,
+      gap: spacing.sm,
       height: 32,
       paddingHorizontal: spacing.sm,
       borderRadius: radii.pill,
@@ -43,7 +43,7 @@ function createStyles(p: ColorPalette) {
       marginRight: -spacing.xs,
     },
     action: {
-      gap: 6,
+      gap: spacing.sm,
       paddingHorizontal: spacing.lg,
       backgroundColor: 'transparent',
     },
@@ -59,6 +59,7 @@ function createStyles(p: ColorPalette) {
     },
     chipLabel: {
       fontSize: typeScale.xs,
+      color: p.foreground,
     },
     actionLabel: {
       fontSize: typeScale.sm,

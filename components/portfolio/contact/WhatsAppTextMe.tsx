@@ -301,7 +301,7 @@ function createStyles(p: ColorPalette) {
     },
     buttonCompact: {
       paddingHorizontal: spacing.md,
-      gap: 4,
+      gap: spacing.sm,
     },
   });
 }

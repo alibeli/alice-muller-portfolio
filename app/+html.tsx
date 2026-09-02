@@ -1,6 +1,7 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
+import { htmlThemeCss } from '@/constants/tokens';
 import { siteMeta } from '@/lib/siteMeta';
 
 export default function Root({ children }: PropsWithChildren) {
@@ -55,8 +56,8 @@ export default function Root({ children }: PropsWithChildren) {
               }
               body {
                 margin: 0;
-                background: #FFFFFF;
-                color: #0A0A0A;
+                background: ${htmlThemeCss.light.background};
+                color: ${htmlThemeCss.light.foreground};
                 overflow: hidden !important;
                 overscroll-behavior: none;
                 -webkit-font-smoothing: antialiased;
@@ -64,8 +65,8 @@ export default function Root({ children }: PropsWithChildren) {
                 font-family: "Google Sans Flex", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
               }
               [data-theme="dark"] body {
-                background: #0A0A0A;
-                color: #FAFAFA;
+                background: ${htmlThemeCss.dark.background};
+                color: ${htmlThemeCss.dark.foreground};
               }
               #root {
                 display: flex;
@@ -79,12 +80,12 @@ export default function Root({ children }: PropsWithChildren) {
                 font-family: "Google Sans Flex", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
               }
               ::selection {
-                background: #0A0A0A;
-                color: #FFFFFF;
+                background: ${htmlThemeCss.light.selectionBackground};
+                color: ${htmlThemeCss.light.selectionForeground};
               }
               [data-theme="dark"] ::selection {
-                background: #FAFAFA;
-                color: #0A0A0A;
+                background: ${htmlThemeCss.dark.selectionBackground};
+                color: ${htmlThemeCss.dark.selectionForeground};
               }
               [data-hide-scrollbar="true"] {
                 scrollbar-width: none;

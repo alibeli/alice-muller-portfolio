@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   Modal,
   Platform,
@@ -17,8 +17,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useTheme } from '@/components/ThemeProvider';
 import { GlassSurface } from '@/components/ui/GlassSurface';
-import { palette, spacing } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/constants/tokens';
 
 type GlassIntensity = 'light' | 'medium' | 'clear' | 'panel' | 'transparent';
 
@@ -37,11 +38,62 @@ type Props = {
 
 const SLIDE_MS = 280;
 
-const frostedBackdropWeb = {
-  backdropFilter: 'blur(12px) saturate(140%)',
-  WebkitBackdropFilter: 'blur(12px) saturate(140%)',
-  backgroundColor: 'rgba(255, 255, 255, 0.25)',
-} as object;
+function createStyles(p: ColorPalette) {
+  const frostedBackdropWeb = {
+    backdropFilter: 'blur(12px) saturate(140%)',
+    WebkitBackdropFilter: 'blur(12px) saturate(140%)',
+    backgroundColor: p.overlay.backdrop,
+  } as object;
+
+  return StyleSheet.create({
+    overlay: {
+      flex: 1,
+      flexDirection: 'row',
+    },
+    overlayRight: {
+      justifyContent: 'flex-end',
+    },
+    frostedBackdrop: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: p.overlay.backdrop,
+      ...(Platform.OS === 'web' ? frostedBackdropWeb : {}),
+    },
+    panelWrap: {
+      height: '100%',
+      zIndex: 1,
+    },
+    panelWrapLeft: {
+      ...(Platform.OS === 'web'
+        ? ({
+            boxShadow: p.shadow.dock,
+          } as object)
+        : {}),
+    },
+    panelWrapRight: {
+      ...(Platform.OS === 'web'
+        ? ({
+            boxShadow: p.shadow.dock,
+          } as object)
+        : {}),
+    },
+    panel: {
+      flex: 1,
+      paddingHorizontal: spacing.lg,
+      position: 'relative',
+    },
+    panelLeft: {
+      borderRightWidth: StyleSheet.hairlineWidth,
+      borderRightColor: p.border,
+    },
+    panelRight: {
+      borderLeftWidth: StyleSheet.hairlineWidth,
+      borderLeftColor: p.border,
+    },
+    content: {
+      flex: 1,
+    },
+  });
+}
 
 export function SlideOverModal({
   visible,
@@ -55,6 +107,8 @@ export function SlideOverModal({
   panelStyle,
   contentStyle,
 }: Props) {
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
   const insets = useSafeAreaInsets();
   const [rendered, setRendered] = useState(false);
   const hiddenOffset = side === 'left' ? -width : width;
@@ -134,52 +188,3 @@ export function SlideOverModal({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  overlayRight: {
-    justifyContent: 'flex-end',
-  },
-  frostedBackdrop: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    ...(Platform.OS === 'web' ? frostedBackdropWeb : {}),
-  },
-  panelWrap: {
-    height: '100%',
-    zIndex: 1,
-  },
-  panelWrapLeft: {
-    ...(Platform.OS === 'web'
-      ? ({
-          boxShadow: '8px 0 40px rgba(0,0,0,0.1)',
-        } as object)
-      : {}),
-  },
-  panelWrapRight: {
-    ...(Platform.OS === 'web'
-      ? ({
-          boxShadow: '-8px 0 40px rgba(0,0,0,0.1)',
-        } as object)
-      : {}),
-  },
-  panel: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-    position: 'relative',
-  },
-  panelLeft: {
-    borderRightWidth: StyleSheet.hairlineWidth,
-    borderRightColor: palette.border,
-  },
-  panelRight: {
-    borderLeftWidth: StyleSheet.hairlineWidth,
-    borderLeftColor: palette.border,
-  },
-  content: {
-    flex: 1,
-  },
-});

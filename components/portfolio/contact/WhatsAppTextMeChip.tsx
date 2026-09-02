@@ -45,7 +45,7 @@ function createStyles(p: ColorPalette) {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 6,
+      gap: spacing.sm,
       height: WHATSAPP_BAR_HEIGHT,
       paddingHorizontal: spacing.lg,
       borderLeftWidth: StyleSheet.hairlineWidth,
