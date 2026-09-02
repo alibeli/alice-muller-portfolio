@@ -16,15 +16,15 @@ import { spacing } from '@/design-system/spacing';
 import { typeScale } from '@/design-system/typography';
 import type { ColorPalette } from '@/design-system/colors';
 
-/** Soft pastel holographic wash — low saturation, gentle transitions. */
+/** Soft pastel holographic wash — stronger saturation so the badge reads on tiles. */
 const HOLO = {
   light: {
-    colors: ['#F4EEFF', '#EEF6FF', '#FFF2F6', '#F0FAF3', '#F4EEFF'] as const,
-    css: 'linear-gradient(120deg, #F4EEFF 0%, #EEF6FF 30%, #FFF2F6 55%, #F0FAF3 80%, #F4EEFF 100%)',
+    colors: ['#E8DAFF', '#D6EBFF', '#FFD6E8', '#D4F5E4', '#E8DAFF'] as const,
+    css: 'linear-gradient(120deg, #E8DAFF 0%, #D6EBFF 30%, #FFD6E8 55%, #D4F5E4 80%, #E8DAFF 100%)',
   },
   dark: {
-    colors: ['#2E2840', '#273038', '#382830', '#283830', '#2E2840'] as const,
-    css: 'linear-gradient(120deg, #2E2840 0%, #273038 30%, #382830 55%, #283830 80%, #2E2840 100%)',
+    colors: ['#4A3D6B', '#355A72', '#6B3D52', '#356B58', '#4A3D6B'] as const,
+    css: 'linear-gradient(120deg, #4A3D6B 0%, #355A72 30%, #6B3D52 55%, #356B58 80%, #4A3D6B 100%)',
   },
 } as const;
 
@@ -72,7 +72,7 @@ function NativeShimmer({ colorScheme }: { colorScheme: 'light' | 'dark' }) {
   const shimmerColors =
     colorScheme === 'light'
       ? (['rgba(255,255,255,0)', 'rgba(255,255,255,0.55)', 'rgba(255,255,255,0)'] as const)
-      : (['rgba(255,255,255,0)', 'rgba(255,255,255,0.18)', 'rgba(255,255,255,0)'] as const);
+      : (['rgba(255,255,255,0)', 'rgba(255,255,255,0.38)', 'rgba(255,255,255,0)'] as const);
 
   useEffect(() => {
     translateX.value = withRepeat(

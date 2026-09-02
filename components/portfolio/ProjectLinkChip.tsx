@@ -1,3 +1,5 @@
+import type { StyleProp, ViewStyle } from 'react-native';
+
 import { Button } from '@/components/ui/Button';
 import { OpenInNewTabIcon } from '@/components/ui/icons/OpenInNewTabIcon';
 import { useTheme } from '@/components/ThemeProvider';
@@ -7,9 +9,10 @@ type Props = {
   label: string;
   url: string;
   projectTitle: string;
+  style?: StyleProp<ViewStyle>;
 };
 
-export function ProjectLinkChip({ label, url, projectTitle }: Props) {
+export function ProjectLinkChip({ label, url, projectTitle, style }: Props) {
   const { palette } = useTheme();
   const isHttpLink = url.startsWith('http');
 
@@ -18,9 +21,13 @@ export function ProjectLinkChip({ label, url, projectTitle }: Props) {
       variant="secondary"
       size="sm"
       label={label}
-      onPress={() => openProjectLink(url, projectTitle).catch(() => {})}
+      onPress={(event) => {
+        event?.stopPropagation?.();
+        openProjectLink(url, projectTitle).catch(() => {});
+      }}
       icon={isHttpLink ? <OpenInNewTabIcon size={12} color={palette.icon.muted} /> : undefined}
       iconPosition="right"
+      style={style}
     />
   );
 }

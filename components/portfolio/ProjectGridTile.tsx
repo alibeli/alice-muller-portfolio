@@ -16,16 +16,15 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { ProjectLinkChip } from '@/components/portfolio/ProjectLinkChip';
 import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
 import { useTheme } from '@/components/ThemeProvider';
 import { GlassSurface } from '@/components/ui/GlassSurface';
-import { Button } from '@/components/ui/Button';
-import { OpenInNewTabIcon } from '@/components/ui/icons/OpenInNewTabIcon';
 import { Text } from '@/components/ui/Text';
 import { getPaperGradient, paperGradientCss, PLACEHOLDER_GRADIENT } from '@/data/paperGradients';
 import type { GridItem } from '@/data/portfolio';
 import { getThumbnailFocalPoint } from '@/data/localImages';
-import { formatProjectPeriod, openProjectLink } from '@/lib/projectLinks';
+import { formatProjectPeriod } from '@/lib/projectLinks';
 import { getTileText, motion, radii, spacing, type ColorPalette } from '@/design-system';
 
 type Props = {
@@ -232,20 +231,10 @@ export function ProjectGridTile({
             </Text>
           ) : null}
           {item.link ? (
-            <Button
-              variant="secondary"
-              size="sm"
+            <ProjectLinkChip
               label={item.link.label}
-              onPress={(event) => {
-                event?.stopPropagation?.();
-                void openProjectLink(item.link!.url, item.title);
-              }}
-              icon={
-                item.link.url.startsWith('http') ? (
-                  <OpenInNewTabIcon size={11} color={palette.icon.muted} />
-                ) : undefined
-              }
-              iconPosition="right"
+              url={item.link.url}
+              projectTitle={item.title}
               style={styles.linkPill}
             />
           ) : null}
@@ -334,7 +323,6 @@ function createTileStyles(p: ColorPalette) {
     linkPill: {
       alignSelf: 'flex-start',
       marginTop: spacing.xxs,
-      backgroundColor: p.white,
     },
   });
 }
