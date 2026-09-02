@@ -15,10 +15,11 @@ export function ProjectLinkChip({ label, url, projectTitle }: Props) {
 
   return (
     <Button
-      variant="chip"
+      variant="secondary"
+      size="sm"
       label={label}
       onPress={() => openProjectLink(url, projectTitle).catch(() => {})}
-      icon={isHttpLink ? <OpenInNewTabIcon size={12} color={palette.muted} /> : undefined}
+      icon={isHttpLink ? <OpenInNewTabIcon size={12} color={palette.icon.muted} /> : undefined}
     />
   );
 }

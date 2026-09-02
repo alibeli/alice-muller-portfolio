@@ -16,7 +16,7 @@ import {
   lightPalette,
   palettes,
   THEME_STORAGE_KEY,
-} from '@/constants/tokens';
+} from '@/design-system';
 
 type ThemeContextValue = {
   colorScheme: ColorScheme;

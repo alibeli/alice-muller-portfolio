@@ -10,7 +10,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/components/ThemeProvider';
-import { spacing, type ColorPalette } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/design-system';
 
 type Props = {
   visible: boolean;
@@ -25,7 +25,7 @@ function createStyles(p: ColorPalette) {
   const frostedBackdropWeb = {
     backdropFilter: 'blur(16px) saturate(140%)',
     WebkitBackdropFilter: 'blur(16px) saturate(140%)',
-    backgroundColor: p.overlay.backdrop,
+    backgroundColor: p.overlay.sheet,
   } as object;
 
   return StyleSheet.create({
@@ -40,13 +40,14 @@ function createStyles(p: ColorPalette) {
     },
     frostedBackdrop: {
       ...StyleSheet.absoluteFill,
-      backgroundColor: p.overlay.backdrop,
+      backgroundColor: p.overlay.sheet,
       ...(Platform.OS === 'web' ? frostedBackdropWeb : {}),
     },
     sheetWrap: {
       width: '100%',
       maxWidth: 520,
       alignSelf: 'center',
+      paddingHorizontal: spacing.sm,
     },
     sheet: {
       width: '100%',

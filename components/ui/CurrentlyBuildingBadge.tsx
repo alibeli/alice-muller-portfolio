@@ -4,7 +4,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { useTheme } from '@/components/ThemeProvider';
 import { Text } from '@/components/ui/Text';
-import { spacing, type ColorPalette } from '@/constants/tokens';
+import { radii } from '@/design-system/radii';
+import { spacing } from '@/design-system/spacing';
+import { typeScale } from '@/design-system/typography';
+import type { ColorPalette } from '@/design-system/colors';
 
 /** Soft pastel holographic wash — low saturation, gentle transitions. */
 const HOLO = {
@@ -30,32 +33,28 @@ function createStyles(p: ColorPalette) {
       flexGrow: 0,
     },
     badge: {
-      paddingHorizontal: 9,
+      paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
-      borderRadius: 999,
+      borderRadius: radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: p.glass.border,
     },
     badgeCompact: {
-      paddingHorizontal: 6,
+      paddingHorizontal: spacing.xs,
       paddingVertical: spacing.xs,
-      borderRadius: 999,
+      borderRadius: radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: p.glass.border,
     },
     label: {
-      fontSize: 10,
-      fontWeight: '600',
+      fontSize: typeScale.labelSmall,
       color: p.foreground,
       letterSpacing: 0.15,
-      textTransform: 'none',
     },
     labelCompact: {
-      fontSize: 9,
-      fontWeight: '600',
+      fontSize: typeScale.labelSmall,
       color: p.foreground,
       letterSpacing: 0.1,
-      textTransform: 'none',
     },
   });
 }
@@ -70,7 +69,7 @@ export function CurrentlyBuildingBadge({ compact = false }: Props) {
   if (Platform.OS === 'web') {
     return (
       <View style={[styles.wrap, badgeStyle, { backgroundImage: holo.css } as object]}>
-        <Text variant="caption" style={labelStyle}>
+        <Text variant="label" style={labelStyle}>
           Currently building
         </Text>
       </View>
@@ -85,7 +84,7 @@ export function CurrentlyBuildingBadge({ compact = false }: Props) {
         end={{ x: 1, y: 0.5 }}
         style={badgeStyle}
       >
-        <Text variant="caption" style={labelStyle}>
+        <Text variant="label" style={labelStyle}>
           Currently building
         </Text>
       </LinearGradient>

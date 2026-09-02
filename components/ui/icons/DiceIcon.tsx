@@ -9,6 +9,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { useTheme } from '@/components/ThemeProvider';
+
 const diceImage = require('@/assets/images/dice-skeuomorphic.png');
 
 type Props = {
@@ -39,7 +41,9 @@ function DiceFallback({ size, color }: { size: number; color: string }) {
   return <Text style={{ fontSize: size * 0.9, color, lineHeight: size }}>🎲</Text>;
 }
 
-export function DiceIcon({ size = 18, color = '#737373', disabled = false, spinToken = 0 }: Props) {
+export function DiceIcon({ size = 18, color, disabled = false, spinToken = 0 }: Props) {
+  const { palette } = useTheme();
+  const resolved = disabled ? palette.icon.disabled : (color ?? palette.icon.muted);
   const rotation = useSharedValue(0);
 
   useEffect(() => {
@@ -74,7 +78,7 @@ export function DiceIcon({ size = 18, color = '#737373', disabled = false, spinT
     Platform.OS === 'web' || Platform.OS === 'ios' || Platform.OS === 'android' ? (
       <DiceGlyph size={size} />
     ) : (
-      <DiceFallback size={size} color={disabled ? '#A3A3A3' : color} />
+      <DiceFallback size={size} color={resolved} />
     );
 
   return (

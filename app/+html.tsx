@@ -1,7 +1,7 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
-import { htmlThemeCss } from '@/constants/tokens';
+import { htmlThemeCss } from '@/design-system';
 import { siteMeta } from '@/lib/siteMeta';
 
 export default function Root({ children }: PropsWithChildren) {

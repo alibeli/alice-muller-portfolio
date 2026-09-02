@@ -2,7 +2,11 @@ import { useMemo } from 'react';
 import { Platform, StyleSheet, TextInput, TextInputProps, View } from 'react-native';
 
 import { useTheme } from '@/components/ThemeProvider';
-import { spacing, typography, type ColorPalette } from '@/constants/theme';
+import { buttonSizes } from '@/design-system/buttons';
+import { radii } from '@/design-system/radii';
+import { spacing } from '@/design-system/spacing';
+import { fontSans, typeScale } from '@/design-system/typography';
+import type { ColorPalette } from '@/design-system/colors';
 
 type Props = TextInputProps & {
   containerStyle?: object;
@@ -15,14 +19,14 @@ function createStyles(p: ColorPalette) {
       minWidth: 0,
     },
     input: {
-      height: 40,
+      height: buttonSizes.md.height,
       paddingHorizontal: spacing.md,
-      borderRadius: 999,
+      borderRadius: radii.pill,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: p.border,
       backgroundColor: p.glass.chip,
-      fontFamily: typography.sans,
-      fontSize: typography.sizes.sm,
+      fontFamily: fontSans,
+      fontSize: typeScale.bodyMedium,
       color: p.foreground,
     },
     inputWeb: {

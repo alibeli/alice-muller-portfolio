@@ -13,7 +13,7 @@ import { ProjectSummaryCard } from '@/components/portfolio/ProjectSummaryCard';
 import { Link } from '@/components/ui/Link';
 import { Text } from '@/components/ui/Text';
 import { isWhatsAppPitchLink } from '@/lib/projectLinks';
-import { spacing, type ColorPalette, typeScale } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/design-system';
 import type { Project } from '@/data/portfolio';
 
 const MODAL_IMAGE_MAX_WIDTH = 700;
@@ -103,7 +103,7 @@ export function ProjectDetailContent({
 
       {project.outcome && !inModal ? (
         <View style={styles.outcomeWrap}>
-          <Text variant="body" style={styles.outcome}>
+          <Text variant="titleSmall" style={styles.outcome}>
             {project.outcome}
           </Text>
         </View>
@@ -172,9 +172,6 @@ const createStyles = (p: ColorPalette) =>
       marginBottom: spacing.md,
     },
     outcome: {
-      fontSize: typeScale.base,
-      lineHeight: 22,
-      fontWeight: '500',
       color: p.foreground,
     },
     coverWrap: {

@@ -1,7 +1,10 @@
+import { useMemo } from 'react';
 import { ScrollView, StyleSheet, View, ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, layout, spacing } from '@/constants/theme';
+import { useTheme } from '@/components/ThemeProvider';
+import { layout, spacing } from '@/design-system/spacing';
+import type { ColorPalette } from '@/design-system/colors';
 
 type Props = ViewProps & {
   scroll?: boolean;
@@ -9,16 +12,35 @@ type Props = ViewProps & {
   noPadding?: boolean;
 };
 
+function createStyles(p: ColorPalette) {
+  return StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: p.background,
+      alignItems: 'center',
+    },
+    scroll: {
+      flex: 1,
+      backgroundColor: p.background,
+    },
+    scrollContent: {
+      alignItems: 'center',
+    },
+    inner: {
+      width: '100%',
+      maxWidth: layout.maxWidth,
+    },
+  });
+}
+
 export function Container({ scroll, children, noPadding, style, ...props }: Props) {
   const insets = useSafeAreaInsets();
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
 
   const content = (
     <View
-      style={[
-        styles.inner,
-        !noPadding && { paddingHorizontal: layout.contentPadding },
-        style,
-      ]}
+      style={[styles.inner, !noPadding && { paddingHorizontal: layout.contentPadding }, style]}
       {...props}
     >
       {children}
@@ -40,28 +62,5 @@ export function Container({ scroll, children, noPadding, style, ...props }: Prop
     );
   }
 
-  return (
-    <View style={[styles.root, { paddingTop: insets.top }]}>
-      {content}
-    </View>
-  );
+  return <View style={[styles.root, { paddingTop: insets.top }]}>{content}</View>;
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-  },
-  scroll: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    alignItems: 'center',
-  },
-  inner: {
-    width: '100%',
-    maxWidth: layout.maxWidth,
-  },
-});

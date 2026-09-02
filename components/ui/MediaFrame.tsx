@@ -14,7 +14,7 @@ import {
 
 import { ImageLightbox } from '@/components/ui/ImageLightbox';
 import { getMediaAspectRatio } from '@/lib/mediaAsset';
-import { radii, spacing } from '@/constants/tokens';
+import { radii, spacing } from '@/design-system';
 
 const DEFAULT_MAX_WIDTH = 700;
 const FALLBACK_ASPECT_RATIO = 4 / 5;

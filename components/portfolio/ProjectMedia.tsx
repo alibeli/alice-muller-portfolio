@@ -5,7 +5,7 @@ import { useTheme } from '@/components/ThemeProvider';
 import { MediaFrame } from '@/components/ui/MediaFrame';
 import { SnapCarousel } from '@/components/ui/SnapCarousel';
 import { Text } from '@/components/ui/Text';
-import { spacing, type ColorPalette } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/design-system';
 import type { ProjectBlock } from '@/data/portfolio';
 
 const MODAL_IMAGE_MAX_WIDTH = 700;

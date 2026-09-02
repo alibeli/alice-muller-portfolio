@@ -20,7 +20,7 @@ import { ProjectDetailContent } from '@/components/portfolio/ProjectDetailConten
 import { ProjectModalStickyHeader } from '@/components/portfolio/ProjectModalHeader';
 import { SlideOverModal } from '@/components/ui/SlideOverModal';
 import { Text } from '@/components/ui/Text';
-import { spacing } from '@/constants/tokens';
+import { spacing } from '@/design-system';
 import { getProject, profile } from '@/data/portfolio';
 import { getRightPanelWidth } from '@/lib/modalLayout';
 

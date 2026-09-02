@@ -5,7 +5,7 @@ import { useTheme } from '@/components/ThemeProvider';
 import { WhatsAppIcon } from '@/components/ui/icons/WhatsAppIcon';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
-import { spacing, type ColorPalette, typeScale } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/design-system';
 import { openWhatsAppChat } from '@/lib/whatsapp';
 
 import { WHATSAPP_BAR_HEIGHT } from '@/components/portfolio/contact/whatsappBar';
@@ -36,7 +36,6 @@ function createStyles(p: ColorPalette) {
     prompt: {
       flex: 1,
       minWidth: 0,
-      fontSize: typeScale.lg,
       color: p.foreground,
     },
     promptDisabled: {
@@ -56,8 +55,6 @@ function createStyles(p: ColorPalette) {
       backgroundColor: p.glass.clear,
     },
     buttonLabel: {
-      fontSize: typeScale.sm,
-      fontWeight: '500',
       color: p.foreground,
     },
     buttonLabelDisabled: {
@@ -113,7 +110,7 @@ export function WhatsAppTextMeChip({ phoneDigits, projectTitle }: Props) {
               hovered={buttonHovered}
             />
             <Text
-              variant="mono"
+              variant="label"
               style={[styles.buttonLabel, !configured && styles.buttonLabelDisabled]}
             >
               Text me

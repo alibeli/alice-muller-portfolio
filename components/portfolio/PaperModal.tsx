@@ -4,7 +4,7 @@ import { PaperDetailContent } from '@/components/portfolio/PaperDetailContent';
 import { ModalPanelHeader } from '@/components/portfolio/ModalPanelHeader';
 import { SlideOverModal } from '@/components/ui/SlideOverModal';
 import { Text } from '@/components/ui/Text';
-import { spacing } from '@/constants/tokens';
+import { spacing } from '@/design-system';
 import { getPaper } from '@/data/portfolio';
 import { getLeftPanelWidth } from '@/lib/modalLayout';
 

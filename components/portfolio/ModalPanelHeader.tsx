@@ -6,7 +6,7 @@ import { useTheme } from '@/components/ThemeProvider';
 import { CountChip } from '@/components/ui/CountChip';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
-import { spacing, type ColorPalette, typeScale } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/design-system';
 
 type Props = {
   title: ReactNode;
@@ -38,8 +38,7 @@ function createStyles(p: ColorPalette) {
       flexShrink: 1,
     },
     closeIcon: {
-      fontSize: typeScale.lg,
-      color: p.muted,
+      color: p.icon.muted,
     },
     heading: {
       marginBottom: 0,
@@ -47,7 +46,6 @@ function createStyles(p: ColorPalette) {
     },
     intro: {
       marginBottom: spacing.md,
-      lineHeight: 20,
     },
   });
 }
@@ -77,7 +75,7 @@ export function ModalPanelHeader({ title, count, onClose, icon, intro }: Props) 
           onPress={onClose}
           accessibilityLabel="Close"
           icon={
-            <Text variant="body" style={styles.closeIcon}>
+            <Text variant="titleMedium" style={styles.closeIcon}>
               ✕
             </Text>
           }

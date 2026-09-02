@@ -5,7 +5,7 @@ import { PaperDetailContent } from '@/components/portfolio/PaperDetailContent';
 import { Container } from '@/components/ui/Container';
 import { Link } from '@/components/ui/Link';
 import { Text } from '@/components/ui/Text';
-import { spacing } from '@/constants/tokens';
+import { spacing } from '@/design-system';
 import { getAllPaperSlugs, getPaper } from '@/data/portfolio';
 
 export function generateStaticParams() {

@@ -1,13 +1,18 @@
 import { createElement } from 'react';
 import { Platform, Text } from 'react-native';
 
+import { useTheme } from '@/components/ThemeProvider';
+
 type IconProps = {
   size?: number;
   color?: string;
 };
 
 /** Open in new tab / external link glyph. */
-export function OpenInNewTabIcon({ size = 14, color = '#737373' }: IconProps) {
+export function OpenInNewTabIcon({ size = 14, color }: IconProps) {
+  const { palette } = useTheme();
+  const resolved = color ?? palette.icon.muted;
+
   if (Platform.OS === 'web') {
     return createElement(
       'svg',
@@ -16,7 +21,7 @@ export function OpenInNewTabIcon({ size = 14, color = '#737373' }: IconProps) {
         height: size,
         viewBox: '0 0 24 24',
         fill: 'none',
-        stroke: color,
+        stroke: resolved,
         strokeWidth: 1.75,
         strokeLinecap: 'round',
         strokeLinejoin: 'round',
@@ -28,5 +33,5 @@ export function OpenInNewTabIcon({ size = 14, color = '#737373' }: IconProps) {
     );
   }
 
-  return <Text style={{ fontSize: size * 0.95, color, lineHeight: size }}>↗</Text>;
+  return <Text style={{ fontSize: size * 0.95, color: resolved, lineHeight: size }}>↗</Text>;
 }

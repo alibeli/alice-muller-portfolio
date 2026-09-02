@@ -10,11 +10,11 @@ import { Button } from '@/components/ui/Button';
 import { ShareIcon } from '@/components/ui/icons/ShareIcon';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
-import { spacing, type ColorPalette, typeScale } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/design-system';
 import { shareProject } from '@/lib/shareProject';
 import type { Project } from '@/data/portfolio';
 
-const HEADER_ROW_GAP = 10;
+const HEADER_ROW_GAP = spacing.sm;
 const awardIcon = require('@/assets/icons/icon-awards.png');
 
 type Props = {
@@ -43,7 +43,7 @@ function createStyles(p: ColorPalette) {
       flexDirection: 'row',
       alignItems: 'center',
       flexWrap: 'wrap',
-      gap: 6,
+      gap: spacing.sm,
       minWidth: 0,
     },
     titleRow: {
@@ -65,14 +65,10 @@ function createStyles(p: ColorPalette) {
     },
     roleLine: {
       marginTop: HEADER_ROW_GAP,
-      fontSize: typeScale.xs,
       color: p.mutedStrong,
-      letterSpacing: 0.3,
-      textTransform: 'uppercase',
     },
     closeIcon: {
-      fontSize: typeScale.lg,
-      color: p.muted,
+      color: p.icon.muted,
     },
     linksRow: {
       flexDirection: 'row',
@@ -80,22 +76,16 @@ function createStyles(p: ColorPalette) {
       gap: spacing.sm,
       marginTop: spacing.xs,
     },
-    meta: {
-      fontSize: typeScale.xs,
-    },
+    meta: {},
     metaDot: {
       color: p.subtle,
-      fontSize: typeScale.xs,
     },
     tagline: {
-      lineHeight: 22,
       marginTop: spacing.sm,
     },
     traction: {
       flex: 1,
       color: p.muted,
-      lineHeight: 18,
-      fontWeight: '500',
     },
     tractionRow: {
       flexDirection: 'row',
@@ -150,7 +140,7 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
           onPress={onClose}
           accessibilityLabel="Close"
           icon={
-            <Text variant="body" style={styles.closeIcon}>
+            <Text variant="titleMedium" style={styles.closeIcon}>
               ✕
             </Text>
           }
@@ -158,7 +148,7 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
       </View>
 
       {roleLine ? (
-        <Text variant="mono" style={styles.roleLine}>
+        <Text variant="overline" style={styles.roleLine}>
           {roleLine}
         </Text>
       ) : null}
@@ -169,10 +159,11 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
             {project.title}
           </Text>
           <Button
-            variant="chip"
+            variant="secondary"
+            size="sm"
             label="Share"
             onPress={handleShare}
-            icon={<ShareIcon size={14} color={palette.muted} />}
+            icon={<ShareIcon size={14} color={palette.icon.muted} />}
           />
         </View>
       </View>

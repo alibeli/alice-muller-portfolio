@@ -3,7 +3,8 @@ import { StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/components/ThemeProvider';
 import { Text } from '@/components/ui/Text';
-import { type ColorPalette, typeScale } from '@/constants/tokens';
+import { radii } from '@/design-system/radii';
+import type { ColorPalette } from '@/design-system/colors';
 
 type Props = {
   count: number;
@@ -15,15 +16,13 @@ function createStyles(p: ColorPalette) {
       minWidth: 20,
       height: 20,
       paddingHorizontal: 6,
-      borderRadius: 999,
+      borderRadius: radii.pill,
       backgroundColor: p.tabPill,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    text: {
-      fontSize: typeScale.micro,
-      fontWeight: '600',
-      color: p.foreground,
+    chipText: {
+      fontSize: 10,
       lineHeight: 12,
     },
   });
@@ -35,7 +34,7 @@ export function CountChip({ count }: Props) {
 
   return (
     <View style={styles.chip}>
-      <Text variant="mono" style={styles.text}>
+      <Text variant="label" style={styles.chipText}>
         {count}
       </Text>
     </View>

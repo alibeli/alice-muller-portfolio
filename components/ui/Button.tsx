@@ -1,20 +1,37 @@
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
-import { Platform, Pressable, StyleSheet, View, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  View,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 
 import { useTheme } from '@/components/ThemeProvider';
 import { Text } from '@/components/ui/Text';
-import { radii, spacing, type ColorPalette, typeScale } from '@/constants/tokens';
+import {
+  getButtonStyles,
+  resolveButtonVariant,
+  type ButtonSize,
+  type ButtonVariant,
+  type LegacyButtonVariant,
+} from '@/design-system/buttons';
+import type { ColorPalette } from '@/design-system/colors';
 
-export type ButtonVariant = 'chip' | 'ghost' | 'icon' | 'action';
+export type { ButtonSize, ButtonVariant, LegacyButtonVariant };
 
 type Props = Omit<PressableProps, 'children'> & {
-  variant?: ButtonVariant;
+  /** Primary (filled), secondary (outlined), tertiary (text), or icon-only. */
+  variant?: ButtonVariant | LegacyButtonVariant;
+  size?: ButtonSize;
   label?: string;
   icon?: ReactNode;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
+  /** Tertiary/action split-bar: hairline divider on the left edge. */
   dividerLeft?: boolean;
   hovered?: boolean;
 };
@@ -25,46 +42,13 @@ function createStyles(p: ColorPalette) {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: spacing.sm,
     },
-    chip: {
-      gap: spacing.sm,
-      height: 32,
-      paddingHorizontal: spacing.sm,
-      borderRadius: radii.pill,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: p.border,
-      backgroundColor: p.glass.chip,
-    },
-    ghost: {
-      paddingHorizontal: spacing.xs,
-    },
-    icon: {
-      padding: spacing.xs,
-    },
-    action: {
-      gap: spacing.md,
-      paddingHorizontal: spacing.lg,
-      backgroundColor: 'transparent',
-    },
-    actionDivider: {
+    dividerLeft: {
       borderLeftWidth: StyleSheet.hairlineWidth,
       borderLeftColor: p.border,
     },
-    actionHovered: {
-      backgroundColor: p.glass.clear,
-    },
     pressed: {
-      opacity: 0.65,
-    },
-    chipLabel: {
-      fontSize: typeScale.xs,
-      color: p.foreground,
-    },
-    actionLabel: {
-      fontSize: typeScale.sm,
-      fontWeight: '500',
-      color: p.foreground,
+      opacity: 0.72,
     },
     disabled: {
       opacity: 0.55,
@@ -73,7 +57,8 @@ function createStyles(p: ColorPalette) {
 }
 
 export function Button({
-  variant = 'chip',
+  variant = 'secondary',
+  size = 'md',
   label,
   icon,
   children,
@@ -85,37 +70,32 @@ export function Button({
   ...props
 }: Props) {
   const { palette } = useTheme();
-  const styles = useMemo(() => createStyles(palette), [palette]);
-
-  const variantStyle =
-    variant === 'chip'
-      ? styles.chip
-      : variant === 'ghost'
-        ? styles.ghost
-        : variant === 'icon'
-          ? styles.icon
-          : styles.action;
+  const shared = useMemo(() => createStyles(palette), [palette]);
+  const resolved = resolveButtonVariant(variant);
+  const variantStyles = useMemo(
+    () => getButtonStyles(palette, resolved, size, hovered),
+    [palette, resolved, size, hovered],
+  );
 
   return (
     <Pressable
       disabled={disabled}
       style={({ pressed }) => [
-        styles.base,
-        variantStyle,
-        dividerLeft && styles.actionDivider,
-        variant === 'action' && hovered && styles.actionHovered,
-        disabled && styles.disabled,
-        pressed && !disabled && styles.pressed,
+        shared.base,
+        variantStyles.container,
+        dividerLeft && shared.dividerLeft,
+        disabled && shared.disabled,
+        pressed && !disabled && shared.pressed,
         style,
       ]}
       accessibilityRole="button"
       {...props}
     >
       {children ?? (
-        <View style={[styles.base, contentStyle]}>
+        <View style={[shared.base, contentStyle]}>
           {icon}
           {label ? (
-            <Text variant="mono" style={variant === 'action' ? styles.actionLabel : styles.chipLabel}>
+            <Text variant="label" style={[variantStyles.label, { color: variantStyles.labelColor }]}>
               {label}
             </Text>
           ) : null}

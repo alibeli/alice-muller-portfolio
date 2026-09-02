@@ -4,7 +4,7 @@ import { Container } from '@/components/ui/Container';
 import { Divider } from '@/components/ui/Divider';
 import { Link } from '@/components/ui/Link';
 import { Text } from '@/components/ui/Text';
-import { spacing } from '@/constants/theme';
+import { spacing } from '@/design-system';
 import { papers } from '@/data/portfolio';
 
 export default function PapersScreen() {

@@ -18,7 +18,7 @@ import Animated, {
 import { useTheme } from '@/components/ThemeProvider';
 import { Text } from '@/components/ui/Text';
 import { getMediaAspectRatio, slideHeightForWidth } from '@/lib/mediaAsset';
-import { spacing, type ColorPalette } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/design-system';
 
 export type CarouselSlideLayout = {
   width: number;

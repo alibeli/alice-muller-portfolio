@@ -21,7 +21,7 @@ import { GlassSurface } from '@/components/ui/GlassSurface';
 import { GithubIcon, LinkedInIcon } from '@/components/ui/icons/SocialIcons';
 import { ThemeToggleChip } from '@/components/ui/ThemeToggleChip';
 import { Text } from '@/components/ui/Text';
-import { radii, spacing, type ColorPalette, typeScale } from '@/constants/tokens';
+import { fontWeights, lineHeights, radii, spacing, type ColorPalette, typeScale } from '@/design-system';
 import { profile, profileDetails } from '@/data/portfolio';
 
 type Props = {
@@ -66,7 +66,7 @@ function createStyles(p: ColorPalette) {
     },
     identityText: {
       flex: 1,
-      gap: 2,
+      gap: spacing.xxs,
       minWidth: 0,
     },
     nameRow: {
@@ -76,21 +76,16 @@ function createStyles(p: ColorPalette) {
       flexWrap: 'wrap',
     },
     name: {
-      fontSize: typeScale.lg,
-      lineHeight: 22,
+      fontSize: typeScale.titleMedium,
+      lineHeight: lineHeights.titleMedium,
     },
     credentials: {
-      lineHeight: 16,
-      fontSize: typeScale.xs,
-      marginTop: 2,
+      marginTop: spacing.xxs,
     },
     tagline: {
-      lineHeight: 18,
-      marginTop: 1,
+      marginTop: spacing.xxs,
     },
-    taglineAreas: {
-      lineHeight: 18,
-    },
+    taglineAreas: {},
     actionsRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -113,8 +108,7 @@ function createStyles(p: ColorPalette) {
     },
     expandLabel: {
       color: p.foreground,
-      fontWeight: '500',
-      fontSize: typeScale.compact,
+      fontWeight: fontWeights.medium,
     },
     details: {
       marginTop: spacing.sm,
@@ -122,7 +116,7 @@ function createStyles(p: ColorPalette) {
       paddingBottom: spacing.sm,
     },
     detailBlock: {
-      gap: 2,
+      gap: spacing.xxs,
     },
     detailBlockLast: {
       paddingBottom: spacing.sm,
@@ -132,27 +126,22 @@ function createStyles(p: ColorPalette) {
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: spacing.sm,
-      paddingVertical: 2,
+      paddingVertical: spacing.xxs,
     },
     detailTitle: {
-      fontWeight: '600',
+      fontWeight: fontWeights.semibold,
       color: p.foreground,
-      lineHeight: 18,
       flex: 1,
     },
     chevron: {
       color: p.muted,
-      fontSize: typeScale.compact,
     },
     sectionBody: {
-      gap: 2,
-      paddingTop: 2,
+      gap: spacing.xxs,
+      paddingTop: spacing.xxs,
       paddingBottom: spacing.xs,
     },
-    detailLine: {
-      lineHeight: 18,
-      fontSize: typeScale.compact,
-    },
+    detailLine: {},
     socialRow: {
       flexDirection: 'row',
       gap: spacing.xs,
@@ -161,9 +150,6 @@ function createStyles(p: ColorPalette) {
     },
     textMeRow: {
       marginTop: spacing.md,
-    },
-    socialLabel: {
-      fontSize: typeScale.micro,
     },
   });
 }
@@ -200,7 +186,7 @@ function CollapsibleSection({
   return (
     <View style={[styles.detailBlock, isLast && styles.detailBlockLast]}>
       <Button
-        variant="ghost"
+        variant="tertiary"
         onPress={() => setOpen((v) => !v)}
         style={{ width: '100%' }}
         contentStyle={styles.sectionHeader}
@@ -300,11 +286,11 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
               <SocialChip label="Github" url={profile.github} icon="github" />
             </View>
             <Button
-              variant="ghost"
+              variant="tertiary"
               onPress={() => setExpanded((v) => !v)}
               style={styles.expandBtn}
             >
-              <Text variant="caption" style={styles.expandLabel}>
+              <Text variant="label" style={styles.expandLabel}>
                 {expanded ? 'Show less ↑' : 'About Alice ↓'}
               </Text>
             </Button>
@@ -344,7 +330,8 @@ function SocialChip({
 }) {
   return (
     <Button
-      variant="chip"
+      variant="secondary"
+      size="sm"
       label={label}
       onPress={() => Linking.openURL(url)}
       icon={icon === 'linkedin' ? <LinkedInIcon size={13} /> : <GithubIcon size={13} />}

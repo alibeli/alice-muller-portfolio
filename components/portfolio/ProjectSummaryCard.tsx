@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { useTheme } from '@/components/ThemeProvider';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
-import { radii, spacing, type ColorPalette, typeScale } from '@/constants/tokens';
+import { radii, spacing, type ColorPalette } from '@/design-system';
 import type { Project, ProjectSummary } from '@/data/portfolio';
 
 type Props = {
@@ -28,26 +28,19 @@ function createStyles(p: ColorPalette) {
       borderColor: p.tileBorder,
     },
     roleTitleLine: {
-      fontSize: typeScale.micro,
       color: p.foreground,
       letterSpacing: 0.3,
-      lineHeight: 18,
     },
     bicm: {
       gap: spacing.sm,
     },
     row: {
-      gap: 2,
+      gap: spacing.xxs,
     },
     rowLabel: {
-      fontSize: typeScale.micro,
       color: p.subtle,
-      letterSpacing: 0.4,
-      textTransform: 'uppercase',
     },
     rowValue: {
-      lineHeight: 20,
-      fontSize: typeScale.md,
       color: p.mutedStrong,
     },
   });
@@ -64,10 +57,10 @@ function SummaryRow({
 }) {
   return (
     <View style={styles.row}>
-      <Text variant="mono" style={styles.rowLabel}>
+      <Text variant="overline" style={styles.rowLabel}>
         {label}
       </Text>
-      <Text variant="body" style={styles.rowValue}>
+      <Text variant="bodyMedium" style={styles.rowValue}>
         {value}
       </Text>
     </View>
@@ -82,7 +75,7 @@ export function ProjectSummaryCard({ project }: Props) {
 
   return (
     <GlassSurface intensity="light" rounded={radii.tile} style={styles.card}>
-      <Text variant="mono" style={styles.roleTitleLine}>
+      <Text variant="overline" style={styles.roleTitleLine}>
         {roleTitleLine}
       </Text>
       <View style={styles.bicm}>

@@ -4,7 +4,7 @@ import { Image, StyleSheet, View } from 'react-native';
 import { useTheme } from '@/components/ThemeProvider';
 import { Link } from '@/components/ui/Link';
 import { Text } from '@/components/ui/Text';
-import { spacing, type ColorPalette } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/design-system';
 import type { Paper } from '@/data/portfolio';
 
 type Props = {

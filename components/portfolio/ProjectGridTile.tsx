@@ -19,13 +19,14 @@ import Animated, {
 import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
 import { useTheme } from '@/components/ThemeProvider';
 import { GlassSurface } from '@/components/ui/GlassSurface';
+import { Button } from '@/components/ui/Button';
 import { OpenInNewTabIcon } from '@/components/ui/icons/OpenInNewTabIcon';
 import { Text } from '@/components/ui/Text';
 import { getPaperGradient, paperGradientCss, PLACEHOLDER_GRADIENT } from '@/data/paperGradients';
 import type { GridItem } from '@/data/portfolio';
 import { getThumbnailFocalPoint } from '@/data/localImages';
 import { formatProjectPeriod, openProjectLink } from '@/lib/projectLinks';
-import { getTileText, motion, radii, spacing, type ColorPalette } from '@/constants/tokens';
+import { getTileText, motion, radii, spacing, type ColorPalette } from '@/design-system';
 
 type Props = {
   item: GridItem;
@@ -231,20 +232,21 @@ export function ProjectGridTile({
             </Text>
           ) : null}
           {item.link ? (
-            <Pressable
-              style={({ pressed }) => [styles.linkPill, pressed && { opacity: 0.86 }]}
+            <Button
+              variant="secondary"
+              size="sm"
+              label={item.link.label}
               onPress={(event) => {
-                event.stopPropagation();
+                event?.stopPropagation?.();
                 void openProjectLink(item.link!.url, item.title);
               }}
-            >
-              <Text variant="mono" style={tileText.link} numberOfLines={1}>
-                {item.link.label}
-              </Text>
-              {item.link.url.startsWith('http') ? (
-                <OpenInNewTabIcon size={11} color={palette.muted} />
-              ) : null}
-            </Pressable>
+              icon={
+                item.link.url.startsWith('http') ? (
+                  <OpenInNewTabIcon size={11} color={palette.icon.muted} />
+                ) : undefined
+              }
+              style={styles.linkPill}
+            />
           ) : null}
         </View>
       </GlassSurface>
@@ -325,21 +327,12 @@ function createTileStyles(p: ColorPalette) {
     },
     textInner: {
       padding: spacing.md,
-      gap: 3,
+      gap: spacing.xxs,
       pointerEvents: 'box-none',
     },
     linkPill: {
       alignSelf: 'flex-start',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 5,
-      height: 32,
-      marginTop: 4,
-      paddingHorizontal: 12,
-      borderRadius: radii.pill,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: p.tileBorder,
+      marginTop: spacing.xxs,
       backgroundColor: p.white,
     },
   });

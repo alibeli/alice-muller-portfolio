@@ -16,7 +16,7 @@ import { FilterHeader } from '@/components/portfolio/FilterHeader';
 import { ProfileDock } from '@/components/portfolio/ProfileDock';
 import { ProjectGridTile } from '@/components/portfolio/ProjectGridTile';
 import { Text } from '@/components/ui/Text';
-import { gutter, spacing, typeScale } from '@/constants/theme';
+import { gutter, spacing } from '@/design-system';
 import { getGridItems, getPaper, getProject, otherProjects, paperCount, awardCount, selectedProjectCount } from '@/data/portfolio';
 import { readPaperSlugFromPathname, readProjectSlugFromPathname } from '@/lib/modalRoutes';
 import { getPaperPath, getProjectPath } from '@/lib/shareProject';
@@ -357,7 +357,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
                 : null),
           ]}
         >
-          <Text variant="mono" style={[styles.moreHeading, { color: palette.subtle }]}>
+          <Text variant="overline" style={{ color: palette.subtle, textAlign: 'center', alignSelf: 'center', width: '100%' }}>
             More projects
           </Text>
           <View style={[styles.grid, styles.constrainedGrid, { gap: gridGap }]}>
@@ -476,12 +476,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     width: '100%',
     alignSelf: 'center',
-  },
-  moreHeading: {
-    fontSize: typeScale.xs,
-    textAlign: 'center',
-    alignSelf: 'center',
-    width: '100%',
   },
   dockHost: {
     position: 'absolute',

@@ -19,7 +19,7 @@ import { CountChip } from '@/components/ui/CountChip';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { TabIcon, type TabKey } from '@/components/ui/icons/TabIcons';
 import { Text } from '@/components/ui/Text';
-import { spacing, type ColorPalette, typeScale } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/design-system';
 
 const HEADER_TABS: { key: TabKey; label: string; countKey?: 'projects' | 'papers' | 'awards' }[] = [
   { key: 'projects', label: 'Projects', countKey: 'projects' },
@@ -211,7 +211,7 @@ export function FilterHeader({
               />
               {selected && !compact ? (
                 <>
-                  <Text variant="body" style={styles.optionLabelActive}>
+                  <Text variant="label" style={styles.optionLabelActive}>
                     {option.label}
                   </Text>
                   {count != null ? <CountChip count={count} /> : null}
@@ -252,16 +252,13 @@ function createStyles(p: ColorPalette) {
       zIndex: 1,
     },
     optionIdle: {
-      paddingHorizontal: 4,
+      paddingHorizontal: spacing.xs,
     },
     optionActive: {
-      gap: 6,
-      paddingHorizontal: 10,
+      gap: spacing.sm,
+      paddingHorizontal: spacing.sm,
     },
     optionLabelActive: {
-      fontSize: typeScale.compact,
-      fontWeight: '600',
-      color: p.foreground,
       flexShrink: 0,
     },
   });

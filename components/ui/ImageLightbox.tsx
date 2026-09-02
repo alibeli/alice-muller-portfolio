@@ -13,8 +13,9 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useTheme } from '@/components/ThemeProvider';
 import { Text } from '@/components/ui/Text';
-import { palette, spacing } from '@/constants/tokens';
+import { glassEffect, radii, spacing, TOUCH_TARGET_MIN, type ColorPalette } from '@/design-system';
 
 type Props = {
   visible: boolean;
@@ -169,8 +170,6 @@ export function ImageLightbox({
     };
   }, [imageSize, viewportHeight, viewportWidth]);
 
-  const base = fitSize();
-
   const handleImageLoad = (
     event: NativeSyntheticEvent<{ source?: { width?: number; height?: number } }>,
   ) => {
@@ -267,6 +266,10 @@ export function ImageLightbox({
     [activeIndex, hasGallery, sources.length],
   );
 
+  const { palette } = useTheme();
+  const styles = useMemo(() => createLightboxStyles(palette), [palette]);
+  const base = fitSize();
+
   if (!visible) return null;
 
   return (
@@ -282,19 +285,19 @@ export function ImageLightbox({
               </Text>
             ) : null}
             {counterLabel ? (
-              <Text variant="mono" style={styles.counter}>
+              <Text variant="overline" style={styles.counter}>
                 {counterLabel}
               </Text>
             ) : null}
           </View>
           <View style={styles.controls} pointerEvents="auto">
             <Pressable onPress={resetTransform} style={styles.controlBtn} accessibilityLabel="Reset zoom">
-              <Text variant="mono" style={styles.resetLabel}>
+              <Text variant="label" style={styles.resetLabel}>
                 {Math.round(transform.scale * 100)}%
               </Text>
             </Pressable>
             <Pressable onPress={onClose} style={styles.controlBtn} accessibilityLabel="Close">
-              <Text variant="body" style={styles.controlLabel}>
+              <Text variant="titleMedium" style={styles.controlLabel}>
                 ✕
               </Text>
             </Pressable>
@@ -308,7 +311,7 @@ export function ImageLightbox({
               onPress={() => goTo(activeIndex - 1)}
               accessibilityLabel="Previous image"
             >
-              <Text variant="body" style={styles.galleryNavLabel}>
+              <Text variant="headline" style={styles.galleryNavLabel}>
                 ‹
               </Text>
             </Pressable>
@@ -361,7 +364,7 @@ export function ImageLightbox({
               onPress={() => goTo(activeIndex + 1)}
               accessibilityLabel="Next image"
             >
-              <Text variant="body" style={styles.galleryNavLabel}>
+              <Text variant="headline" style={styles.galleryNavLabel}>
                 ›
               </Text>
             </Pressable>
@@ -373,98 +376,93 @@ export function ImageLightbox({
 }
 
 const frostedToolbarWeb = {
-  backdropFilter: 'blur(16px) saturate(160%)',
-  WebkitBackdropFilter: 'blur(16px) saturate(160%)',
+  backdropFilter: `blur(${glassEffect.blurPx}px) saturate(${glassEffect.saturate}%)`,
+  WebkitBackdropFilter: `blur(${glassEffect.blurPx}px) saturate(${glassEffect.saturate}%)`,
 } as object;
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.88)',
-  },
-  toolbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    zIndex: 2,
-    backgroundColor: 'rgba(20, 20, 20, 0.55)',
-    ...(Platform.OS === 'web' ? frostedToolbarWeb : {}),
-  },
-  toolbarLeft: {
-    flex: 1,
-    gap: 2,
-  },
-  caption: {
-    color: palette.white,
-  },
-  counter: {
-    color: palette.white,
-    opacity: 0.7,
-    fontSize: 11,
-  },
-  controls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  controlBtn: {
-    minWidth: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    paddingHorizontal: spacing.sm,
-  },
-  controlLabel: {
-    color: palette.white,
-    fontSize: 18,
-    lineHeight: 20,
-  },
-  resetLabel: {
-    color: palette.white,
-    fontSize: 11,
-  },
-  stage: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  viewport: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    ...(Platform.OS === 'web'
-      ? ({
-          cursor: 'grab',
-          touchAction: 'none',
-        } as object)
-      : {}),
-  },
-  imageStage: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  galleryNav: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    marginHorizontal: spacing.sm,
-    zIndex: 2,
-  },
-  galleryPrev: {},
-  galleryNext: {},
-  galleryNavLabel: {
-    color: palette.white,
-    fontSize: 28,
-    lineHeight: 30,
-    marginTop: -2,
-  },
-});
+function createLightboxStyles(p: ColorPalette) {
+  return StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.88)',
+    },
+    toolbar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.md,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      zIndex: 2,
+      backgroundColor: 'rgba(20, 20, 20, 0.55)',
+      ...(Platform.OS === 'web' ? frostedToolbarWeb : {}),
+    },
+    toolbarLeft: {
+      flex: 1,
+      gap: spacing.xxs,
+    },
+    caption: {
+      color: p.onOverlay,
+    },
+    counter: {
+      color: p.onOverlayMuted,
+    },
+    controls: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    controlBtn: {
+      minWidth: TOUCH_TARGET_MIN - 12,
+      height: TOUCH_TARGET_MIN - 12,
+      borderRadius: radii.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.12)',
+      paddingHorizontal: spacing.sm,
+    },
+    controlLabel: {
+      color: p.onOverlay,
+    },
+    resetLabel: {
+      color: p.onOverlay,
+    },
+    stage: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    viewport: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+      ...(Platform.OS === 'web'
+        ? ({
+            cursor: 'grab',
+            touchAction: 'none',
+          } as object)
+        : {}),
+    },
+    imageStage: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    galleryNav: {
+      width: TOUCH_TARGET_MIN,
+      height: TOUCH_TARGET_MIN,
+      borderRadius: radii.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.12)',
+      marginHorizontal: spacing.sm,
+      zIndex: 2,
+    },
+    galleryPrev: {},
+    galleryNext: {},
+    galleryNavLabel: {
+      color: p.onOverlay,
+      marginTop: -2,
+    },
+  });
+}

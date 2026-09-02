@@ -4,7 +4,7 @@ import { ModalPanelHeader } from '@/components/portfolio/ModalPanelHeader';
 import { SlideOverModal } from '@/components/ui/SlideOverModal';
 import { ModalTabIcon } from '@/components/ui/icons/TabIcons';
 import { Text } from '@/components/ui/Text';
-import { spacing } from '@/constants/theme';
+import { spacing } from '@/design-system';
 import { awards, awardCount } from '@/data/portfolio';
 import { getLeftPanelWidth } from '@/lib/modalLayout';
 
@@ -39,13 +39,9 @@ export function AwardsModal({ visible, onClose }: Props) {
       >
         {awards.map((award) => (
           <View key={`${award.year}-${award.title}`} style={styles.item}>
-            <Text variant="mono" style={styles.year}>
-              {award.year}
-            </Text>
-            <Text variant="subtitle" style={styles.awardTitle}>
-              {award.title}
-            </Text>
-            <Text variant="body" muted style={styles.detail}>
+            <Text variant="overline">{award.year}</Text>
+            <Text variant="titleMedium">{award.title}</Text>
+            <Text variant="body" muted>
               {award.detail}
             </Text>
           </View>
@@ -64,16 +60,6 @@ const styles = StyleSheet.create({
   },
   item: {
     marginBottom: spacing.lg,
-    gap: 4,
-  },
-  year: {
-    fontSize: 11,
-  },
-  awardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  detail: {
-    lineHeight: 20,
+    gap: spacing.xs,
   },
 });

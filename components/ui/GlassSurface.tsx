@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { Platform, StyleSheet, View, ViewProps } from 'react-native';
 
 import { useTheme } from '@/components/ThemeProvider';
-import type { ColorPalette } from '@/constants/tokens';
-import { glassEffect } from '@/constants/tokens';
+import type { ColorPalette } from '@/design-system';
+import { glassEffect } from '@/design-system';
 
 type Props = ViewProps & {
   rounded?: number;

@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { Container } from '@/components/ui/Container';
 import { Link } from '@/components/ui/Link';
 import { Text } from '@/components/ui/Text';
-import { spacing } from '@/constants/theme';
+import { spacing } from '@/design-system';
 
 export default function NotFoundScreen() {
   return (

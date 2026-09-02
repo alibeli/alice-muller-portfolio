@@ -19,7 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/components/ThemeProvider';
 import { GlassSurface } from '@/components/ui/GlassSurface';
-import { spacing, type ColorPalette } from '@/constants/tokens';
+import { spacing, type ColorPalette } from '@/design-system';
 
 type GlassIntensity = 'light' | 'medium' | 'clear' | 'panel' | 'transparent';
 

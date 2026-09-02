@@ -10,6 +10,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { useTheme } from '@/components/ThemeProvider';
+
 const FLOAT_INTERVAL_MS = 4500;
 const FLOAT_UP_PX = -3;
 const FLOAT_DURATION_MS = 450;
@@ -49,14 +51,10 @@ function WhatsAppGlyph({ size, color }: { size: number; color: string }) {
   return <Text style={{ fontSize: size * 0.85, color, lineHeight: size }}>WA</Text>;
 }
 
-export function WhatsAppIcon({
-  size = 18,
-  color = '#737373',
-  disabled = false,
-  hovered = false,
-}: IconProps) {
+export function WhatsAppIcon({ size = 18, color, disabled = false, hovered = false }: IconProps) {
+  const { palette } = useTheme();
   const floatY = useSharedValue(0);
-  const iconColor = disabled ? '#A3A3A3' : color;
+  const iconColor = disabled ? palette.icon.disabled : (color ?? palette.icon.muted);
 
   const triggerFloat = useCallback(() => {
     playFloatBurst(floatY);
