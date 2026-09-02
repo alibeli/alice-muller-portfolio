@@ -29,7 +29,6 @@ type Props = {
   bottomInset?: number;
 };
 
-const MOBILE_RADIUS = 24;
 const ANIM_MS = 240;
 const HEADSHOT_SIZE_DESKTOP = 80;
 const HEADSHOT_SIZE_MOBILE = 68;
@@ -55,10 +54,6 @@ function createStyles(p: ColorPalette) {
     },
     cardMobile: {
       width: '100%',
-      borderTopLeftRadius: MOBILE_RADIUS,
-      borderTopRightRadius: MOBILE_RADIUS,
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
     },
     cardNarrow: {
       paddingTop: spacing.md,
@@ -260,7 +255,8 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
 
   return (
     <GlassSurface
-      rounded={compact ? 0 : 28}
+      rounded={compact ? radii.dockMobile : radii.dock}
+      roundedCorners={compact ? 'top' : 'all'}
       intensity="medium"
       style={[
         styles.card,

@@ -79,9 +79,10 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
   const insets = useSafeAreaInsets();
   const { width, height: windowHeight } = useWindowDimensions();
   const isMobile = width < MOBILE_BREAKPOINT;
+  const columns = getColumns(width);
+  const isSingleColumn = columns === 1;
   const horizontalPadding = isMobile ? MOBILE_GRID_INSET : DESKTOP_GRID_INSET;
   const gridGap = isMobile ? MOBILE_GRID_GAP : DESKTOP_GRID_GAP;
-  const columns = getColumns(width);
   const moreColumns = getMoreColumns(width);
   const tileSize = getTileSize(width, columns, horizontalPadding, gridGap);
 
@@ -267,18 +268,22 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
 
   const { palette } = useTheme();
 
+  const mobileSnapScroll = isMobile && isSingleColumn;
+  const scrollBottomPad =
+    mobileSnapScroll ? MOBILE_DOCK_RESERVE + insets.bottom + spacing.xxxl : 220 + insets.bottom;
+
   return (
     <View style={[styles.page, { backgroundColor: palette.background }]}>
       <ScrollView
         style={[
           styles.scroll,
-          isMobile &&
-            columns === 1 &&
+          mobileSnapScroll &&
             (Platform.OS === 'web'
               ? ({
                   scrollSnapType: 'y mandatory',
                   WebkitScrollSnapType: 'y mandatory',
                   scrollPaddingTop: scrollTopPad,
+                  scrollPaddingBottom: MOBILE_DOCK_RESERVE + insets.bottom,
                 } as object)
               : null),
         ]}
@@ -286,7 +291,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
           styles.scrollContent,
           {
             paddingTop: scrollTopPad,
-            paddingBottom: isMobile ? 320 + insets.bottom : 220 + insets.bottom,
+            paddingBottom: scrollBottomPad,
             paddingHorizontal: horizontalPadding,
           },
         ]}
@@ -294,14 +299,17 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
         decelerationRate="normal"
       >
         <View style={[styles.grid, styles.constrainedGrid, { gap: gridGap }]}>
-          {rows.map((row, rowIndex) => (
+          {rows.map((row, rowIndex) => {
+            const isLastRow = rowIndex === rows.length - 1;
+            const snapThisRow = mobileSnapScroll && !isLastRow;
+
+            return (
             <View
               key={rowIndex}
               style={[
                 styles.row,
                 { gap: gridGap },
-                isMobile &&
-                  columns === 1 &&
+                snapThisRow &&
                   (Platform.OS === 'web'
                     ? ({
                         scrollSnapAlign: 'start',
@@ -311,6 +319,15 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
                         width: '100%',
                       } as object)
                     : styles.snapRow),
+                mobileSnapScroll &&
+                  isLastRow &&
+                  (Platform.OS === 'web'
+                    ? ({
+                        scrollSnapAlign: 'none',
+                        WebkitScrollSnapAlign: 'none',
+                        width: '100%',
+                      } as object)
+                    : styles.snapRowFree),
               ]}
             >
               {row.map((item) => (
@@ -324,14 +341,15 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
                 />
               ))}
             </View>
-          ))}
+            );
+          })}
         </View>
 
         <View
           style={[
             styles.moreSection,
             styles.constrainedGrid,
-            isMobile &&
+            mobileSnapScroll &&
               (Platform.OS === 'web'
                 ? ({
                     scrollSnapAlign: 'none',
@@ -352,6 +370,8 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
             ))}
           </View>
         </View>
+
+        {mobileSnapScroll ? <View style={{ height: spacing.xxl }} /> : null}
       </ScrollView>
 
       <View style={[styles.tabOverlay, { top: headerTop, pointerEvents: 'box-none' }]}>
@@ -445,6 +465,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   snapRow: {
+    width: '100%',
+  },
+  snapRowFree: {
     width: '100%',
   },
   moreSection: {
