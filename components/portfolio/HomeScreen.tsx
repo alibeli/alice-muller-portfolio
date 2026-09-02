@@ -8,9 +8,9 @@ import { AwardsModal } from '@/components/portfolio/AwardsModal';
 import { MoreProjectTile } from '@/components/portfolio/MoreProjectTile';
 import { PaperModal } from '@/components/portfolio/PaperModal';
 import { PapersModal } from '@/components/portfolio/PapersModal';
-import { ProjectEmailGateModal } from '@/components/portfolio/ProjectEmailGateModal';
+import { ProjectEmailGate } from '@/components/portfolio/ProjectEmailGate';
 import { ProjectModal } from '@/components/portfolio/ProjectModal';
-import { useProjectAccess } from '@/components/providers/ProjectAccessProvider';
+import { readVisitorEmail, useProjectAccess } from '@/components/providers/ProjectAccessProvider';
 import { StackModal } from '@/components/portfolio/StackModal';
 import { FilterHeader } from '@/components/portfolio/FilterHeader';
 import { ProfileDock } from '@/components/portfolio/ProfileDock';
@@ -18,7 +18,6 @@ import { ProjectGridTile } from '@/components/portfolio/ProjectGridTile';
 import { Text } from '@/components/ui/Text';
 import { gutter, spacing, typeScale } from '@/constants/theme';
 import { getGridItems, getPaper, getProject, otherProjects, paperCount, awardCount, selectedProjectCount } from '@/data/portfolio';
-import { getStoredVisitorEmail } from '@/lib/projectAccessStorage';
 import { readPaperSlugFromPathname, readProjectSlugFromPathname } from '@/lib/modalRoutes';
 import { getPaperPath, getProjectPath } from '@/lib/shareProject';
 import { useModalDeepLink } from '@/lib/useModalDeepLink';
@@ -73,10 +72,10 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
   const [stackOpen, setStackOpen] = useState(false);
   const [projectSlug, setProjectSlug] = useState<string | null>(null);
   const [paperSlug, setPaperSlug] = useState<string | null>(() => readPaperSlugFromPathname());
-  const [gateVisible, setGateVisible] = useState(false);
-  const [pendingProjectSlug, setPendingProjectSlug] = useState<string | null>(null);
-  const initialGateHandled = useRef(false);
-  const projectAccess = useProjectAccess();
+  /** When set, email gate overlay is open for this project slug. */
+  const [emailGateSlug, setEmailGateSlug] = useState<string | null>(null);
+  const initialRouteHandled = useRef(false);
+  const { saveEmail, trackView, isSubmitting, error, clearError } = useProjectAccess();
   const insets = useSafeAreaInsets();
   const { width, height: windowHeight } = useWindowDimensions();
   const isMobile = width < MOBILE_BREAKPOINT;
@@ -134,99 +133,97 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
     return result;
   }, [moreColumns]);
 
-  const openProjectDirect = useCallback(
+  const openProject = useCallback(
     (slug: string) => {
       setPaperSlug(null);
+      setEmailGateSlug(null);
       projectDeepLink.open(slug);
     },
     [projectDeepLink],
   );
 
-  const attemptOpenProject = useCallback(
+  const requestProject = useCallback(
     (slug: string) => {
       const project = getProject(slug);
       if (!project) return;
 
-      const email = getStoredVisitorEmail()?.trim();
+      const email = readVisitorEmail();
       if (!email) {
-        setPendingProjectSlug(slug);
-        setGateVisible(true);
+        clearError();
+        setEmailGateSlug(slug);
         return;
       }
 
-      openProjectDirect(slug);
-      void projectAccess.recordView({
-        email,
-        projectSlug: slug,
-        projectTitle: project.title,
-      });
+      openProject(slug);
+      trackView({ email, projectSlug: slug, projectTitle: project.title });
     },
-    [openProjectDirect, projectAccess],
+    [clearError, openProject, trackView],
   );
 
-  useEffect(() => {
-    const slug = resolveInitialProjectSlug(initialProjectSlug);
-    if (slug && !initialGateHandled.current) {
-      initialGateHandled.current = true;
-      attemptOpenProject(slug);
-    }
-  }, [attemptOpenProject, initialProjectSlug]);
+  const requestProjectRef = useRef(requestProject);
+  requestProjectRef.current = requestProject;
 
+  /** Deep-link / back-button sync — listener only, never reset gate on re-render. */
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') return;
 
     const onPopState = () => {
-      const fromProject = projectDeepLink.readFromPathname();
-      const fromPaper = paperDeepLink.readFromPathname();
+      const fromProject = readProjectSlugFromPathname();
+      const fromPaper = readPaperSlugFromPathname();
 
       if (fromProject) {
-        setGateVisible(false);
-        setPendingProjectSlug(null);
-        attemptOpenProject(fromProject);
+        requestProjectRef.current(fromProject);
         return;
       }
 
       if (fromPaper) {
         setPaperSlug(fromPaper);
         setProjectSlug(null);
-        setGateVisible(false);
-        setPendingProjectSlug(null);
+        setEmailGateSlug(null);
         return;
       }
 
       setProjectSlug(null);
       setPaperSlug(null);
-      setGateVisible(false);
-      setPendingProjectSlug(null);
+      setEmailGateSlug(null);
     };
 
-    onPopState();
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
-  }, [attemptOpenProject, paperDeepLink, projectDeepLink]);
+  }, []);
+
+  /** Initial /project/[slug] route — run once. */
+  useEffect(() => {
+    if (initialRouteHandled.current) return;
+    const slug = resolveInitialProjectSlug(initialProjectSlug);
+    if (!slug) return;
+    initialRouteHandled.current = true;
+    requestProject(slug);
+  }, [initialProjectSlug, requestProject]);
 
   const handleProjectPress = useCallback(
     (slug: string) => {
-      attemptOpenProject(slug);
+      requestProject(slug);
     },
-    [attemptOpenProject],
+    [requestProject],
   );
 
-  const handleGateClose = useCallback(() => {
-    setGateVisible(false);
-    setPendingProjectSlug(null);
-    if (projectSlug) {
-      projectDeepLink.close();
-    }
-  }, [projectDeepLink, projectSlug]);
+  const handleEmailGateClose = useCallback(() => {
+    setEmailGateSlug(null);
+    clearError();
+  }, [clearError]);
 
-  const handleGateGranted = useCallback(
-    (slug: string) => {
-      setGateVisible(false);
-      setPendingProjectSlug(null);
-      openProjectDirect(slug);
+  const handleEmailGateContinue = useCallback(
+    (email: string, slug: string) => {
+      const project = getProject(slug);
+      if (!project) return;
+
+      saveEmail(email);
+      setEmailGateSlug(null);
+      openProject(slug);
+      trackView({ email, projectSlug: slug, projectTitle: project.title });
     },
-    [openProjectDirect],
+    [openProject, saveEmail, trackView],
   );
 
   const handleProjectClose = useCallback(() => {
@@ -260,6 +257,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
   const handlePaperSelect = (slug: string) => {
     setPapersOpen(false);
     setProjectSlug(null);
+    setEmailGateSlug(null);
     paperDeepLink.open(slug);
   };
 
@@ -391,13 +389,15 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
         onPaperPress={handlePaperSelect}
       />
       <PaperModal slug={paperSlug} onClose={handlePaperClose} />
-      <ProjectEmailGateModal
-        visible={gateVisible}
-        projectSlug={pendingProjectSlug}
-        onClose={handleGateClose}
-        onGranted={handleGateGranted}
-      />
       <ProjectModal slug={projectSlug} onClose={handleProjectClose} />
+
+      <ProjectEmailGate
+        projectSlug={emailGateSlug}
+        onClose={handleEmailGateClose}
+        onContinue={handleEmailGateContinue}
+        isSubmitting={isSubmitting}
+        error={error}
+      />
     </View>
   );
 }

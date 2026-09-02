@@ -4,18 +4,18 @@ import { useAction } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { getStoredVisitorEmail, setStoredVisitorEmail } from '@/lib/projectAccessStorage';
 
-type RecordViewArgs = {
+type TrackViewArgs = {
   email: string;
   projectSlug: string;
   projectTitle: string;
 };
 
 type ProjectAccessContextValue = {
-  storedEmail: string | null;
   isSubmitting: boolean;
   error: string | null;
-  /** Save email locally and record the project view in Convex (fire-and-forget safe). */
-  recordView: (args: RecordViewArgs) => Promise<void>;
+  saveEmail: (email: string) => void;
+  /** Record view on server — non-blocking, safe to fire-and-forget. */
+  trackView: (args: TrackViewArgs) => void;
   clearError: () => void;
 };
 
@@ -23,45 +23,45 @@ const ProjectAccessContext = createContext<ProjectAccessContextValue | null>(nul
 
 export function ProjectAccessProvider({ children }: { children: ReactNode }) {
   const recordAccess = useAction(api.portfolioAccess.requestProjectAccess);
-  const [storedEmail, setStoredEmailState] = useState<string | null>(() => getStoredVisitorEmail());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const recordView = useCallback(
-    async ({ email, projectSlug, projectTitle }: RecordViewArgs) => {
+  const saveEmail = useCallback((email: string) => {
+    const trimmed = email.trim();
+    if (!trimmed) return;
+    setStoredVisitorEmail(trimmed);
+  }, []);
+
+  const trackView = useCallback(
+    ({ email, projectSlug, projectTitle }: TrackViewArgs) => {
       const trimmed = email.trim();
-      if (!trimmed) {
-        throw new Error('Enter a valid email address');
-      }
+      if (!trimmed) return;
 
       setIsSubmitting(true);
       setError(null);
-      setStoredVisitorEmail(trimmed);
-      setStoredEmailState(trimmed);
 
-      try {
-        await recordAccess({ email: trimmed, projectSlug, projectTitle });
-      } catch (caught) {
-        const message =
-          caught instanceof Error ? caught.message : 'Something went wrong. Please try again.';
-        setError(message);
-        throw caught;
-      } finally {
-        setIsSubmitting(false);
-      }
+      void recordAccess({ email: trimmed, projectSlug, projectTitle })
+        .catch((caught) => {
+          const message =
+            caught instanceof Error ? caught.message : 'Could not save your visit. Please try again.';
+          setError(message);
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+        });
     },
     [recordAccess],
   );
 
   const value = useMemo(
     () => ({
-      storedEmail,
       isSubmitting,
       error,
-      recordView,
+      saveEmail,
+      trackView,
       clearError: () => setError(null),
     }),
-    [error, isSubmitting, recordView, storedEmail],
+    [error, isSubmitting, saveEmail, trackView],
   );
 
   return <ProjectAccessContext.Provider value={value}>{children}</ProjectAccessContext.Provider>;
@@ -73,4 +73,9 @@ export function useProjectAccess() {
     throw new Error('useProjectAccess must be used within ProjectAccessProvider');
   }
   return context;
+}
+
+/** Read stored email directly — single source of truth for gate checks. */
+export function readVisitorEmail(): string | null {
+  return getStoredVisitorEmail()?.trim() || null;
 }
