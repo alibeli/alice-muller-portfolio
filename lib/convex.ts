@@ -1,16 +1,12 @@
 import { ConvexReactClient } from 'convex/react';
 
-const rawConvexUrl = process.env.EXPO_PUBLIC_CONVEX_URL?.trim();
-const convexUrl = rawConvexUrl || 'https://placeholder.convex.cloud';
+/** Production Convex deployment — used when EXPO_PUBLIC_CONVEX_URL is unset at build time. */
+export const CONVEX_PROD_URL = 'https://vibrant-grasshopper-113.convex.cloud';
 
-if (!rawConvexUrl) {
-  console.warn(
-    'EXPO_PUBLIC_CONVEX_URL is not set. Run `npx convex dev` and add the URL to .env.local',
-  );
-}
+const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL?.trim() || CONVEX_PROD_URL;
 
 export const convex = new ConvexReactClient(convexUrl, {
   unsavedChangesWarning: false,
 });
 
-export const isConvexConfigured = Boolean(rawConvexUrl);
+export const isConvexConfigured = true;

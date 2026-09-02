@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   Pressable,
   StyleSheet,
@@ -17,6 +16,7 @@ import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Input } from '@/components/ui/Input';
 import { Text } from '@/components/ui/Text';
 import { getProject } from '@/data/portfolio';
+import { getStoredVisitorEmail } from '@/lib/projectAccessStorage';
 import { radii, spacing, type ColorPalette } from '@/constants/tokens';
 
 type Props = {
@@ -28,6 +28,11 @@ type Props = {
 
 function createStyles(p: ColorPalette) {
   return StyleSheet.create({
+    root: {
+      ...StyleSheet.absoluteFill,
+      zIndex: 100,
+      elevation: 100,
+    },
     overlay: {
       flex: 1,
       justifyContent: 'center',
@@ -76,14 +81,14 @@ export function ProjectEmailGateModal({ visible, projectSlug, onClose, onGranted
   const insets = useSafeAreaInsets();
   const { palette } = useTheme();
   const styles = useMemo(() => createStyles(palette), [palette]);
-  const { storedEmail, requestAccess, isSubmitting, error, clearError } = useProjectAccess();
+  const { storedEmail, recordView, isSubmitting, error, clearError } = useProjectAccess();
   const [email, setEmail] = useState(storedEmail ?? '');
 
   const project = projectSlug ? getProject(projectSlug) : undefined;
 
   useEffect(() => {
     if (visible) {
-      setEmail(storedEmail ?? '');
+      setEmail(storedEmail ?? getStoredVisitorEmail() ?? '');
       clearError();
     }
   }, [clearError, storedEmail, visible]);
@@ -92,7 +97,7 @@ export function ProjectEmailGateModal({ visible, projectSlug, onClose, onGranted
     if (!projectSlug || !project) return;
     clearError();
     try {
-      await requestAccess({
+      await recordView({
         email,
         projectSlug,
         projectTitle: project.title,
@@ -106,7 +111,7 @@ export function ProjectEmailGateModal({ visible, projectSlug, onClose, onGranted
   if (!visible || !project) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <View style={styles.root} pointerEvents="box-none">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={[styles.overlay, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
@@ -162,6 +167,6 @@ export function ProjectEmailGateModal({ visible, projectSlug, onClose, onGranted
           </View>
         </GlassSurface>
       </KeyboardAvoidingView>
-    </Modal>
+    </View>
   );
 }

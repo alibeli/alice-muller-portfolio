@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/components/ThemeProvider';
@@ -75,7 +75,6 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
   const [paperSlug, setPaperSlug] = useState<string | null>(() => readPaperSlugFromPathname());
   const [gateVisible, setGateVisible] = useState(false);
   const [pendingProjectSlug, setPendingProjectSlug] = useState<string | null>(null);
-  const [accessChecking, setAccessChecking] = useState(false);
   const initialGateHandled = useRef(false);
   const projectAccess = useProjectAccess();
   const insets = useSafeAreaInsets();
@@ -144,36 +143,23 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
   );
 
   const attemptOpenProject = useCallback(
-    async (slug: string) => {
+    (slug: string) => {
       const project = getProject(slug);
       if (!project) return;
 
-      if (!projectAccess.enabled) {
-        openProjectDirect(slug);
+      const email = getStoredVisitorEmail()?.trim();
+      if (!email) {
+        setPendingProjectSlug(slug);
+        setGateVisible(true);
         return;
       }
 
-      const email = projectAccess.storedEmail ?? getStoredVisitorEmail();
-      if (email) {
-        setAccessChecking(true);
-        try {
-          await projectAccess.requestAccess({
-            email,
-            projectSlug: slug,
-            projectTitle: project.title,
-          });
-          openProjectDirect(slug);
-        } catch {
-          setPendingProjectSlug(slug);
-          setGateVisible(true);
-        } finally {
-          setAccessChecking(false);
-        }
-        return;
-      }
-
-      setPendingProjectSlug(slug);
-      setGateVisible(true);
+      openProjectDirect(slug);
+      void projectAccess.recordView({
+        email,
+        projectSlug: slug,
+        projectTitle: project.title,
+      });
     },
     [openProjectDirect, projectAccess],
   );
@@ -182,7 +168,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
     const slug = resolveInitialProjectSlug(initialProjectSlug);
     if (slug && !initialGateHandled.current) {
       initialGateHandled.current = true;
-      void attemptOpenProject(slug);
+      attemptOpenProject(slug);
     }
   }, [attemptOpenProject, initialProjectSlug]);
 
@@ -196,7 +182,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
       if (fromProject) {
         setGateVisible(false);
         setPendingProjectSlug(null);
-        void attemptOpenProject(fromProject);
+        attemptOpenProject(fromProject);
         return;
       }
 
@@ -221,7 +207,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
 
   const handleProjectPress = useCallback(
     (slug: string) => {
-      void attemptOpenProject(slug);
+      attemptOpenProject(slug);
     },
     [attemptOpenProject],
   );
@@ -412,11 +398,6 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
         onGranted={handleGateGranted}
       />
       <ProjectModal slug={projectSlug} onClose={handleProjectClose} />
-      {accessChecking ? (
-        <View style={styles.accessOverlay} pointerEvents="none">
-          <ActivityIndicator size="small" />
-        </View>
-      ) : null}
     </View>
   );
 }
@@ -444,12 +425,6 @@ const styles = StyleSheet.create({
       : {}),
   },
   scrollContent: {},
-  accessOverlay: {
-    ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 40,
-  },
   tabOverlay: {
     position: 'absolute',
     left: 0,
