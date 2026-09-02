@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Platform,
-  Pressable,
   StyleSheet,
   TextInput,
   useWindowDimensions,
@@ -9,10 +8,11 @@ import {
   type TextInput as TextInputType,
 } from 'react-native';
 
+import { useTheme } from '@/components/ThemeProvider';
+import { Button } from '@/components/ui/Button';
 import { DiceIcon } from '@/components/ui/icons/DiceIcon';
 import { WhatsAppIcon } from '@/components/ui/icons/WhatsAppIcon';
-import { Text } from '@/components/ui/Text';
-import { colors, spacing, typography } from '@/constants/theme';
+import { spacing, typography, type ColorPalette, typeScale } from '@/constants/theme';
 import { pickRandomIcebreaker } from '@/data/icebreakerPrompts';
 import { openWhatsAppChat } from '@/lib/whatsapp';
 
@@ -27,8 +27,8 @@ type Props = {
 };
 
 const INPUT_LINE_HEIGHT = 22;
-const INPUT_FONT_SIZE = 18;
-const INPUT_FONT_SIZE_COMPACT = 15;
+const INPUT_FONT_SIZE = typeScale.lg;
+const INPUT_FONT_SIZE_COMPACT = typeScale.base;
 const INPUT_VERTICAL_INSET = 10;
 const INPUT_MIN_HEIGHT = INPUT_LINE_HEIGHT;
 const SINGLE_LINE_BAR_HEIGHT = WHATSAPP_BAR_MIN_HEIGHT;
@@ -50,6 +50,8 @@ function barHeightForInput(inputHeight: number): number {
 
 export function WhatsAppTextMe({ phoneDigits }: Props) {
   const inputRef = useRef<TextInputType>(null);
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
   const [message, setMessage] = useState('');
   const [inputHeight, setInputHeight] = useState(INPUT_MIN_HEIGHT);
   const [buttonHovered, setButtonHovered] = useState(false);
@@ -164,7 +166,7 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
           value={message}
           onChangeText={handleChangeText}
           placeholder={compact ? 'Message Alice' : 'Write a message to Alice'}
-          placeholderTextColor={colors.foreground}
+          placeholderTextColor={palette.foreground}
           multiline
           blurOnSubmit={false}
           returnKeyType="default"
@@ -185,151 +187,121 @@ export function WhatsAppTextMe({ phoneDigits }: Props) {
           ]}
           accessibilityLabel="Message to send on WhatsApp"
         />
-        <Pressable
+        <Button
+          variant="icon"
           onPress={handleDicePress}
           disabled={!configured}
-          hitSlop={8}
-          style={({ pressed }) => [
+          hovered={diceHovered}
+          style={[
             styles.diceButton,
             isMultiline ? styles.diceButtonMultiline : styles.diceButtonSingle,
             configured && diceHovered && styles.diceButtonHovered,
-            pressed && configured && styles.pressed,
           ]}
-          accessibilityRole="button"
           accessibilityLabel="Shuffle an icebreaker question"
           {...webDiceHoverProps}
-        >
-          <DiceIcon
-            size={compact ? 20 : 24}
-            color={configured ? colors.muted : colors.subtle}
-            disabled={!configured}
-            spinToken={diceSpinToken}
-          />
-        </Pressable>
+          icon={
+            <DiceIcon
+              size={compact ? 20 : 24}
+              color={configured ? palette.muted : palette.subtle}
+              disabled={!configured}
+              spinToken={diceSpinToken}
+            />
+          }
+        />
       </View>
-      <Pressable
+      <Button
+        variant="action"
+        dividerLeft
         onPress={handlePress}
         disabled={!configured}
-        style={({ pressed }) => [
-          styles.button,
-          { height: barHeight },
-          compact && styles.buttonCompact,
-          configured && buttonHovered && styles.buttonHovered,
-          pressed && configured && styles.pressed,
-        ]}
-        accessibilityRole="button"
+        hovered={buttonHovered}
+        style={[{ height: barHeight }, compact && styles.buttonCompact]}
         accessibilityLabel="Open WhatsApp conversation"
         {...webButtonHoverProps}
-      >
-        <WhatsAppIcon
-          size={18}
-          color={configured ? colors.muted : colors.subtle}
-          disabled={!configured}
-          hovered={buttonHovered}
-        />
-        <Text variant="mono" style={[styles.buttonLabel, !configured && styles.buttonLabelDisabled]}>
-          Text me
-        </Text>
-      </Pressable>
+        icon={
+          <WhatsAppIcon
+            size={18}
+            color={configured ? palette.muted : palette.subtle}
+            disabled={!configured}
+            hovered={buttonHovered}
+          />
+        }
+        label="Text me"
+      />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  bar: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
-    overflow: 'hidden',
-    paddingLeft: spacing.md,
-  },
-  barDisabled: {
-    opacity: 0.55,
-  },
-  inputWrap: {
-    flex: 1,
-    minWidth: 0,
-    flexDirection: 'row',
-    paddingRight: spacing.xs,
-    paddingVertical: INPUT_VERTICAL_INSET,
-  },
-  inputWrapSingle: {
-    alignItems: 'center',
-  },
-  inputWrapMultiline: {
-    alignItems: 'flex-end',
-  },
-  input: {
-    flex: 1,
-    minWidth: 0,
-    fontFamily: typography.sans,
-    color: colors.foreground,
-    backgroundColor: 'transparent',
-    borderWidth: 0,
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingVertical: 0,
-    margin: 0,
-    textAlignVertical: 'top',
-  },
-  inputWeb: {
-    outlineStyle: 'none',
-    resize: 'none',
-    overflow: 'hidden',
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
-    boxSizing: 'border-box',
-  } as object,
-  inputAndroid: {
-    includeFontPadding: false,
-  },
-  diceButton: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 999,
-    flexShrink: 0,
-  },
-  diceButtonSingle: {
-    alignSelf: 'center',
-  },
-  diceButtonMultiline: {
-    alignSelf: 'flex-end',
-  },
-  diceButtonHovered: {
-    backgroundColor: 'rgba(255, 255, 255, 0.42)',
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingHorizontal: spacing.lg,
-    borderLeftWidth: StyleSheet.hairlineWidth,
-    borderLeftColor: colors.border,
-    backgroundColor: 'transparent',
-    flexShrink: 0,
-  },
-  buttonCompact: {
-    paddingHorizontal: spacing.md,
-    gap: 4,
-  },
-  buttonHovered: {
-    backgroundColor: 'rgba(255, 255, 255, 0.52)',
-  },
-  buttonLabel: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: colors.foreground,
-  },
-  buttonLabelDisabled: {
-    color: colors.subtle,
-  },
-  pressed: {
-    opacity: 0.72,
-  },
-});
+function createStyles(p: ColorPalette) {
+  return StyleSheet.create({
+    bar: {
+      flexDirection: 'row',
+      alignItems: 'stretch',
+      borderRadius: 999,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: p.border,
+      backgroundColor: p.glass.chip,
+      overflow: 'hidden',
+      paddingLeft: spacing.md,
+    },
+    barDisabled: {
+      opacity: 0.55,
+    },
+    inputWrap: {
+      flex: 1,
+      minWidth: 0,
+      flexDirection: 'row',
+      paddingRight: spacing.xs,
+      paddingVertical: INPUT_VERTICAL_INSET,
+    },
+    inputWrapSingle: {
+      alignItems: 'center',
+    },
+    inputWrapMultiline: {
+      alignItems: 'flex-end',
+    },
+    input: {
+      flex: 1,
+      minWidth: 0,
+      fontFamily: typography.sans,
+      color: p.foreground,
+      backgroundColor: 'transparent',
+      borderWidth: 0,
+      paddingTop: 0,
+      paddingBottom: 0,
+      paddingVertical: 0,
+      margin: 0,
+      textAlignVertical: 'top',
+    },
+    inputWeb: {
+      outlineStyle: 'none',
+      resize: 'none',
+      overflow: 'hidden',
+      whiteSpace: 'pre-wrap',
+      wordBreak: 'break-word',
+      boxSizing: 'border-box',
+    } as object,
+    inputAndroid: {
+      includeFontPadding: false,
+    },
+    diceButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 999,
+      flexShrink: 0,
+    },
+    diceButtonSingle: {
+      alignSelf: 'center',
+    },
+    diceButtonMultiline: {
+      alignSelf: 'flex-end',
+    },
+    diceButtonHovered: {
+      backgroundColor: p.glass.chip,
+    },
+    buttonCompact: {
+      paddingHorizontal: spacing.md,
+      gap: 4,
+    },
+  });
+}

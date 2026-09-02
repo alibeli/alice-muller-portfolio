@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Image,
   ImageSourcePropType,
@@ -17,13 +17,14 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
+import { useTheme } from '@/components/ThemeProvider';
 import { OpenInNewTabIcon } from '@/components/ui/icons/OpenInNewTabIcon';
 import { Text } from '@/components/ui/Text';
 import { getPaperGradient, paperGradientCss, PLACEHOLDER_GRADIENT } from '@/data/paperGradients';
 import type { GridItem } from '@/data/portfolio';
 import { getThumbnailFocalPoint } from '@/data/localImages';
 import { formatProjectPeriod, openProjectLink } from '@/lib/projectLinks';
-import { motion, palette, radii, spacing, tileText } from '@/constants/tokens';
+import { getTileText, motion, radii, spacing, type ColorPalette } from '@/constants/tokens';
 
 type Props = {
   item: GridItem;
@@ -105,6 +106,10 @@ export function ProjectGridTile({
   onProjectPress,
   onPaperPress,
 }: Props) {
+  const { palette } = useTheme();
+  const tileText = useMemo(() => getTileText(palette), [palette]);
+  const styles = useMemo(() => createTileStyles(palette), [palette]);
+
   const tileHeight = height ?? size;
   const captionOnTop = captionPlacement === 'top';
   const isPaper = item.kind === 'paper';
@@ -231,7 +236,7 @@ export function ProjectGridTile({
           ) : null}
           {item.link ? (
             <Pressable
-              style={({ pressed }) => [styles.linkPill, pressed && styles.linkPillPressed]}
+              style={({ pressed }) => [styles.linkPill, pressed && { opacity: 0.86 }]}
               onPress={(event) => {
                 event.stopPropagation();
                 void openProjectLink(item.link!.url, item.title);
@@ -275,103 +280,107 @@ export function ProjectGridTile({
   );
 }
 
+function createTileStyles(p: ColorPalette) {
+  return StyleSheet.create({
+    tile: {
+      borderRadius: radii.tileOuter,
+      overflow: 'hidden',
+      backgroundColor: p.surface,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: p.tileBorder,
+    },
+    tileWrap: {
+      borderRadius: radii.tileOuter,
+      overflow: 'hidden',
+    },
+    tileWrapHovered: {
+      zIndex: 20,
+    },
+    pressed: {
+      opacity: 0.94,
+    },
+    mediaStage: {
+      ...StyleSheet.absoluteFill,
+      overflow: 'hidden',
+      backgroundColor: 'transparent',
+    },
+    mediaFill: {
+      ...StyleSheet.absoluteFill,
+    },
+    imageStage: {
+      ...StyleSheet.absoluteFill,
+      overflow: 'hidden',
+    },
+    coverImage: {
+      width: '100%',
+      height: '100%',
+    },
+    textBlock: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      zIndex: 2,
+    },
+    textBlockTop: {
+      top: 0,
+    },
+    textBlockBottom: {
+      bottom: 0,
+    },
+    textGlassNonInteractive: {
+      pointerEvents: 'none',
+    },
+    textGlass: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: p.glass.frost,
+      ...(Platform.OS === 'web'
+        ? ({
+            backgroundColor: p.glass.frost,
+          } as object)
+        : {}),
+    },
+    textGlassTop: {
+      borderBottomLeftRadius: radii.tile,
+      borderBottomRightRadius: radii.tile,
+    },
+    textGlassBottom: {
+      borderTopLeftRadius: radii.tile,
+      borderTopRightRadius: radii.tile,
+    },
+    textInner: {
+      padding: spacing.md,
+      gap: 3,
+      position: 'relative',
+      zIndex: 1,
+      pointerEvents: 'box-none',
+    },
+    textInnerTop: {
+      borderBottomLeftRadius: radii.tile,
+      borderBottomRightRadius: radii.tile,
+    },
+    textInnerBottom: {
+      borderTopLeftRadius: radii.tile,
+      borderTopRightRadius: radii.tile,
+    },
+    linkPill: {
+      alignSelf: 'flex-start',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 5,
+      height: 32,
+      marginTop: 4,
+      paddingHorizontal: 12,
+      borderRadius: radii.pill,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: p.tileBorder,
+      backgroundColor: p.white,
+    },
+  });
+}
+
 const styles = StyleSheet.create({
-  tile: {
-    borderRadius: radii.tileOuter,
-    overflow: 'hidden',
-    backgroundColor: palette.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: palette.tileBorder,
-  },
-  tileWrap: {
-    borderRadius: radii.tileOuter,
-    overflow: 'hidden',
-  },
-  tileWrapHovered: {
-    zIndex: 20,
-  },
-  pressed: {
-    opacity: 0.94,
-  },
-  mediaStage: {
-    ...StyleSheet.absoluteFill,
-    overflow: 'hidden',
-    backgroundColor: 'transparent',
-  },
   mediaFill: {
     ...StyleSheet.absoluteFill,
-  },
-  imageStage: {
-    ...StyleSheet.absoluteFill,
-    overflow: 'hidden',
-  },
-  coverImage: {
-    width: '100%',
-    height: '100%',
-  },
-  textBlock: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 2,
-  },
-  textBlockTop: {
-    top: 0,
-  },
-  textBlockBottom: {
-    bottom: 0,
-  },
-  textGlassNonInteractive: {
-    pointerEvents: 'none',
-  },
-  textGlass: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: palette.glass.frost,
-    ...(Platform.OS === 'web'
-      ? ({
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        } as object)
-      : {}),
-  },
-  textGlassTop: {
-    borderBottomLeftRadius: radii.tile,
-    borderBottomRightRadius: radii.tile,
-  },
-  textGlassBottom: {
-    borderTopLeftRadius: radii.tile,
-    borderTopRightRadius: radii.tile,
-  },
-  textInner: {
-    padding: spacing.md,
-    gap: 3,
-    position: 'relative',
-    zIndex: 1,
-    pointerEvents: 'box-none',
-  },
-  textInnerTop: {
-    borderBottomLeftRadius: radii.tile,
-    borderBottomRightRadius: radii.tile,
-  },
-  textInnerBottom: {
-    borderTopLeftRadius: radii.tile,
-    borderTopRightRadius: radii.tile,
-  },
-  linkPill: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    height: 32,
-    marginTop: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 0,
-    borderRadius: radii.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: palette.tileBorder,
-    backgroundColor: palette.white,
-  },
-  linkPillPressed: {
-    opacity: 0.86,
   },
 });

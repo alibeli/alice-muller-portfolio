@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import {
   Image,
   LayoutChangeEvent,
   Linking,
   Platform,
-  Pressable,
   StyleSheet,
   useWindowDimensions,
   View,
@@ -15,11 +14,14 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { useTheme } from '@/components/ThemeProvider';
 import { WhatsAppTextMe } from '@/components/portfolio/contact/WhatsAppTextMe';
+import { Button } from '@/components/ui/Button';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { GithubIcon, LinkedInIcon } from '@/components/ui/icons/SocialIcons';
+import { ThemeToggleChip } from '@/components/ui/ThemeToggleChip';
 import { Text } from '@/components/ui/Text';
-import { colors, spacing } from '@/constants/theme';
+import { radii, spacing, type ColorPalette, typeScale } from '@/constants/tokens';
 import { profile, profileDetails } from '@/data/portfolio';
 
 type Props = {
@@ -32,14 +34,155 @@ const ANIM_MS = 240;
 const HEADSHOT_SIZE_DESKTOP = 80;
 const HEADSHOT_SIZE_MOBILE = 68;
 
+function createStyles(p: ColorPalette) {
+  return StyleSheet.create({
+    card: {
+      paddingTop: spacing.lg,
+      paddingHorizontal: spacing.lg,
+      ...(Platform.OS === 'web'
+        ? ({ boxShadow: p.shadow.dock } as object)
+        : {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.08,
+            shadowRadius: 24,
+            elevation: 8,
+          }),
+    },
+    cardDesktop: {
+      maxWidth: 560,
+      width: '100%',
+    },
+    cardMobile: {
+      width: '100%',
+      borderTopLeftRadius: MOBILE_RADIUS,
+      borderTopRightRadius: MOBILE_RADIUS,
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
+    },
+    cardNarrow: {
+      paddingTop: spacing.md,
+      paddingHorizontal: spacing.md,
+    },
+    topRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.md,
+    },
+    identityText: {
+      flex: 1,
+      gap: 2,
+      minWidth: 0,
+    },
+    nameRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      flexWrap: 'wrap',
+    },
+    name: {
+      fontSize: typeScale.lg,
+      lineHeight: 22,
+    },
+    credentials: {
+      lineHeight: 16,
+      fontSize: typeScale.xs,
+      marginTop: 2,
+    },
+    tagline: {
+      lineHeight: 18,
+      marginTop: 1,
+    },
+    taglineAreas: {
+      lineHeight: 18,
+    },
+    actionsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+      marginTop: spacing.xs,
+      minHeight: 32,
+    },
+    expandBtn: {
+      height: 32,
+      justifyContent: 'center',
+    },
+    headshot: {
+      borderRadius: radii.headshot,
+      backgroundColor: p.surface,
+      flexShrink: 0,
+    },
+    headshotNarrow: {
+      borderRadius: 18,
+    },
+    expandLabel: {
+      color: p.foreground,
+      fontWeight: '500',
+      fontSize: typeScale.compact,
+    },
+    details: {
+      marginTop: spacing.sm,
+      gap: spacing.sm,
+      paddingBottom: spacing.sm,
+    },
+    detailBlock: {
+      gap: 2,
+    },
+    detailBlockLast: {
+      paddingBottom: spacing.sm,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.sm,
+      paddingVertical: 2,
+    },
+    detailTitle: {
+      fontWeight: '600',
+      color: p.foreground,
+      lineHeight: 18,
+      flex: 1,
+    },
+    chevron: {
+      color: p.muted,
+      fontSize: typeScale.compact,
+    },
+    sectionBody: {
+      gap: 2,
+      paddingTop: 2,
+      paddingBottom: spacing.xs,
+    },
+    detailLine: {
+      lineHeight: 18,
+      fontSize: typeScale.compact,
+    },
+    socialRow: {
+      flexDirection: 'row',
+      gap: spacing.xs,
+      alignItems: 'center',
+      flexShrink: 0,
+    },
+    textMeRow: {
+      marginTop: spacing.md,
+    },
+    socialLabel: {
+      fontSize: typeScale.micro,
+    },
+  });
+}
+
 function CollapsibleSection({
   title,
   lines,
   isLast = false,
+  styles,
 }: {
   title: string;
   lines: string[];
   isLast?: boolean;
+  styles: ReturnType<typeof createStyles>;
 }) {
   const [open, setOpen] = useState(false);
   const contentHeight = useSharedValue(0);
@@ -61,9 +204,11 @@ function CollapsibleSection({
 
   return (
     <View style={[styles.detailBlock, isLast && styles.detailBlockLast]}>
-      <Pressable
+      <Button
+        variant="ghost"
         onPress={() => setOpen((v) => !v)}
-        style={({ pressed }) => [styles.sectionHeader, pressed && styles.pressed]}
+        style={{ width: '100%' }}
+        contentStyle={styles.sectionHeader}
       >
         <Text variant="caption" style={styles.detailTitle}>
           {title}
@@ -71,7 +216,7 @@ function CollapsibleSection({
         <Text variant="caption" style={styles.chevron}>
           {open ? '↑' : '↓'}
         </Text>
-      </Pressable>
+      </Button>
 
       <Animated.View style={bodyStyle}>
         <View onLayout={onContentLayout} style={styles.sectionBody}>
@@ -89,6 +234,8 @@ function CollapsibleSection({
 export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const { width } = useWindowDimensions();
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
   const narrow = compact && width < 380;
   const headshotSize = compact ? HEADSHOT_SIZE_MOBILE : HEADSHOT_SIZE_DESKTOP;
 
@@ -133,9 +280,12 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
           resizeMode="cover"
         />
         <View style={styles.identityText}>
-          <Text variant="title" style={styles.name} numberOfLines={2}>
-            {profile.name}
-          </Text>
+          <View style={styles.nameRow}>
+            <Text variant="title" style={styles.name} numberOfLines={2}>
+              {profile.name}
+            </Text>
+            <ThemeToggleChip />
+          </View>
           <Text variant="caption" muted style={styles.tagline}>
             {profile.tagline}
           </Text>
@@ -153,14 +303,15 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
               <SocialChip label="LinkedIn" url={profile.linkedin} icon="linkedin" />
               <SocialChip label="Github" url={profile.github} icon="github" />
             </View>
-            <Pressable
+            <Button
+              variant="ghost"
               onPress={() => setExpanded((v) => !v)}
-              style={({ pressed }) => [styles.expandBtn, pressed && styles.pressed]}
+              style={styles.expandBtn}
             >
               <Text variant="caption" style={styles.expandLabel}>
                 {expanded ? 'Show less ↑' : 'More about me ↓'}
               </Text>
-            </Pressable>
+            </Button>
           </View>
         </View>
       </View>
@@ -173,6 +324,7 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
               title={block.title}
               lines={block.lines}
               isLast={index === profileDetails.length - 1}
+              styles={styles}
             />
           ))}
         </View>
@@ -195,169 +347,12 @@ function SocialChip({
   icon: 'linkedin' | 'github';
 }) {
   return (
-    <Pressable
+    <Button
+      variant="chip"
+      label={label}
       onPress={() => Linking.openURL(url)}
-      style={({ pressed }) => [styles.socialChip, pressed && styles.pressed]}
-    >
-      {icon === 'linkedin' ? <LinkedInIcon size={13} /> : <GithubIcon size={13} />}
-      <Text variant="mono" style={styles.socialLabel}>
-        {label}
-      </Text>
-    </Pressable>
+      icon={icon === 'linkedin' ? <LinkedInIcon size={13} /> : <GithubIcon size={13} />}
+      contentStyle={{ gap: 4 }}
+    />
   );
 }
-
-const shadow = Platform.select({
-  web: {
-    boxShadow: '0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
-  },
-  ios: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 24,
-  },
-  android: {
-    elevation: 8,
-  },
-  default: {},
-});
-
-const styles = StyleSheet.create({
-  card: {
-    paddingTop: spacing.lg,
-    paddingHorizontal: spacing.lg,
-    ...shadow,
-  },
-  cardDesktop: {
-    maxWidth: 560,
-    width: '100%',
-  },
-  cardMobile: {
-    width: '100%',
-    borderTopLeftRadius: MOBILE_RADIUS,
-    borderTopRightRadius: MOBILE_RADIUS,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-  },
-  cardNarrow: {
-    paddingTop: spacing.md,
-    paddingHorizontal: spacing.md,
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.md,
-  },
-  identityText: {
-    flex: 1,
-    gap: 2,
-    minWidth: 0,
-  },
-  name: {
-    fontSize: 18,
-    lineHeight: 22,
-  },
-  credentials: {
-    lineHeight: 16,
-    fontSize: 11,
-    marginTop: 2,
-  },
-  tagline: {
-    lineHeight: 18,
-    marginTop: 1,
-  },
-  taglineAreas: {
-    lineHeight: 18,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-    minHeight: 32,
-  },
-  expandBtn: {
-    height: 32,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xs,
-  },
-  headshot: {
-    borderRadius: 24,
-    backgroundColor: colors.surface,
-    flexShrink: 0,
-  },
-  headshotNarrow: {
-    borderRadius: 18,
-  },
-  expandLabel: {
-    color: colors.foreground,
-    fontWeight: '500',
-    fontSize: 12,
-  },
-  details: {
-    marginTop: spacing.sm,
-    gap: spacing.sm,
-    paddingBottom: spacing.sm,
-  },
-  detailBlock: {
-    gap: 2,
-  },
-  detailBlockLast: {
-    paddingBottom: spacing.sm,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-    paddingVertical: 2,
-  },
-  detailTitle: {
-    fontWeight: '600',
-    color: colors.foreground,
-    lineHeight: 18,
-    flex: 1,
-  },
-  chevron: {
-    color: colors.muted,
-    fontSize: 12,
-  },
-  sectionBody: {
-    gap: 2,
-    paddingTop: 2,
-    paddingBottom: spacing.xs,
-  },
-  detailLine: {
-    lineHeight: 18,
-    fontSize: 12,
-  },
-  socialRow: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-    alignItems: 'center',
-    flexShrink: 0,
-  },
-  textMeRow: {
-    marginTop: spacing.md,
-  },
-  socialChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    height: 32,
-    paddingHorizontal: spacing.sm,
-    borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.35)',
-  },
-  socialLabel: {
-    fontSize: 10,
-  },
-  pressed: {
-    opacity: 0.65,
-  },
-});

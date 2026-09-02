@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   LayoutChangeEvent,
   Platform,
@@ -14,11 +14,12 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { useTheme } from '@/components/ThemeProvider';
 import { CountChip } from '@/components/ui/CountChip';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { TabIcon, type TabKey } from '@/components/ui/icons/TabIcons';
 import { Text } from '@/components/ui/Text';
-import { spacing } from '@/constants/theme';
+import { spacing, type ColorPalette, typeScale } from '@/constants/tokens';
 
 const HEADER_TABS: { key: TabKey; label: string; countKey?: 'projects' | 'papers' | 'awards' }[] = [
   { key: 'projects', label: 'Projects', countKey: 'projects' },
@@ -163,6 +164,9 @@ export function FilterHeader({
     onProjectsPress();
   };
 
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
+
   const webHoverHandlers = (key: TabKey) =>
     Platform.OS === 'web'
       ? ({
@@ -221,46 +225,44 @@ export function FilterHeader({
   );
 }
 
-const styles = StyleSheet.create({
-  glassCard: {
-    padding: TAB_PADDING,
-    ...(Platform.OS === 'web'
-      ? ({
-          boxShadow: '0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
-        } as object)
-      : {}),
-  },
-  toggle: {
-    flexDirection: 'row',
-    position: 'relative',
-    height: TAB_HEIGHT,
-  },
-  pill: {
-    position: 'absolute',
-    top: 0,
-    left: TAB_PADDING,
-    height: TAB_HEIGHT,
-    borderRadius: 999,
-    backgroundColor: 'rgba(0, 0, 0, 0.06)',
-  },
-  option: {
-    height: TAB_HEIGHT,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1,
-  },
-  optionIdle: {
-    paddingHorizontal: 4,
-  },
-  optionActive: {
-    gap: 6,
-    paddingHorizontal: 10,
-  },
-  optionLabelActive: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#0A0A0A',
-    flexShrink: 0,
-  },
-});
+function createStyles(p: ColorPalette) {
+  return StyleSheet.create({
+    glassCard: {
+      padding: TAB_PADDING,
+      ...(Platform.OS === 'web' ? ({ boxShadow: p.shadow.dock } as object) : {}),
+    },
+    toggle: {
+      flexDirection: 'row',
+      position: 'relative',
+      height: TAB_HEIGHT,
+    },
+    pill: {
+      position: 'absolute',
+      top: 0,
+      left: TAB_PADDING,
+      height: TAB_HEIGHT,
+      borderRadius: 999,
+      backgroundColor: p.tabPill,
+    },
+    option: {
+      height: TAB_HEIGHT,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1,
+    },
+    optionIdle: {
+      paddingHorizontal: 4,
+    },
+    optionActive: {
+      gap: 6,
+      paddingHorizontal: 10,
+    },
+    optionLabelActive: {
+      fontSize: typeScale.compact,
+      fontWeight: '600',
+      color: p.foreground,
+      flexShrink: 0,
+    },
+  });
+}

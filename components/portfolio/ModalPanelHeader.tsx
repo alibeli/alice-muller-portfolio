@@ -1,9 +1,12 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
 
+import { useTheme } from '@/components/ThemeProvider';
 import { CountChip } from '@/components/ui/CountChip';
+import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
-import { colors, spacing } from '@/constants/theme';
+import { spacing, type ColorPalette, typeScale } from '@/constants/tokens';
 
 type Props = {
   title: ReactNode;
@@ -13,7 +16,46 @@ type Props = {
   intro?: string;
 };
 
+function createStyles(p: ColorPalette) {
+  return StyleSheet.create({
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.sm,
+    },
+    headingGroup: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      flexShrink: 1,
+      flex: 1,
+    },
+    titleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      flexShrink: 1,
+    },
+    closeIcon: {
+      fontSize: typeScale.lg,
+      color: p.muted,
+    },
+    heading: {
+      marginBottom: 0,
+      flexShrink: 1,
+    },
+    intro: {
+      marginBottom: spacing.md,
+      lineHeight: 20,
+    },
+  });
+}
+
 export function ModalPanelHeader({ title, count, onClose, icon, intro }: Props) {
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
+
   return (
     <>
       <View style={styles.header}>
@@ -30,15 +72,16 @@ export function ModalPanelHeader({ title, count, onClose, icon, intro }: Props) 
             title
           )}
         </View>
-        <Pressable
+        <Button
+          variant="icon"
           onPress={onClose}
-          style={({ pressed }) => [styles.closeBtn, pressed && styles.pressed]}
           accessibilityLabel="Close"
-        >
-          <Text variant="body" style={styles.closeIcon}>
-            ✕
-          </Text>
-        </Pressable>
+          icon={
+            <Text variant="body" style={styles.closeIcon}>
+              ✕
+            </Text>
+          }
+        />
       </View>
       {intro ? (
         <Text variant="body" muted style={styles.intro}>
@@ -48,43 +91,3 @@ export function ModalPanelHeader({ title, count, onClose, icon, intro }: Props) 
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
-  },
-  headingGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    flexShrink: 1,
-    flex: 1,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    flexShrink: 1,
-  },
-  closeBtn: {
-    padding: spacing.sm,
-  },
-  closeIcon: {
-    fontSize: 18,
-    color: colors.muted,
-  },
-  heading: {
-    marginBottom: 0,
-    flexShrink: 1,
-  },
-  intro: {
-    marginBottom: spacing.md,
-    lineHeight: 20,
-  },
-  pressed: {
-    opacity: 0.65,
-  },
-});

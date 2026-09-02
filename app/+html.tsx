@@ -33,6 +33,18 @@ export default function Root({ children }: PropsWithChildren) {
           href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..72,1..1000&display=swap"
           rel="stylesheet"
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                try {
+                  var s = localStorage.getItem('alice-portfolio-color-scheme');
+                  if (s === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         <style
           dangerouslySetInnerHTML={{
             __html: `
@@ -44,11 +56,16 @@ export default function Root({ children }: PropsWithChildren) {
               body {
                 margin: 0;
                 background: #FFFFFF;
+                color: #0A0A0A;
                 overflow: hidden !important;
                 overscroll-behavior: none;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
                 font-family: "Google Sans Flex", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+              }
+              [data-theme="dark"] body {
+                background: #0A0A0A;
+                color: #FAFAFA;
               }
               #root {
                 display: flex;
@@ -64,6 +81,10 @@ export default function Root({ children }: PropsWithChildren) {
               ::selection {
                 background: #0A0A0A;
                 color: #FFFFFF;
+              }
+              [data-theme="dark"] ::selection {
+                background: #FAFAFA;
+                color: #0A0A0A;
               }
               [data-hide-scrollbar="true"] {
                 scrollbar-width: none;

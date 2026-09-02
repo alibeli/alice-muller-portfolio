@@ -7,11 +7,34 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
-import { colors } from '@/constants/theme';
+import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
 
 export { ErrorBoundary } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
+
+function RootStack() {
+  const { palette, colorScheme } = useTheme();
+
+  return (
+    <View style={[styles.root, { backgroundColor: palette.background }]}>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { flex: 1, backgroundColor: palette.background },
+          animation: 'fade',
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="project/[slug]" />
+        <Stack.Screen name="paper/[slug]" />
+        <Stack.Screen name="awards" />
+        <Stack.Screen name="papers" />
+      </Stack>
+    </View>
+  );
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -30,22 +53,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <View style={styles.root}>
-        <StatusBar style="dark" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { flex: 1, backgroundColor: colors.background },
-            animation: 'fade',
-          }}
-        >
-          <Stack.Screen name="index" />
-          <Stack.Screen name="project/[slug]" />
-          <Stack.Screen name="paper/[slug]" />
-          <Stack.Screen name="awards" />
-          <Stack.Screen name="papers" />
-        </Stack>
-      </View>
+      <ThemeProvider>
+        <RootStack />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
@@ -53,6 +63,5 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: colors.background,
   },
 });

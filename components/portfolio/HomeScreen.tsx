@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useTheme } from '@/components/ThemeProvider';
+
 import { AwardsModal } from '@/components/portfolio/AwardsModal';
 import { MoreProjectTile } from '@/components/portfolio/MoreProjectTile';
 import { PaperModal } from '@/components/portfolio/PaperModal';
@@ -12,7 +14,7 @@ import { FilterHeader } from '@/components/portfolio/FilterHeader';
 import { ProfileDock } from '@/components/portfolio/ProfileDock';
 import { ProjectGridTile } from '@/components/portfolio/ProjectGridTile';
 import { Text } from '@/components/ui/Text';
-import { colors, spacing } from '@/constants/theme';
+import { spacing, typeScale } from '@/constants/theme';
 import { getGridItems, getPaper, getProject, otherProjects, paperCount, awardCount, selectedProjectCount } from '@/data/portfolio';
 import { readPaperSlugFromPathname, readProjectSlugFromPathname } from '@/lib/modalRoutes';
 import { getPaperPath, getProjectPath } from '@/lib/shareProject';
@@ -209,8 +211,10 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
     paperDeepLink.close();
   };
 
+  const { palette } = useTheme();
+
   return (
-    <View style={styles.page}>
+    <View style={[styles.page, { backgroundColor: palette.background }]}>
       <ScrollView
         style={[
           styles.scroll,
@@ -274,7 +278,7 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
                 : null),
           ]}
         >
-          <Text variant="mono" style={styles.moreHeading}>
+          <Text variant="mono" style={[styles.moreHeading, { color: palette.subtle }]}>
             More projects
           </Text>
           <View style={[styles.grid, styles.constrainedGrid, { gap: gridGap }]}>
@@ -332,7 +336,6 @@ export function HomeScreen({ initialProjectSlug }: Props = {}) {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor: colors.background,
     ...(Platform.OS === 'web'
       ? ({
           height: '100dvh',
@@ -383,8 +386,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   moreHeading: {
-    fontSize: 11,
-    color: colors.subtle,
+    fontSize: typeScale.xs,
     textAlign: 'center',
     alignSelf: 'center',
     width: '100%',

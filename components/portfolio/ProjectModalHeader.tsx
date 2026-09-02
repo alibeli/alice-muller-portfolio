@@ -1,13 +1,16 @@
 import type { ReactNode } from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { useMemo } from 'react';
+import { Image, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useTheme } from '@/components/ThemeProvider';
 import { ProjectLinkChip } from '@/components/portfolio/ProjectLinkChip';
 import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
+import { Button } from '@/components/ui/Button';
 import { ShareIcon } from '@/components/ui/icons/ShareIcon';
 import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
-import { palette, spacing } from '@/constants/tokens';
+import { spacing, type ColorPalette, typeScale } from '@/constants/tokens';
 import { shareProject } from '@/lib/shareProject';
 import type { Project } from '@/data/portfolio';
 
@@ -19,31 +22,94 @@ type Props = {
   onClose: () => void;
 };
 
-function HeaderChip({
-  label,
-  onPress,
-  icon,
-}: {
-  label: string;
-  onPress: () => void;
-  icon?: ReactNode;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.chip, pressed && styles.pressed]}
-      accessibilityRole="button"
-    >
-      {icon}
-      <Text variant="mono" style={styles.chipLabel}>
-        {label}
-      </Text>
-    </Pressable>
-  );
+function createStyles(p: ColorPalette) {
+  return StyleSheet.create({
+    header: {
+      paddingBottom: spacing.md,
+      marginHorizontal: -spacing.lg,
+      paddingHorizontal: spacing.lg,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: p.border,
+      borderRadius: 0,
+    },
+    metaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.sm,
+    },
+    metaGroup: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: 6,
+      minWidth: 0,
+    },
+    titleRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
+      marginTop: HEADER_ROW_GAP,
+    },
+    titleGroup: {
+      flex: 1,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: spacing.sm,
+      minWidth: 0,
+    },
+    title: {
+      flexShrink: 1,
+    },
+    closeIcon: {
+      fontSize: typeScale.lg,
+      color: p.muted,
+    },
+    linksRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+      marginTop: spacing.xs,
+    },
+    meta: {
+      fontSize: typeScale.xs,
+    },
+    metaDot: {
+      color: p.subtle,
+      fontSize: typeScale.xs,
+    },
+    tagline: {
+      lineHeight: 22,
+      marginTop: spacing.sm,
+    },
+    traction: {
+      flex: 1,
+      color: p.muted,
+      lineHeight: 18,
+      fontWeight: '500',
+    },
+    tractionRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
+      marginTop: spacing.xs,
+    },
+    awardIcon: {
+      width: 18,
+      height: 18,
+      opacity: 0.88,
+      marginTop: 1,
+    },
+  });
 }
 
 export function ProjectModalStickyHeader({ project, onClose }: Props) {
   const insets = useSafeAreaInsets();
+  const { palette } = useTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
+
   const handleShare = () => {
     shareProject(project).catch(() => {});
   };
@@ -71,24 +137,25 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
             {project.location}
           </Text>
         </View>
-        <Pressable
+        <Button
+          variant="icon"
           onPress={onClose}
-          style={({ pressed }) => [styles.closeBtn, pressed && styles.pressed]}
           accessibilityLabel="Close"
-          accessibilityRole="button"
-        >
-          <Text variant="body" style={styles.closeIcon}>
-            ✕
-          </Text>
-        </Pressable>
+          icon={
+            <Text variant="body" style={styles.closeIcon}>
+              ✕
+            </Text>
+          }
+        />
       </View>
 
       <View style={styles.titleRow}>
         <View style={styles.titleGroup}>
-          <Text variant="title" style={styles.title} numberOfLines={3}>
+          <Text variant="titleMd" style={styles.title} numberOfLines={3}>
             {project.title}
           </Text>
-          <HeaderChip
+          <Button
+            variant="chip"
             label="Share"
             onPress={handleShare}
             icon={<ShareIcon size={14} color={palette.muted} />}
@@ -99,12 +166,6 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
       <Text variant="subtitle" muted style={styles.tagline}>
         {project.tagline}
       </Text>
-
-      {project.roles.length > 0 ? (
-        <Text variant="caption" style={styles.roles}>
-          {project.roles.join(', ')}
-        </Text>
-      ) : null}
 
       {tractionLine ? (
         <View style={styles.tractionRow}>
@@ -130,111 +191,3 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
     </GlassSurface>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    paddingBottom: spacing.md,
-    marginHorizontal: -spacing.lg,
-    paddingHorizontal: spacing.lg,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: palette.border,
-    borderRadius: 0,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-  },
-  metaGroup: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 6,
-    minWidth: 0,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-    marginTop: HEADER_ROW_GAP,
-  },
-  titleGroup: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: spacing.sm,
-    minWidth: 0,
-  },
-  title: {
-    fontSize: 22,
-    lineHeight: 28,
-    flexShrink: 1,
-  },
-  closeBtn: {
-    padding: spacing.xs,
-    marginRight: -spacing.xs,
-  },
-  closeIcon: {
-    fontSize: 18,
-    color: palette.muted,
-  },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: spacing.sm,
-    borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: palette.border,
-    backgroundColor: palette.glass.chip,
-  },
-  chipLabel: {
-    fontSize: 11,
-  },
-  linksRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  meta: {
-    fontSize: 11,
-  },
-  metaDot: {
-    color: palette.subtle,
-    fontSize: 11,
-  },
-  tagline: {
-    lineHeight: 22,
-    marginTop: spacing.sm,
-  },
-  roles: {
-    color: palette.subtle,
-    lineHeight: 18,
-  },
-  traction: {
-    flex: 1,
-    color: palette.muted,
-    lineHeight: 18,
-    fontWeight: '500',
-  },
-  tractionRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  awardIcon: {
-    width: 18,
-    height: 18,
-    opacity: 0.88,
-    marginTop: 1,
-  },
-  pressed: {
-    opacity: 0.65,
-  },
-});

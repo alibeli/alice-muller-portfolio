@@ -48,11 +48,6 @@ export function ProjectDetailContent({
           <Text variant="subtitle" muted style={styles.tagline}>
             {project.tagline}
           </Text>
-          {project.roles.length > 0 ? (
-            <Text variant="caption" style={styles.roles}>
-              {project.roles.join(', ')}
-            </Text>
-          ) : null}
           {project.traction ? (
             <Text variant="caption" style={styles.highlights}>
               {project.traction}

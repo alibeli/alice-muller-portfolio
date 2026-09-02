@@ -1,8 +1,6 @@
-import { Pressable, StyleSheet } from 'react-native';
-
+import { Button } from '@/components/ui/Button';
 import { OpenInNewTabIcon } from '@/components/ui/icons/OpenInNewTabIcon';
-import { Text } from '@/components/ui/Text';
-import { palette, spacing } from '@/constants/tokens';
+import { useTheme } from '@/components/ThemeProvider';
 import { openProjectLink } from '@/lib/projectLinks';
 
 type Props = {
@@ -12,38 +10,15 @@ type Props = {
 };
 
 export function ProjectLinkChip({ label, url, projectTitle }: Props) {
+  const { palette } = useTheme();
   const isHttpLink = url.startsWith('http');
 
   return (
-    <Pressable
+    <Button
+      variant="chip"
+      label={label}
       onPress={() => openProjectLink(url, projectTitle).catch(() => {})}
-      style={({ pressed }) => [styles.chip, pressed && styles.pressed]}
-      accessibilityRole="button"
-    >
-      <Text variant="mono" style={styles.chipLabel}>
-        {label}
-      </Text>
-      {isHttpLink ? <OpenInNewTabIcon size={12} color={palette.muted} /> : null}
-    </Pressable>
+      icon={isHttpLink ? <OpenInNewTabIcon size={12} color={palette.muted} /> : undefined}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: spacing.sm,
-    borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: palette.border,
-    backgroundColor: palette.glass.chip,
-  },
-  chipLabel: {
-    fontSize: 11,
-  },
-  pressed: {
-    opacity: 0.65,
-  },
-});
