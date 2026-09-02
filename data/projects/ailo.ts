@@ -1,8 +1,8 @@
 import { ailoGallery } from '../localProjectImages';
 import type { ProjectBase } from './types';
 
-export const ilo: ProjectBase = {
-  slug: 'ilo',
+export const ailo: ProjectBase = {
+  slug: 'ailo',
   title: 'Ailo',
   period: 'Present',
   location: 'Zürich, Switzerland',

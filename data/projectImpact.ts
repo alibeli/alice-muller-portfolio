@@ -11,7 +11,7 @@ export type ProjectImpact = {
 };
 
 export const projectImpactBySlug: Record<string, ProjectImpact> = {
-  ilo: {
+  ailo: {
     traction: 'Currently building · Founder',
     summary: {
       background:
