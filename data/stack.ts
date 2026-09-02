@@ -17,14 +17,39 @@ function stack(name: string, url: string, iconSlug?: string): StackItem {
 
 export const stackSections: StackSection[] = [
   {
-    title: 'User Feedback & Research',
+    title: 'Databases & Backend Services',
     items: [
-      stack('Typeform', 'https://www.typeform.com/'),
-      stack('Maze', 'https://maze.co/'),
-      stack('Dovetail', 'https://dovetail.com/'),
-      stack('UserTesting', 'https://www.usertesting.com/'),
-      stack('Lookback', 'https://lookback.io/'),
-      stack('Survicate', 'https://survicate.com/'),
+      stack('Supabase', 'https://supabase.com/'),
+      stack('Convex', 'https://www.convex.dev/'),
+      stack('Basedash', 'https://www.basedash.com/'),
+      stack('Airtable', 'https://airtable.com/'),
+    ],
+  },
+  {
+    title: 'AI & LLMs',
+    items: [
+      stack('OpenAI (GPT, Whisper)', 'https://openai.com/'),
+      stack('Claude', 'https://www.anthropic.com/claude'),
+      stack('Gemini', 'https://gemini.google.com/'),
+      stack('Mistral', 'https://mistral.ai/'),
+      stack('Hugging Face', 'https://huggingface.co/'),
+      stack('ElevenLabs', 'https://elevenlabs.io/'),
+      stack('LangChain', 'https://www.langchain.com/'),
+    ],
+  },
+  {
+    title: 'Frontend & Backend',
+    items: [
+      stack('Expo', 'https://expo.dev/'),
+      stack('React Native', 'https://reactnative.dev/'),
+      stack('Next.js', 'https://nextjs.org/'),
+      stack('Node.js', 'https://nodejs.org/'),
+      stack('TypeScript', 'https://www.typescriptlang.org/'),
+      stack('React', 'https://react.dev/'),
+      stack('Python', 'https://www.python.org/'),
+      stack('JavaScript', 'https://developer.mozilla.org/en-US/docs/Web/JavaScript'),
+      stack('HTML', 'https://developer.mozilla.org/en-US/docs/Web/HTML'),
+      stack('CSS', 'https://developer.mozilla.org/en-US/docs/Web/CSS'),
     ],
   },
   {
@@ -47,19 +72,6 @@ export const stackSections: StackSection[] = [
     ],
   },
   {
-    title: 'Frontend & Backend',
-    items: [
-      stack('Next.js', 'https://nextjs.org/'),
-      stack('Node.js', 'https://nodejs.org/'),
-      stack('TypeScript', 'https://www.typescriptlang.org/'),
-      stack('React', 'https://react.dev/'),
-      stack('Python', 'https://www.python.org/'),
-      stack('JavaScript', 'https://developer.mozilla.org/en-US/docs/Web/JavaScript'),
-      stack('HTML', 'https://developer.mozilla.org/en-US/docs/Web/HTML'),
-      stack('CSS', 'https://developer.mozilla.org/en-US/docs/Web/CSS'),
-    ],
-  },
-  {
     title: 'Web3',
     items: [
       stack('Solidity', 'https://soliditylang.org/'),
@@ -73,22 +85,11 @@ export const stackSections: StackSection[] = [
     ],
   },
   {
-    title: 'AI & LLMs',
-    items: [
-      stack('OpenAI (GPT, Whisper)', 'https://openai.com/'),
-      stack('Claude', 'https://www.anthropic.com/claude'),
-      stack('Gemini', 'https://gemini.google.com/'),
-      stack('Mistral', 'https://mistral.ai/'),
-      stack('Hugging Face', 'https://huggingface.co/'),
-      stack('ElevenLabs', 'https://elevenlabs.io/'),
-      stack('LangChain', 'https://www.langchain.com/'),
-    ],
-  },
-  {
     title: 'APIs & Webhooks',
     items: [
       stack('REST APIs', 'https://developer.mozilla.org/en-US/docs/Glossary/REST'),
       stack('Stripe', 'https://stripe.com/'),
+      stack('Resend', 'https://resend.com/'),
       stack('Slack', 'https://slack.com/'),
       stack('Shopify', 'https://www.shopify.com/'),
       stack('Meta APIs', 'https://developers.facebook.com/'),
@@ -102,6 +103,7 @@ export const stackSections: StackSection[] = [
     items: [
       stack('AWS', 'https://aws.amazon.com/'),
       stack('Vercel', 'https://vercel.com/'),
+      stack('GitHub', 'https://github.com/'),
     ],
   },
   {
@@ -114,14 +116,6 @@ export const stackSections: StackSection[] = [
     ],
   },
   {
-    title: 'Databases & Backend Services',
-    items: [
-      stack('Supabase', 'https://supabase.com/'),
-      stack('Convex', 'https://www.convex.dev/'),
-      stack('Airtable', 'https://airtable.com/'),
-    ],
-  },
-  {
     title: 'Analytics',
     items: [
       stack('Tableau', 'https://www.tableau.com/'),
@@ -130,6 +124,17 @@ export const stackSections: StackSection[] = [
       stack('Google Analytics (GA4)', 'https://analytics.google.com/'),
       stack('Hotjar', 'https://www.hotjar.com/'),
       stack('FullStory', 'https://www.fullstory.com/'),
+    ],
+  },
+  {
+    title: 'User Feedback & Research',
+    items: [
+      stack('Typeform', 'https://www.typeform.com/'),
+      stack('Maze', 'https://maze.co/'),
+      stack('Dovetail', 'https://dovetail.com/'),
+      stack('UserTesting', 'https://www.usertesting.com/'),
+      stack('Lookback', 'https://lookback.io/'),
+      stack('Survicate', 'https://survicate.com/'),
     ],
   },
   {

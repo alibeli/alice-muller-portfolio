@@ -67,6 +67,11 @@ const SIMPLE_ICON_SLUG: Partial<Record<string, string>> = {
   Discord: 'discord',
   Hubspot: 'hubspot',
   Instantly: 'instantly',
+  Basedash: 'basedash',
+  Expo: 'expo',
+  'React Native': 'reactnative',
+  Resend: 'resend',
+  GitHub: 'github',
 };
 
 function faviconUrl(url: string): string {
