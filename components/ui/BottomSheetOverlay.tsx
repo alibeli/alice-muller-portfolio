@@ -17,11 +17,13 @@ type Props = {
   onClose: () => void;
   children: ReactNode;
   closeOnBackdrop?: boolean;
+  /** Edge-to-edge bottom sheet — matches ProfileDock mobile layout. */
+  compact?: boolean;
 };
 
 const SLIDE_MS = 320;
 
-function createStyles(p: ColorPalette) {
+function createStyles(p: ColorPalette, compact: boolean) {
   const frostedBackdropWeb = {
     backdropFilter: 'blur(10px) saturate(120%)',
     WebkitBackdropFilter: 'blur(10px) saturate(120%)',
@@ -45,9 +47,16 @@ function createStyles(p: ColorPalette) {
     },
     sheetWrap: {
       width: '100%',
-      maxWidth: 520,
       alignSelf: 'center',
-      paddingHorizontal: spacing.sm,
+      ...(compact
+        ? {
+            maxWidth: '100%',
+            paddingHorizontal: 0,
+          }
+        : {
+            maxWidth: 520,
+            paddingHorizontal: spacing.sm,
+          }),
     },
     sheet: {
       width: '100%',
@@ -56,10 +65,16 @@ function createStyles(p: ColorPalette) {
 }
 
 /** Bottom sheet with frosted backdrop and slide-up entrance. */
-export function BottomSheetOverlay({ visible, onClose, children, closeOnBackdrop = true }: Props) {
+export function BottomSheetOverlay({
+  visible,
+  onClose,
+  children,
+  closeOnBackdrop = true,
+  compact = false,
+}: Props) {
   const insets = useSafeAreaInsets();
   const { palette } = useTheme();
-  const styles = useMemo(() => createStyles(palette), [palette]);
+  const styles = useMemo(() => createStyles(palette, compact), [palette, compact]);
   const [rendered, setRendered] = useState(false);
 
   const sheetY = useSharedValue(400);
@@ -101,6 +116,10 @@ export function BottomSheetOverlay({ visible, onClose, children, closeOnBackdrop
 
   if (!rendered) return null;
 
+  const sheetWrapPadding = compact
+    ? { paddingBottom: 0 }
+    : { paddingBottom: Math.max(insets.bottom, spacing.md) };
+
   return (
     <View style={styles.root} pointerEvents="auto">
       <KeyboardAvoidingView
@@ -113,13 +132,7 @@ export function BottomSheetOverlay({ visible, onClose, children, closeOnBackdrop
           ) : null}
         </Animated.View>
 
-        <Animated.View
-          style={[
-            styles.sheetWrap,
-            sheetStyle,
-            { paddingBottom: Math.max(insets.bottom, spacing.md) },
-          ]}
-        >
+        <Animated.View style={[styles.sheetWrap, sheetStyle, sheetWrapPadding]}>
           <View style={styles.sheet}>{children}</View>
         </Animated.View>
       </KeyboardAvoidingView>

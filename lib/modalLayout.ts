@@ -1,9 +1,20 @@
 import { Platform } from 'react-native';
 
 const MOBILE_BREAKPOINT = 640;
+const NARROW_BREAKPOINT = 380;
+
+export { MOBILE_BREAKPOINT, NARROW_BREAKPOINT };
+
+export function isMobileLayout(screenWidth: number): boolean {
+  return screenWidth < MOBILE_BREAKPOINT;
+}
+
+export function isNarrowLayout(screenWidth: number): boolean {
+  return screenWidth < NARROW_BREAKPOINT;
+}
 
 export function getLeftPanelWidth(screenWidth: number): number {
-  const isMobile = screenWidth < MOBILE_BREAKPOINT;
+  const isMobile = isMobileLayout(screenWidth);
   return isMobile
     ? Math.round(screenWidth * 0.8)
     : Math.min(560, Math.round(screenWidth * 0.42));

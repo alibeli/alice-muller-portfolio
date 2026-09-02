@@ -127,6 +127,12 @@ function createStyles(p: ColorPalette) {
       justifyContent: 'space-between',
       gap: spacing.sm,
       paddingVertical: spacing.xxs,
+      width: '100%',
+    },
+    sectionButton: {
+      width: '100%',
+      minWidth: 0,
+      paddingHorizontal: 0,
     },
     detailTitle: {
       fontWeight: fontWeights.semibold,
@@ -188,7 +194,7 @@ function CollapsibleSection({
       <Button
         variant="tertiary"
         onPress={() => setOpen((v) => !v)}
-        style={{ width: '100%' }}
+        style={styles.sectionButton}
         contentStyle={styles.sectionHeader}
       >
         <Text variant="caption" style={styles.detailTitle}>
@@ -288,7 +294,7 @@ export function ProfileDock({ compact = false, bottomInset = 0 }: Props) {
             <Button
               variant="tertiary"
               onPress={() => setExpanded((v) => !v)}
-              style={styles.expandBtn}
+              style={[styles.expandBtn, { paddingHorizontal: 0, minWidth: 0 }]}
             >
               <Text variant="label" style={styles.expandLabel}>
                 {expanded ? 'Show less ↑' : 'About Alice ↓'}

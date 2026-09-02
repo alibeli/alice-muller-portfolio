@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/components/ThemeProvider';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +16,7 @@ import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
 import { lineHeights, radii, spacing, TOUCH_TARGET_MIN, type ColorPalette, typeScale } from '@/design-system';
 import { getProject } from '@/data/portfolio';
+import { isMobileLayout, isNarrowLayout } from '@/lib/modalLayout';
 import { isValidEmail, normalizeEmail } from '@/lib/validateEmail';
 
 type Props = {
@@ -27,13 +29,16 @@ type Props = {
 
 const INVALID_EMAIL_MESSAGE = 'Enter a valid email address.';
 
-function createStyles(p: ColorPalette, compact: boolean) {
+function createStyles(p: ColorPalette, narrow: boolean) {
   return StyleSheet.create({
     panel: {
-      paddingTop: spacing.lg,
-      paddingHorizontal: spacing.lg,
+      paddingTop: narrow ? spacing.md : spacing.lg,
+      paddingHorizontal: narrow ? spacing.md : spacing.lg,
       paddingBottom: spacing.lg,
       gap: spacing.md,
+    },
+    panelMobile: {
+      width: '100%',
     },
     headerRow: {
       flexDirection: 'row',
@@ -67,7 +72,7 @@ function createStyles(p: ColorPalette, compact: boolean) {
       minWidth: 0,
       height: TOUCH_TARGET_MIN,
       paddingHorizontal: spacing.lg,
-      fontSize: compact ? typeScale.bodyMedium : typeScale.bodyLarge,
+      fontSize: narrow ? typeScale.bodyMedium : typeScale.bodyLarge,
       lineHeight: lineHeights.bodyLarge,
       color: p.foreground,
       ...(Platform.OS === 'web'
@@ -100,9 +105,10 @@ export function ProjectEmailGate({
 }: Props) {
   const { palette } = useTheme();
   const { width } = useWindowDimensions();
-  const isMobile = width < 640;
-  const compact = width < 380;
-  const styles = useMemo(() => createStyles(palette, compact), [palette, compact]);
+  const insets = useSafeAreaInsets();
+  const isMobile = isMobileLayout(width);
+  const narrow = isNarrowLayout(width);
+  const styles = useMemo(() => createStyles(palette, narrow), [palette, narrow]);
   const [email, setEmail] = useState('');
   const [touched, setTouched] = useState(false);
 
@@ -129,12 +135,16 @@ export function ProjectEmailGate({
   };
 
   return (
-    <BottomSheetOverlay visible={visible} onClose={onClose}>
+    <BottomSheetOverlay visible={visible} onClose={onClose} compact={isMobile}>
       <GlassSurface
         intensity="panel"
         rounded={isMobile ? radii.dockMobile : radii.dock}
         roundedCorners={isMobile ? 'top' : 'all'}
-        style={styles.panel}
+        style={[
+          styles.panel,
+          isMobile && styles.panelMobile,
+          isMobile && { paddingBottom: spacing.lg + insets.bottom },
+        ]}
       >
         <View style={styles.headerRow}>
           <View style={styles.headerText}>
