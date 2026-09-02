@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,6 +11,7 @@ import { GlassSurface } from '@/components/ui/GlassSurface';
 import { Text } from '@/components/ui/Text';
 import { spacing, type ColorPalette } from '@/design-system';
 import { shareProject } from '@/lib/shareProject';
+import { tractionHasAward } from '@/lib/tractionHasAward';
 import type { Project } from '@/data/portfolio';
 
 const HEADER_ROW_GAP = spacing.sm;
@@ -46,21 +46,8 @@ function createStyles(p: ColorPalette) {
       gap: spacing.sm,
       minWidth: 0,
     },
-    titleRow: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      gap: spacing.sm,
-      marginTop: HEADER_ROW_GAP,
-    },
-    titleGroup: {
-      flex: 1,
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      alignItems: 'center',
-      gap: spacing.sm,
-      minWidth: 0,
-    },
     title: {
+      marginTop: HEADER_ROW_GAP,
       flexShrink: 1,
     },
     roleLine: {
@@ -73,6 +60,7 @@ function createStyles(p: ColorPalette) {
     linksRow: {
       flexDirection: 'row',
       flexWrap: 'wrap',
+      alignItems: 'center',
       gap: spacing.sm,
       marginTop: spacing.xs,
     },
@@ -83,21 +71,21 @@ function createStyles(p: ColorPalette) {
     tagline: {
       marginTop: spacing.sm,
     },
-    traction: {
-      flex: 1,
-      color: p.muted,
-    },
     tractionRow: {
       flexDirection: 'row',
-      alignItems: 'flex-start',
-      gap: spacing.sm,
+      alignItems: 'center',
+      gap: spacing.xs,
       marginTop: spacing.xs,
+      flexWrap: 'wrap',
     },
-    awardIcon: {
-      width: 18,
-      height: 18,
+    traction: {
+      flexShrink: 1,
+      color: p.muted,
+    },
+    awardIconInline: {
+      width: 16,
+      height: 16,
       opacity: 0.88,
-      marginTop: 1,
     },
   });
 }
@@ -113,9 +101,11 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
 
   const tractionLine = project.traction || null;
   const roleLine = project.roles.filter(Boolean).join(' · ');
-
-  const showPeriodComma =
-    project.badge !== 'currently-building' && project.period.trim().length > 0;
+  const showLocation = project.location.trim().length > 0;
+  const showMetaSeparator =
+    showLocation &&
+    (project.badge === 'currently-building' || project.period.trim().length > 0);
+  const showAwardInTraction = tractionLine ? tractionHasAward(tractionLine) : false;
 
   return (
     <GlassSurface
@@ -126,14 +116,16 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
       <View style={styles.metaRow}>
         <View style={styles.metaGroup}>
           <ProjectPeriodMeta project={project} />
-          {showPeriodComma ? (
+          {showMetaSeparator ? (
             <Text variant="mono" style={styles.metaDot}>
-              ,
+              ·
             </Text>
           ) : null}
-          <Text variant="mono" style={styles.meta}>
-            {project.location}
-          </Text>
+          {showLocation ? (
+            <Text variant="mono" style={styles.meta}>
+              {project.location}
+            </Text>
+          ) : null}
         </View>
         <Button
           variant="icon"
@@ -153,20 +145,9 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
         </Text>
       ) : null}
 
-      <View style={styles.titleRow}>
-        <View style={styles.titleGroup}>
-          <Text variant="titleMd" style={styles.title} numberOfLines={3}>
-            {project.title}
-          </Text>
-          <Button
-            variant="secondary"
-            size="sm"
-            label="Share"
-            onPress={handleShare}
-            icon={<ShareIcon size={14} color={palette.icon.muted} />}
-          />
-        </View>
-      </View>
+      <Text variant="titleMd" style={styles.title} numberOfLines={3}>
+        {project.title}
+      </Text>
 
       <Text variant="subtitle" muted style={styles.tagline}>
         {project.tagline}
@@ -174,25 +155,32 @@ export function ProjectModalStickyHeader({ project, onClose }: Props) {
 
       {tractionLine ? (
         <View style={styles.tractionRow}>
-          <Image source={awardIcon} style={styles.awardIcon} resizeMode="contain" />
+          {showAwardInTraction ? (
+            <Image source={awardIcon} style={styles.awardIconInline} resizeMode="contain" />
+          ) : null}
           <Text variant="caption" style={styles.traction}>
             {tractionLine}
           </Text>
         </View>
       ) : null}
 
-      {project.links.length > 0 ? (
-        <View style={styles.linksRow}>
-          {project.links.map((link) => (
-            <ProjectLinkChip
-              key={link.url}
-              label={link.label}
-              url={link.url}
-              projectTitle={project.title}
-            />
-          ))}
-        </View>
-      ) : null}
+      <View style={styles.linksRow}>
+        {project.links.map((link) => (
+          <ProjectLinkChip
+            key={link.url}
+            label={link.label}
+            url={link.url}
+            projectTitle={project.title}
+          />
+        ))}
+        <Button
+          variant="secondary"
+          size="sm"
+          label="Share"
+          onPress={handleShare}
+          icon={<ShareIcon size={14} color={palette.icon.muted} />}
+        />
+      </View>
     </GlassSurface>
   );
 }

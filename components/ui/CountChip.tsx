@@ -5,6 +5,7 @@ import { useTheme } from '@/components/ThemeProvider';
 import { Text } from '@/components/ui/Text';
 import { radii } from '@/design-system/radii';
 import type { ColorPalette } from '@/design-system/colors';
+import { typeScale } from '@/design-system/typography';
 
 type Props = {
   count: number;
@@ -22,8 +23,8 @@ function createStyles(p: ColorPalette) {
       justifyContent: 'center',
     },
     chipText: {
-      fontSize: 10,
-      lineHeight: 12,
+      fontSize: typeScale.labelSmall,
+      lineHeight: typeScale.labelSmall + 1,
     },
   });
 }

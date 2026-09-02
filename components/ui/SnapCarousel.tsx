@@ -18,7 +18,7 @@ import Animated, {
 import { useTheme } from '@/components/ThemeProvider';
 import { Text } from '@/components/ui/Text';
 import { getMediaAspectRatio, slideHeightForWidth } from '@/lib/mediaAsset';
-import { spacing, type ColorPalette } from '@/design-system';
+import { spacing, TOUCH_TARGET_MIN, type ColorPalette, typeScale } from '@/design-system';
 
 export type CarouselSlideLayout = {
   width: number;
@@ -311,13 +311,13 @@ const createStyles = (p: ColorPalette) =>
     navBtn: {
       position: 'absolute',
       top: '50%',
-      marginTop: -18,
-      width: 36,
-      height: 36,
-      borderRadius: 18,
+      marginTop: -(TOUCH_TARGET_MIN - 12) / 2,
+      width: TOUCH_TARGET_MIN - 12,
+      height: TOUCH_TARGET_MIN - 12,
+      borderRadius: (TOUCH_TARGET_MIN - 12) / 2,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.45)',
+      backgroundColor: p.media.nav,
       zIndex: 2,
     },
     navPrev: {
@@ -327,28 +327,28 @@ const createStyles = (p: ColorPalette) =>
       right: spacing.sm,
     },
     navLabel: {
-      color: p.white,
-      fontSize: 24,
-      lineHeight: 26,
+      color: p.onOverlay,
+      fontSize: typeScale.headlineSmall,
+      lineHeight: typeScale.headlineSmall + 2,
       marginTop: -2,
     },
     dots: {
       flexDirection: 'row',
       justifyContent: 'center',
-      gap: 6,
+      gap: spacing.sm,
       paddingTop: spacing.xs,
     },
     dot: {
-      width: 6,
-      height: 6,
-      borderRadius: 3,
+      width: spacing.sm,
+      height: spacing.sm,
+      borderRadius: spacing.xs,
       backgroundColor: p.subtle,
       opacity: 0.45,
     },
     dotActive: {
       backgroundColor: p.foreground,
       opacity: 1,
-      width: 18,
+      width: spacing.md + spacing.xs,
     },
     caption: {
       color: p.muted,

@@ -47,9 +47,16 @@ export type ColorPalette = {
     background: string;
     foreground: string;
   };
-  /** Fixed light tones for dark overlays (lightbox, etc.). */
+  /** Fixed light tones for dark overlays (lightbox, carousel nav, etc.). */
   onOverlay: string;
   onOverlayMuted: string;
+  /** Semi-transparent scrims for media viewers. */
+  media: {
+    scrim: string;
+    toolbar: string;
+    control: string;
+    nav: string;
+  };
 };
 
 /** Light mode — warm off-white background, soft charcoal text. */
@@ -99,6 +106,12 @@ export const lightPalette: ColorPalette = {
   },
   onOverlay: '#F7F7F5',
   onOverlayMuted: 'rgba(247, 247, 245, 0.72)',
+  media: {
+    scrim: 'rgba(0, 0, 0, 0.88)',
+    toolbar: 'rgba(20, 20, 20, 0.55)',
+    control: 'rgba(255, 255, 255, 0.12)',
+    nav: 'rgba(0, 0, 0, 0.45)',
+  },
 };
 
 /** Dark mode — charcoal background, soft gray text. */
@@ -148,6 +161,12 @@ export const darkPalette: ColorPalette = {
   },
   onOverlay: '#E8E8E8',
   onOverlayMuted: 'rgba(232, 232, 232, 0.72)',
+  media: {
+    scrim: 'rgba(0, 0, 0, 0.88)',
+    toolbar: 'rgba(20, 20, 20, 0.55)',
+    control: 'rgba(255, 255, 255, 0.12)',
+    nav: 'rgba(0, 0, 0, 0.45)',
+  },
 };
 
 export const palettes = {
