@@ -18,6 +18,7 @@ import Animated, {
 
 import { ProjectPeriodMeta } from '@/components/portfolio/ProjectPeriodMeta';
 import { useTheme } from '@/components/ThemeProvider';
+import { GlassSurface } from '@/components/ui/GlassSurface';
 import { OpenInNewTabIcon } from '@/components/ui/icons/OpenInNewTabIcon';
 import { Text } from '@/components/ui/Text';
 import { getPaperGradient, paperGradientCss, PLACEHOLDER_GRADIENT } from '@/data/paperGradients';
@@ -202,20 +203,15 @@ export function ProjectGridTile({
         )}
       </View>
 
-      <View style={[styles.textBlock, captionOnTop ? styles.textBlockTop : styles.textBlockBottom]}>
-        <View
-          style={[
-            styles.textGlass,
-            styles.textGlassNonInteractive,
-            captionOnTop ? styles.textGlassTop : styles.textGlassBottom,
-          ]}
-        />
-        <View
-          style={[
-            styles.textInner,
-            captionOnTop ? styles.textInnerTop : styles.textInnerBottom,
-          ]}
-        >
+      <GlassSurface
+        intensity="medium"
+        borderless
+        rounded={radii.tile}
+        roundedCorners={captionOnTop ? 'bottom' : 'top'}
+        pointerEvents="box-none"
+        style={[styles.textBlock, captionOnTop ? styles.textBlockTop : styles.textBlockBottom]}
+      >
+        <View style={styles.textInner}>
           {item.badge === 'currently-building' ? (
             <ProjectPeriodMeta project={item} />
           ) : (
@@ -251,7 +247,7 @@ export function ProjectGridTile({
             </Pressable>
           ) : null}
         </View>
-      </View>
+      </GlassSurface>
     </View>
   );
 
@@ -327,40 +323,10 @@ function createTileStyles(p: ColorPalette) {
     textBlockBottom: {
       bottom: 0,
     },
-    textGlassNonInteractive: {
-      pointerEvents: 'none',
-    },
-    textGlass: {
-      ...StyleSheet.absoluteFill,
-      backgroundColor: p.glass.frost,
-      ...(Platform.OS === 'web'
-        ? ({
-            backgroundColor: p.glass.tileCaption,
-          } as object)
-        : {}),
-    },
-    textGlassTop: {
-      borderBottomLeftRadius: radii.tile,
-      borderBottomRightRadius: radii.tile,
-    },
-    textGlassBottom: {
-      borderTopLeftRadius: radii.tile,
-      borderTopRightRadius: radii.tile,
-    },
     textInner: {
       padding: spacing.md,
       gap: 3,
-      position: 'relative',
-      zIndex: 1,
       pointerEvents: 'box-none',
-    },
-    textInnerTop: {
-      borderBottomLeftRadius: radii.tile,
-      borderBottomRightRadius: radii.tile,
-    },
-    textInnerBottom: {
-      borderTopLeftRadius: radii.tile,
-      borderTopRightRadius: radii.tile,
     },
     linkPill: {
       alignSelf: 'flex-start',

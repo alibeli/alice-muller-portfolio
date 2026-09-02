@@ -29,8 +29,6 @@ export type ColorPalette = {
     clear: string;
     chip: string;
     frost: string;
-    /** Opaque caption band on grid tile thumbnails (web). */
-    tileCaption: string;
   };
   shadow: {
     tile: string;
@@ -71,7 +69,6 @@ export const lightPalette: ColorPalette = {
     clear: 'rgba(255, 255, 255, 0.14)',
     chip: 'rgba(255, 255, 255, 0.42)',
     frost: 'rgba(255, 255, 255, 0.68)',
-    tileCaption: 'rgba(255, 255, 255, 0.9)',
   },
   shadow: {
     tile: '0 4px 24px rgba(0,0,0,0.06)',
@@ -112,7 +109,6 @@ export const darkPalette: ColorPalette = {
     clear: 'rgba(255, 255, 255, 0.05)',
     chip: 'rgba(255, 255, 255, 0.08)',
     frost: 'rgba(30, 30, 30, 0.82)',
-    tileCaption: 'rgba(30, 30, 30, 0.88)',
   },
   shadow: {
     tile: '0 4px 24px rgba(0,0,0,0.32)',
@@ -289,6 +285,12 @@ export const radii = {
 export const layout = {
   maxWidth: 720,
   contentPadding: gutter.content,
+} as const;
+
+/** Shared backdrop blur — ProfileDock, tile captions, and other glass surfaces. */
+export const glassEffect = {
+  blurPx: 20,
+  saturate: 180,
 } as const;
 
 /** Motion presets for hover / carousel interactions. */

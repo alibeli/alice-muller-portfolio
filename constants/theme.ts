@@ -10,6 +10,7 @@ export {
   getTileText,
   GRID_UNIT,
   gutter,
+  glassEffect,
   htmlThemeCss,
   layout,
   lightPalette,

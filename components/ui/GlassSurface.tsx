@@ -3,11 +3,36 @@ import { Platform, StyleSheet, View, ViewProps } from 'react-native';
 
 import { useTheme } from '@/components/ThemeProvider';
 import type { ColorPalette } from '@/constants/tokens';
+import { glassEffect } from '@/constants/tokens';
 
 type Props = ViewProps & {
   rounded?: number;
+  /** Which corners receive `rounded` — default all. */
+  roundedCorners?: 'all' | 'top' | 'bottom';
+  /** Hide the hairline border (e.g. tile caption flush to edge). */
+  borderless?: boolean;
   intensity?: 'light' | 'medium' | 'clear' | 'panel' | 'transparent';
 };
+
+function cornerRadius(rounded: number, corners: NonNullable<Props['roundedCorners']>) {
+  if (corners === 'all' || rounded === 0) {
+    return { borderRadius: rounded };
+  }
+  if (corners === 'top') {
+    return {
+      borderTopLeftRadius: rounded,
+      borderTopRightRadius: rounded,
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
+    };
+  }
+  return {
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: rounded,
+    borderBottomRightRadius: rounded,
+  };
+}
 
 function createStyles(p: ColorPalette) {
   return StyleSheet.create({
@@ -15,6 +40,9 @@ function createStyles(p: ColorPalette) {
       overflow: 'hidden',
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: p.glass.border,
+    },
+    borderless: {
+      borderWidth: 0,
     },
     light: {
       backgroundColor: p.glass.light,
@@ -33,8 +61,8 @@ function createStyles(p: ColorPalette) {
       borderColor: p.tileBorder,
     },
     webBlur: {
-      backdropFilter: 'blur(20px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      backdropFilter: `blur(${glassEffect.blurPx}px) saturate(${glassEffect.saturate}%)`,
+      WebkitBackdropFilter: `blur(${glassEffect.blurPx}px) saturate(${glassEffect.saturate}%)`,
     } as object,
   });
 }
@@ -42,6 +70,8 @@ function createStyles(p: ColorPalette) {
 export function GlassSurface({
   style,
   rounded = 999,
+  roundedCorners = 'all',
+  borderless = false,
   intensity = 'medium',
   children,
   ...props
@@ -64,8 +94,9 @@ export function GlassSurface({
     <View
       style={[
         styles.base,
+        borderless && styles.borderless,
         bgStyle,
-        { borderRadius: rounded },
+        cornerRadius(rounded, roundedCorners),
         intensity !== 'transparent' && Platform.OS === 'web' && styles.webBlur,
         style,
       ]}

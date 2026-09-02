@@ -53,61 +53,6 @@ function BackgroundLayer({
   return null;
 }
 
-/** Solid frosted band sized to its parent — use behind tile caption text. */
-export function TileTextGlass({
-  intensity = 72,
-  roundedTop = 0,
-  roundedBottom = 0,
-}: {
-  intensity?: number;
-  roundedTop?: number;
-  roundedBottom?: number;
-}) {
-  const { palette } = useTheme();
-  const blurPx = Math.round(intensity * 0.55);
-  const radiusStyle =
-    roundedTop > 0 || roundedBottom > 0
-      ? {
-          ...(roundedTop > 0
-            ? {
-                borderTopLeftRadius: roundedTop,
-                borderTopRightRadius: roundedTop,
-              }
-            : {}),
-          ...(roundedBottom > 0
-            ? {
-                borderBottomLeftRadius: roundedBottom,
-                borderBottomRightRadius: roundedBottom,
-              }
-            : {}),
-          overflow: 'hidden' as const,
-        }
-      : {};
-
-  if (Platform.OS === 'web') {
-    return (
-      <View
-        style={[
-          StyleSheet.absoluteFill,
-          radiusStyle,
-          {
-            backdropFilter: `blur(${blurPx}px) saturate(160%)`,
-            WebkitBackdropFilter: `blur(${blurPx}px) saturate(160%)`,
-            backgroundColor: palette.glass.frost,
-          } as object,
-        ]}
-      />
-    );
-  }
-
-  return (
-    <View style={[StyleSheet.absoluteFill, radiusStyle]}>
-      <BlurView intensity={intensity} tint="light" style={StyleSheet.absoluteFill} />
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: palette.glass.frost }]} />
-    </View>
-  );
-}
-
 export function HeroGlassMask({
   heroSource,
   gradient,
